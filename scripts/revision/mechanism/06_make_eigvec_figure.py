@@ -6,8 +6,9 @@ right medial, right lateral) of
   A  v1, group mean (sequential)
   B  consensus axis a of the v2-v3 plane (05_second_subspace; diverging, + = frontal side)
   C  consensus axis b of the v2-v3 plane (diverging)
-Arrows in B and C run from the loading-weighted centroid of the negative regions to that of the
-positive regions, per hemisphere, projected into each view: the direction the pattern opposes.
+B and C outline the top 20% of regions by group-mean v1 (the regions panel A highlights): both
+second-mode patterns split that same set. Red and blue regions move in opposite directions; the
+overall sign of an eigenvector is arbitrary.
 Row D: eigenvalue ladder l1..l6 (every subject + median); which of v2..v4+ the axis a is in each
 subject (all scales); cos^2(a, v2) against l2 - l3 (is v2/v3 swapping driven by small spacing?).
 
@@ -29,7 +30,7 @@ import matplotlib.pyplot as plt
 import nibabel as nib
 import numpy as np
 import pandas as pd
-from matplotlib.collections import PolyCollection
+from matplotlib.collections import LineCollection, PolyCollection
 from matplotlib.colors import LinearSegmentedColormap, Normalize, TwoSlopeNorm
 from nilearn import datasets
 from scipy import stats
@@ -73,7 +74,7 @@ def surface(atlas_dir: Path, scale: int, labels: list[str]) -> dict:
     return geo
 
 
-def draw_view(ax, g: dict, values: np.ndarray, cmap, norm, view_x: int, hsign: int) -> None:
+def draw_view(ax, g: dict, values: np.ndarray, cmap, norm, view_x: int, hsign: int, outline: np.ndarray | None = None) -> None:
     c, f = g["coords"], g["faces"]
     tri = c[f]
     normal = np.cross(tri[:, 1] - tri[:, 0], tri[:, 2] - tri[:, 0])
@@ -89,33 +90,32 @@ def draw_view(ax, g: dict, values: np.ndarray, cmap, norm, view_x: int, hsign: i
     rgb[labelled] = cmap(norm(fv))[:, :3]
     poly = np.stack([hsign * tri[keep][:, :, 1], tri[keep][:, :, 2]], axis=-1)
     ax.add_collection(PolyCollection(poly, facecolors=np.clip(rgb * shade, 0, 1), edgecolors="none", rasterized=True))
+    if outline is not None:
+        # boundary edges between faces inside and outside the outlined regions, on faces facing the viewer
+        vis = keep[facing[keep] > 0.05]
+        nodes = g["v2n"][f[vis]]
+        inside = ((nodes >= 0) & outline[np.clip(nodes, 0, None)]).sum(axis=1) >= 2
+        edges = np.sort(np.concatenate([f[vis][:, [0, 1]], f[vis][:, [1, 2]], f[vis][:, [2, 0]]]), axis=1)
+        flag = np.tile(inside, 3)
+        uniq, inv = np.unique(edges, axis=0, return_inverse=True)
+        lo = np.ones(len(uniq), bool)
+        hi = np.zeros(len(uniq), bool)
+        np.logical_and.at(lo, inv.ravel(), flag)
+        np.logical_or.at(hi, inv.ravel(), flag)
+        border = uniq[hi & ~lo]
+        seg = np.stack([hsign * c[border][:, :, 1], c[border][:, :, 2]], axis=-1)
+        ax.add_collection(LineCollection(seg, colors=INK, linewidths=0.7, zorder=3))
     ax.autoscale_view()
     ax.set_aspect("equal")
     ax.axis("off")
 
 
-def direction_arrow(ax, axes_tab: pd.DataFrame, col: str, hemi: str, hsign: int) -> None:
-    h = axes_tab[axes_tab["hemi"] == hemi]
-    w = h[col].to_numpy()
-    pts = h[["y", "z"]].to_numpy()
-    if (w > 0).sum() == 0 or (w < 0).sum() == 0:
-        return
-    pos = (pts[w > 0] * w[w > 0, None]).sum(0) / w[w > 0].sum()
-    neg = (pts[w < 0] * -w[w < 0, None]).sum(0) / -w[w < 0].sum()
-    p0, p1 = (hsign * neg[0], neg[1]), (hsign * pos[0], pos[1])
-    ax.annotate("", xy=p1, xytext=p0, arrowprops=dict(arrowstyle="-|>,head_width=0.35,head_length=0.6", lw=1.6, color=INK,
-                                                       shrinkA=0, shrinkB=0), zorder=5)
-    ax.plot(*p0, "o", ms=4, mfc="white", mec=INK, mew=1.2, zorder=6)
-
-
-def brain_row(fig, gs_row, geo, axes_tab, col, cmap, norm, title, cbar_ends, arrows: bool) -> None:
+def brain_row(fig, gs_row, geo, axes_tab, col, cmap, norm, title, cbar_ends, outline: np.ndarray | None = None) -> None:
     sub = gs_row.subgridspec(1, 5, width_ratios=[1, 1, 1, 1, 0.08], wspace=0.02)
     vals = axes_tab.sort_values("node_index")[col].to_numpy()
     for j, (hemi, view, vx, hs) in enumerate(VIEWS):
         ax = fig.add_subplot(sub[0, j])
-        draw_view(ax, geo[hemi], vals, cmap, norm, vx, hs)
-        if arrows and view == "medial":
-            direction_arrow(ax, axes_tab, col, hemi, hs)
+        draw_view(ax, geo[hemi], vals, cmap, norm, vx, hs, outline)
         ax.set_title(f"{'Left' if hemi == 'L' else 'Right'} {view}", fontsize=7, color=INK2, pad=1)
         if j == 0:
             ax.text(-0.04, 0.5, title, transform=ax.transAxes, ha="right", va="center", fontsize=8, color=INK, rotation=90)
@@ -144,11 +144,13 @@ def make_figure(scale: int, axes_all: pd.DataFrame, subj_all: pd.DataFrame, atla
     fig = plt.figure(figsize=(7.2, 6.4), facecolor="white")
     gs = fig.add_gridspec(4, 1, height_ratios=[1, 1, 1, 1.35], hspace=0.22, top=0.95)
     vmax1 = float(axes_tab["v1_mean"].max())
-    brain_row(fig, gs[0], geo, axes_tab, "v1_mean", SEQ, Normalize(0, vmax1), "A  v1 (slow mode)", "loading", arrows=False)
-    for row, col, label in ((1, "a", "B  2nd mode, axis a"), (2, "b", "C  2nd mode, axis b")):
+    brain_row(fig, gs[0], geo, axes_tab, "v1_mean", SEQ, Normalize(0, vmax1), "A  v1 (slow mode)", "loading")
+    v1 = axes_tab.sort_values("node_index")["v1_mean"].to_numpy()
+    top = v1 >= np.sort(v1)[::-1][int(np.ceil(0.2 * len(v1))) - 1]
+    for row, col, label in ((1, "a", "B  Split 1: front vs back"), (2, "b", "C  Split 2 (varies)")):
         m = float(np.abs(axes_tab[col]).max())
         ends = "− posterior · frontal +" if col == "a" else "loading (sign arbitrary)"
-        brain_row(fig, gs[row], geo, axes_tab, col, DIV, TwoSlopeNorm(vmin=-m, vcenter=0, vmax=m), label, ends, arrows=True)
+        brain_row(fig, gs[row], geo, axes_tab, col, DIV, TwoSlopeNorm(vmin=-m, vcenter=0, vmax=m), label, ends, outline=top)
 
     low = gs[3].subgridspec(1, 3, wspace=0.45, width_ratios=[1, 1.05, 1])
     # D: eigenvalue ladder
@@ -186,7 +188,7 @@ def make_figure(scale: int, axes_all: pd.DataFrame, subj_all: pd.DataFrame, atla
     ax.set_xticks([0, 35, 70])
     ax.set_xlabel("Subjects", fontsize=7, color=INK2)
     ax.invert_yaxis()
-    ax.set_title("E  Which eigenvector is axis a?", fontsize=7.5, color=INK, loc="left")
+    ax.set_title("E  Which eigenvector is split 1?", fontsize=7.5, color=INK, loc="left")
     style(ax)
     # F: does small spacing drive the swap?
     ax = fig.add_subplot(low[0, 2])
@@ -194,11 +196,13 @@ def make_figure(scale: int, axes_all: pd.DataFrame, subj_all: pd.DataFrame, atla
     r = stats.spearmanr(subj["d23"], subj["cos2_a_v2"])
     ax.text(0.0, 1.0, f"Spearman ρ = {r.statistic:+.2f}, p = {r.pvalue:.2f}", transform=ax.transAxes, ha="left", va="bottom", fontsize=6.5, color=INK2)
     ax.set_xlabel("ℓ2 − ℓ3", fontsize=7, color=INK2)
-    ax.set_ylabel("cos²(axis a, v2)", fontsize=7, color=INK2)
+    ax.set_ylabel("cos²(split 1, v2)", fontsize=7, color=INK2)
     ax.set_ylim(-0.02, 1.02)
     ax.set_title("F  Swaps don't track spacing", fontsize=7.5, color=INK, loc="left", pad=12)
     style(ax)
 
+    fig.text(0.02, 0.035, "Outlined in B and C: the top 20% of regions by v1 (panel A). Red and blue regions move in opposite "
+             "directions; which side is red is arbitrary.", fontsize=6.5, color=INK2, ha="left", va="top")
     fig.suptitle(f"Leading eigenvectors of the structural connectome ({scale} regions, n = {len(subj)})", fontsize=9, color=INK, x=0.02, ha="left", y=0.995)
     for ext in ("png", "pdf"):
         fig.savefig(out / f"fig_eigvecs_scale-{scale}.{ext}", dpi=300, bbox_inches="tight", facecolor="white")
