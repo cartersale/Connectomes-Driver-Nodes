@@ -28,10 +28,7 @@ sys.path.insert(0, str(REPO_ROOT / "src"))
 import hoc  # noqa: E402,F401 - sets BLAS thread defaults inherited by every step
 from hoc.runs import read_manifest, resolve_run_dir  # noqa: E402
 
-FIVE_PCT = "config/landscape_fraction_5pct.toml"
 REVISION = "scripts/revision"
-REPSTAB = "scripts/representative_stability"
-ALL_SCHEMES = ["--schemes", "ripser", "geodesic", "gudhi", "gudhi_geodesic"]
 
 
 @dataclass(frozen=True)
@@ -51,13 +48,6 @@ def revision(folder: str, *stems: str) -> list[Step]:
     return [Step(folder, f"{REVISION}/{folder}/{stem}.py", f"revision/{folder}/{stem}") for stem in stems]
 
 
-def repstab(scale: int, subdir: str = "representative_stability", extra: list[str] | None = None) -> Step:
-    stage = "representative_stability/run_representative_stability"
-    if subdir != "representative_stability":
-        stage += f":{subdir}"
-    args = ["--scale", str(scale), *(extra or []), "--output-subdir", subdir]
-    return Step("representative_stability", f"{REPSTAB}/run_representative_stability.py", f"{stage}:scale-{scale}", args)
-
 
 # Order matters: each step's upstream stages come before it (the scripts check this
 # themselves with require_stage and refuse to run otherwise).
@@ -66,46 +56,20 @@ STEPS: list[Step] = [
     Step("pipeline", "scripts/00_prepare_data.py", "00_prepare_data"),
     Step("pipeline", "scripts/01_run_primary_analysis.py", "01_primary"),
     Step("pipeline", "scripts/02_run_robustness.py", "02_robustness", ["--skip-perturbations"]),
-    Step("pipeline", "scripts/03_run_hub_lesion.py", "03_hub_lesion"),
-    Step("pipeline", "scripts/00_prepare_data.py", "00_prepare_data", ["--config", FIVE_PCT], "fraction_5pct"),
-    Step(
-        "pipeline",
-        "scripts/02_run_robustness.py",
-        "02_robustness",
-        ["--config", FIVE_PCT, "--skip-perturbations", "--include-landscape-summary"],
-        "fraction_5pct",
-    ),
-    # Representative stability (Supplement S4; settings from the legacy run_settings files)
-    repstab(114, extra=ALL_SCHEMES),
-    repstab(114, "representative_stability_below_death", ["--schemes", "ripser", "geodesic", "--threshold-mode", "below_death"]),
-    repstab(68, "revision/stability/existing_script_scale-68", ALL_SCHEMES),
-    repstab(219, "revision/stability/existing_script_scale-219", ALL_SCHEMES),
-    Step(
-        "representative_stability",
-        f"{REPSTAB}/analyze_selection_anatomy.py",
-        "representative_stability/analyze_selection_anatomy:scale-114",
-        ["--scale", "114", "--k-values", "5", "15"],
-    ),
-    # Revision analyses
-    # 03_make_figure reads t4c_perron_piecewise.csv from 05_perron_extras.
-    *revision("spectra", "01_compute_spectra", "02_analyze", "04_perron_c_check", "05_perron_extras",
-              "03_make_figure", "06_make_spectra_figure"),
+    *revision("spectra", "01_compute_spectra", "02_analyze"),
     *revision("regime", "00_validate", "01_csweep_perron", "02_nctpy_equivalence", "03_horizon_eps_largek",
-              "04_energy_floor", "05_summarize_csweep", "06_perron_diagnostic", "08_perron_mode_sweep",
-              "07_report_tables", "09_make_csweep_figure"),
-    *revision("modal", "01_compute_modal", "02_analyze_modal", "03_figure"),
+              "04_energy_floor", "05_summarize_csweep", "06_perron_diagnostic", "07_report_tables"),
+    *revision("modal", "01_compute_modal", "02_analyze_modal"),
     *revision("nulls", "00_validate", "01_run_nulls", "02_analyze", "03_gap_mediators", "04_rayleigh_bound"),
-    *revision("q1", "01_compute_q1", "02_tables", "03_decay_collapse", "04_redundancy_geodesic",
-              "05_gramian_skew_gap", "06_er_avgctrl"),
+    *revision("q1", "01_compute_q1", "02_tables", "03_decay_collapse", "04_redundancy_geodesic", "06_er_avgctrl"),
     *revision("mechanism", "01_hub_loading", "02_canonical_graphs", "03_coverage_distance", "04_leading_eigenvectors",
-              "05_second_subspace", "06_make_eigvec_figure", "07_core_cut", "08_gramian_alignment"),
-    *revision("targets", "00_reproduce", "01_build_targets", "02_target_energies", "03_target_stats",
-              "04_sensitivity", "05_spin_tests", "06_network_enrichment", "07_proximity_controls",
-              "08_make_figure", "09_report_tables"),
+              "05_second_subspace", "07_core_cut", "08_gramian_alignment"),
+    *revision("targets", "01_build_targets", "02_target_energies", "03_target_stats",
+              "04_sensitivity", "05_spin_tests", "06_network_enrichment", "07_proximity_controls", "09_report_tables"),
     *revision("lesion", "01_run_reciprocal_lesion", "02_analyze_reciprocal_lesion"),
     *revision("stability", "run_representatives_all_scales", "run_perturbation_stability",
               "summarize_representatives", "summarize_perturbation"),
-    *revision("figures", "fig1", "fig2", "fig2_combine", "fig3", "fig4", "fig5"),  # fig2.py -> figS_energy; fig2_combine.py -> Figure 2  # fig1_panels.py / fig1_layout.py are the older Fig 1
+    *revision("figures", "fig1", "fig2_combine", "fig3", "fig4", "fig5"),
 ]
 
 

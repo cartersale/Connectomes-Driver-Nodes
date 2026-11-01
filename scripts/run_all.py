@@ -60,7 +60,6 @@ def main() -> None:
     if args.skip_perturbations:
         robustness_args.append("--skip-perturbations")
     run_script("02_run_robustness.py", robustness_args)
-    run_script("03_run_hub_lesion.py", common_args)
 
 
 if __name__ == "__main__":

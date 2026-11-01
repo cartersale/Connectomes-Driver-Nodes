@@ -63,22 +63,3 @@ association_regions = [
   "isthmuscingulate", "insula",
 ]
 occipital_regions = ["cuneus", "lateraloccipital", "lingual", "pericalcarine"]
-[dong]
-aphasia_dir = "data/aphasia"
-healthy_dir = "data/healthy"
-results_subdir = "dong"
-parcellations = [100, 400]
-primary_topology_transform = "A_sym"
-topology_transforms = ["A_sym", "A_pos", "A_abs"]
-top_k_values = [1, 2, 3, 4, 5]
-random_sets = 100
-ridge = 1.0e-3
-stability_margin = 1.0e-2
-tracking_epsilon = 1.0e-5
-hub_fractions = [0.05, 0.10]
-lesion_attenuation = 0.25
-qc_min_timepoints = 50
-qc_max_missing_roi_fraction = 0.20
-qc_max_residual_covariance_condition = 1.0e8
-healthy_target_group = "older"
-aphasia_groups = ["Anomic", "Broca", "Conduction", "Global", "None"]
