@@ -96,16 +96,16 @@ STEPS: list[Step] = [
     *revision("modal", "01_compute_modal", "02_analyze_modal", "03_figure"),
     *revision("nulls", "00_validate", "01_run_nulls", "02_analyze", "03_gap_mediators", "04_rayleigh_bound"),
     *revision("q1", "01_compute_q1", "02_tables", "03_decay_collapse", "04_redundancy_geodesic",
-              "05_gramian_skew_gap"),
+              "05_gramian_skew_gap", "06_er_avgctrl"),
     *revision("mechanism", "01_hub_loading", "02_canonical_graphs", "03_coverage_distance", "04_leading_eigenvectors",
-              "05_second_subspace", "06_make_eigvec_figure"),
+              "05_second_subspace", "06_make_eigvec_figure", "07_core_cut", "08_gramian_alignment"),
     *revision("targets", "00_reproduce", "01_build_targets", "02_target_energies", "03_target_stats",
               "04_sensitivity", "05_spin_tests", "06_network_enrichment", "07_proximity_controls",
               "08_make_figure", "09_report_tables"),
     *revision("lesion", "01_run_reciprocal_lesion", "02_analyze_reciprocal_lesion"),
     *revision("stability", "run_representatives_all_scales", "run_perturbation_stability",
               "summarize_representatives", "summarize_perturbation"),
-    *revision("figures", "fig1_panels", "fig1_layout"),
+    *revision("figures", "fig1", "fig2", "fig2_combine", "fig3", "fig4", "fig5"),  # fig2.py -> figS_energy; fig2_combine.py -> Figure 2  # fig1_panels.py / fig1_layout.py are the older Fig 1
 ]
 
 
