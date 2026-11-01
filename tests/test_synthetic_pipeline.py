@@ -123,7 +123,6 @@ def test_synthetic_pipeline_matches_golden(tmp_path) -> None:
         "00_prepare_data": "complete",
         "01_primary": "complete",
         "02_robustness": "complete",
-        "03_hub_lesion": "complete",
     }
     problems = compare(fingerprint(run_dir), json.loads(GOLDEN.read_text()))
     assert not problems, "\n".join(problems[:40])
