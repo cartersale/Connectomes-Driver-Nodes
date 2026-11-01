@@ -32,7 +32,11 @@ dependencies = [
 # Second-library arm of scripts/representative_stability/
 gudhi = ["gudhi==3.13.0"]
 # Everything scripts/revision/ needs (network nulls use netneurotools)
-revision = ["gudhi==3.13.0", "netneurotools==0.3.0"]
+revision = [
+    "gudhi==3.13.0",
+    "netneurotools==0.3.0",
+    "tabulate==0.10.0",
+]
 # Manim scenes under animations/ and scripts/09_reachable_state_cloud_scene.py
 animation = ["manim"]
 dev = ["pytest>=8", "ruff>=0.6"]
