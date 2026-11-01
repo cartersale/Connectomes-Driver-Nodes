@@ -1,40 +1,33 @@
-"""Paper-number regression test (needs a finished run; not run in CI).
+"""The paper numbers and tables of a finished run match the release reference (needs the real data).
 
-    HOC_RUN=canonical-2026-10 uv run pytest -m data tests/test_paper_numbers.py
+    uv run pytest -m data tests/test_paper_numbers.py            # checks runs/paper
+    HOC_RUN=<name> uv run pytest -m data tests/test_paper_numbers.py
 
-Compares <run>/paper/key_results.json (written by scripts/paper/make_numbers.py)
-with tests/golden/key_results.json: every number must print the same and agree
-to rtol 1e-9. Regenerate the golden file only together with an explained
-compare_runs diff (see CONTRIBUTING.md).
+Same check as the pipeline step paper/validate (scripts/paper/validate.py): every number in
+<run>/paper/key_results.json against reference/paper_numbers.json (rtol 1e-9, identical text) and every
+table against reference/tables.sha256.
 """
 
 from __future__ import annotations
 
-import json
-import math
-from pathlib import Path
+import os
+import sys
 
 import pytest
 
+from hoc.paths import REPO_ROOT
 from hoc.runs import resolve_run_dir
 
-GOLDEN = Path(__file__).parent / "golden" / "key_results.json"
+sys.path.insert(0, str(REPO_ROOT / "scripts" / "paper"))
+import validate  # noqa: E402
 
 
 @pytest.mark.data
-def test_paper_numbers_match_golden() -> None:
-    run_dir = resolve_run_dir(None)
-    path = run_dir / "paper" / "key_results.json"
-    if not path.exists():
-        pytest.skip(f"{path} not found; run scripts/reproduce.py and scripts/paper/make_numbers.py first")
-    actual, expected = json.loads(path.read_text()), json.loads(GOLDEN.read_text())
-    assert set(actual) == set(expected), f"macros differ: +{sorted(set(actual) - set(expected))} -{sorted(set(expected) - set(actual))}"
-    problems = []
-    for name, want in expected.items():
-        got = actual[name]
-        if got["text"] != want["text"]:
-            problems.append(f"\\{name}: prints {got['text']!r}, golden {want['text']!r}")
-        a, b = got["value"], want["value"]
-        if not (a is None and b is None) and not (math.isnan(a) and math.isnan(b)) and not math.isclose(a, b, rel_tol=1e-9, abs_tol=1e-12):
-            problems.append(f"\\{name}: {a!r} vs golden {b!r}")
-    assert not problems, "\n".join(problems[:50])
+def test_paper_numbers_match_reference() -> None:
+    run_dir = resolve_run_dir(os.environ.get("HOC_RUN", "paper"))
+    if not (run_dir / "paper" / "key_results.json").exists():
+        pytest.skip(f"{run_dir}/paper/key_results.json not found; run scripts/reproduce.py first")
+    numbers, tables = validate.load_run(run_dir)
+    lines = validate.compare_reference(numbers, tables)
+    failures = [line for line in lines if "**FAIL**" in line]
+    assert not failures, "\n".join(failures[:50])

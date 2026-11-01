@@ -1,4 +1,4 @@
-"""Anatomical masks: exact base-region matching (reviewer 2, point 6)."""
+"""Anatomical masks: exact base-region matching."""
 
 from __future__ import annotations
 
