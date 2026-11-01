@@ -1,0 +1,6 @@
+scale,selection_strategy,target_name,target_label,target_family,target_axis_class,axis_position,metric,n_subjects,median,ci_low,ci_high,wilcoxon_statistic,p_value,p_value_holm,reject_holm
+68,static,association_module,Association module,module,Intermediate module,3,cycle_minus_degree,70,3338.4311111358647,2141.422651184251,4407.510549360053,365.0,2.8170891069423224e-07,2.8170891069423222e-06,True
+68,static,association_vs_occipital,Association vs occipital,module,Intermediate contrast,3,cycle_minus_degree,70,1353.195916767104,738.9645371690312,2536.161117455162,683.0,0.0010592552437449,0.0074147867062147,True
+68,static,bipolar_gradient,Bipolar gradient,distributed,Distributed,4,cycle_minus_degree,70,-1250.8278292808918,-3480.3196355356613,2745.6292417946033,1212.0,0.8583369410859354,1.0,False
+68,static,landmark_lpfc,Lateral prefrontal cortex,landmark,Concentrated landmark,1,cycle_minus_degree,70,3757.845198438903,2091.5130030605724,7634.576028201976,759.0,0.0046616385989821,0.0186465543959287,True
+68,static,landmark_m1,M1 / precentral,landmark,Concentrated landmark,1,cycle_minus_degree,70,1240.900033844036,-6576.706139462583,8213.098590820086,1116.0,0.4591173126446132,1.0,False

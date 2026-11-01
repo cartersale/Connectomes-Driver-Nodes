@@ -1,0 +1,21 @@
+scale,target_name,target_label,target_family,median_spectral_spread,median_entropy_spread
+68,uniform_cortical,Uniform cortical,distributed,10.963047125183182,20.237776392450037
+68,principal_gradient,Principal gradient,distributed,15.651350902257985,24.90457823230694
+68,bipolar_gradient,Bipolar gradient,distributed,17.921853658340098,27.286395260337635
+114,uniform_cortical,Uniform cortical,distributed,14.975926823807507,29.590179187554902
+114,principal_gradient,Principal gradient,distributed,23.563409250947693,39.942802132554974
+114,bipolar_gradient,Bipolar gradient,distributed,24.33324915259633,40.8778738642295
+219,uniform_cortical,Uniform cortical,distributed,24.962933184737487,56.539729975192685
+219,bipolar_gradient,Bipolar gradient,distributed,43.50526892856497,79.41009010717293
+219,principal_gradient,Principal gradient,distributed,46.42245942545105,82.5981623835696
+68,landmark_pcc_precuneus,Posterior cingulate / precuneus,landmark,9.206981766577593,17.18187978261588
+68,landmark_m1,M1 / precentral,landmark,13.79799674107412,22.16092153933203
+68,landmark_lpfc,Lateral prefrontal cortex,landmark,16.454621024992868,25.84894169092012
+68,landmark_v1,V1 / pericalcarine,landmark,17.861396585965906,26.37020291090909
+114,landmark_m1,M1 / precentral,landmark,20.586603158310417,35.5960448921937
+114,landmark_v1,V1 / pericalcarine,landmark,25.92151588357732,40.05468784701898
+114,landmark_lpfc,Lateral prefrontal cortex,landmark,26.30295949243922,42.276363648019824
+114,landmark_pcc_precuneus,Posterior cingulate / precuneus,landmark,30.356872070897232,47.32092192115767
+219,landmark_lpfc,Lateral prefrontal cortex,landmark,38.21054102148062,67.30085282354693
+219,landmark_m1,M1 / precentral,landmark,39.71178060469489,72.93563744244041
+219,landmark_pcc_precuneus,Posterior cingulate / precuneus,landmark,52.730021327652935,88.20587944493073

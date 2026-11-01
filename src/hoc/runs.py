@@ -9,12 +9,10 @@ The name comes from ``--run``, then ``$HOC_RUN``, then ``"main"``. A
 ``--subject-limit N`` run always gets the suffix ``__nN``, so a smoke run can
 never write into a full run's directory.
 
-The name ``results`` points at the legacy pre-cleanup tree in ``results/``
-(see ``baseline/PROVENANCE.md``). It can be read but never written.
-
 Each run directory holds ``manifest.json`` with the config hash, subject set,
-input checksums and, per stage, the git commit, package versions, arguments,
-timing and output checksums. A stage refuses to run when the directory was made
+input checksums and, per stage, the script checksum, random seed, arguments,
+git state and package versions of every start or resume, timing and output
+checksums. A stage refuses to run when the directory was made
 with a different config or subject set, or when the stage has already finished,
 unless ``--overwrite`` is given.
 """
@@ -39,8 +37,6 @@ from .threads import THREAD_ENV_VARS, threadpool_record
 RUNS_ROOT_ENV = "HOC_RUNS_ROOT"
 RUN_ENV = "HOC_RUN"
 DEFAULT_RUN = "main"
-LEGACY_RUN = "results"
-LEGACY_VARIANT_DIRS = {"fraction_5pct": "results_fraction_5pct"}
 MANIFEST_NAME = "manifest.json"
 
 TRACKED_PACKAGES = (
@@ -80,8 +76,6 @@ def run_name(run: str | None = None, subject_limit: int | None = None) -> str:
     name = run or os.environ.get(RUN_ENV) or DEFAULT_RUN
     if subject_limit is not None:
         suffix = f"__n{int(subject_limit)}"
-        if name == LEGACY_RUN:
-            raise RunConflictError("The legacy results/ tree cannot be used for a --subject-limit run.")
         if not name.endswith(suffix):
             name = name + suffix
     return name
@@ -94,24 +88,8 @@ def resolve_run_dir(
     subject_limit: int | None = None,
 ) -> Path:
     """Return the absolute run directory for a run name and optional variant."""
-    name = run_name(run, subject_limit)
-    if name == LEGACY_RUN:
-        root = REPO_ROOT / "results"
-        if variant:
-            return root / LEGACY_VARIANT_DIRS.get(variant, f"results_{variant}")
-        return root
-    root = runs_root() / name
+    root = runs_root() / run_name(run, subject_limit)
     return root / "variants" / variant if variant else root
-
-
-def is_legacy(path: Path) -> bool:
-    """True when ``path`` lies inside the read-only legacy results tree."""
-    legacy = (REPO_ROOT / "results").resolve()
-    try:
-        Path(path).resolve().relative_to(legacy)
-    except ValueError:
-        return False
-    return True
 
 
 def config_variant(config: dict) -> str | None:
@@ -215,6 +193,17 @@ def collect_inputs(config: dict) -> list[Path]:
     return [p for p in files if p.exists()]
 
 
+def _script_record(argv: list[str]) -> dict | None:
+    """Path and sha256 of the script that runs the stage (argv[0])."""
+    if not argv:
+        return None
+    path = Path(argv[0])
+    path = path if path.is_absolute() else Path.cwd() / path
+    if not path.is_file():
+        return None
+    return {"path": _relative(path), "sha256": sha256_file(path)}
+
+
 # --------------------------------------------------------------------------- manifest
 
 
@@ -238,7 +227,7 @@ class RunContext:
 
     Typical use::
 
-        ctx = RunContext.from_args("01_primary", args, config_path=args.config)
+        ctx = RunContext.from_args("primary/01_primary_analysis", args, config_path=args.config)
         ctx.begin(subject_ids)
         ...  # write outputs under ctx.root
         ctx.finish()
@@ -256,6 +245,10 @@ class RunContext:
     _started: str | None = field(default=None, init=False)
 
     def __post_init__(self) -> None:
+        if self.config_path is None:
+            from .config import active_config_path
+
+            self.config_path = active_config_path()
         if self.config_path is not None:
             self.config_path = Path(self.config_path)
             if not self.config_path.is_absolute():
@@ -267,11 +260,6 @@ class RunContext:
         if self.variant is None:
             self.variant = config_variant(self.config)
         self.root = resolve_run_dir(self.run, variant=self.variant, subject_limit=self.subject_limit)
-        if is_legacy(self.root):
-            raise RunConflictError(
-                f"{_relative(self.root)} is the legacy pre-cleanup tree and is read-only. "
-                "Choose another --run name."
-            )
 
     # ------------------------------------------------------------------ constructors
 
@@ -293,7 +281,10 @@ class RunContext:
 
     @property
     def config_sha256(self) -> str | None:
-        return sha256_file(self.config_path) if self.config_path else None
+        """Digest of the config's settings (see hoc.config.config_digest)."""
+        from .config import config_digest
+
+        return config_digest(self.config_path) if self.config_path else None
 
     def path(self, *parts: str) -> Path:
         """Path inside the run directory, with parent folders created."""
@@ -369,15 +360,22 @@ class RunContext:
             snapshot.write_bytes(self.config_path.read_bytes())
         previous = manifest["stages"].get(self.stage, {})
         resumed = previous.get("status") == "running" and not self.overwrite
-        self._started = previous["started"] if resumed else _now()
+        now = _now()
+        self._started = previous["started"] if resumed else now
+        attempt = {"time": now, "argv": self.argv, "git": git_state(), "environment": environment_record()}
         manifest["stages"][self.stage] = {
             "status": "running",
             "started": self._started,
-            **({"resumed": [*previous.get("resumed", []), _now()]} if resumed else {}),
+            **({"resumed": [*previous.get("resumed", []), now]} if resumed else {}),
+            "script": _script_record(self.argv),
+            "random_seed": self.config.get("analysis", {}).get("random_seed"),
+            "stage_seeds": self.config.get("seeds", {}),
             "argv": self.argv,
             "overwrite": self.overwrite,
-            "git": git_state(),
-            "environment": environment_record(),
+            "git": attempt["git"],
+            "environment": attempt["environment"],
+            # every start and resume, so a stage that spanned several commits says so
+            "attempts": [*(previous.get("attempts", []) if resumed else []), attempt],
         }
         _write_manifest(self.root, manifest)
         return self
@@ -417,7 +415,7 @@ def add_run_arguments(parser: argparse.ArgumentParser) -> argparse.ArgumentParse
     parser.add_argument(
         "--run",
         default=None,
-        help=f"Run name under runs/ (default: ${RUN_ENV} or '{DEFAULT_RUN}'; 'results' = legacy tree, read-only).",
+        help=f"Run name under runs/ (default: ${RUN_ENV} or '{DEFAULT_RUN}').",
     )
     parser.add_argument(
         "--overwrite",
@@ -430,22 +428,25 @@ def add_run_arguments(parser: argparse.ArgumentParser) -> argparse.ArgumentParse
 def stage_from_argv(
     stage: str,
     *,
-    config_path: str | Path | None = "config/default.toml",
+    config_path: str | Path | None = None,
     argv: list[str] | None = None,
     variant: str | None = None,
 ) -> RunContext:
     """Build a RunContext for scripts that take no other arguments.
 
-    Reads ``--run``, ``--overwrite`` and ``--subject-limit`` from the command line
-    (unknown arguments are left alone).
+    Reads ``--run``, ``--overwrite``, ``--subject-limit`` and ``--config`` from the
+    command line (unknown arguments are left alone). Without ``config_path`` the
+    active config is used (see :mod:`hoc.config`).
     """
+    from .config import active_config_path
+
     parser = argparse.ArgumentParser(add_help=False)
     add_run_arguments(parser)
     parser.add_argument("--subject-limit", type=int, default=None)
     known, _ = parser.parse_known_args(sys.argv[1:] if argv is None else argv)
     return RunContext(
         stage=stage,
-        config_path=config_path,
+        config_path=config_path if config_path is not None else active_config_path(argv),
         run=known.run,
         subject_limit=known.subject_limit,
         overwrite=known.overwrite,
@@ -465,33 +466,27 @@ def reader_run_dir(argv: list[str] | None = None, *, variant: str | None = None)
     path = resolve_run_dir(known.run, variant=variant)
     if not path.exists():
         raise FileNotFoundError(
-            f"Run directory {_relative(path)} does not exist. Pass --run <name> or set ${RUN_ENV} "
-            f"(use '{LEGACY_RUN}' for the legacy results/ tree)."
+            f"Run directory {_relative(path)} does not exist. Pass --run <name> or set ${RUN_ENV}."
         )
     return path
 
 
-def writable_root(run_dir: str | Path) -> Path:
-    """Where read-only consumers of ``run_dir`` may write derived files.
-
-    For a normal run this is the run directory itself. For the legacy
-    ``results/`` tree it is ``runs/results-derived/``, so the baseline files are
-    never touched.
-    """
-    run_dir = Path(run_dir)
-    if not is_legacy(run_dir):
-        return run_dir
-    legacy = (REPO_ROOT / "results").resolve()
-    rel = run_dir.resolve().relative_to(legacy)
-    return runs_root() / "results-derived" / rel
-
-
 def figures_dir(run_dir: str | Path, *parts: str) -> Path:
     """Figure output folder for a run (``<run>/figures/...``), created on demand."""
-    path = writable_root(run_dir) / "figures"
+    path = Path(run_dir) / "figures"
     path = path.joinpath(*parts)
     path.mkdir(parents=True, exist_ok=True)
     return path
+
+
+def n_subjects(root: str | Path) -> int:
+    """Number of subjects in a run's processed connectomes (first configured scale)."""
+    import numpy as np
+
+    from .config import scales
+
+    with np.load(Path(root) / "processed" / f"connectomes_scale-{scales()[0]}.npz") as data:
+        return int(data["adjacency"].shape[0])
 
 
 def partial_stage(stage: str, **subsets: tuple[object, object]) -> str:

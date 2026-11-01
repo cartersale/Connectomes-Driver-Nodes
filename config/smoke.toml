@@ -1,15 +1,15 @@
-# Synthetic smoke config: runs the whole pipeline in about a minute with no
-# downloads (see src/hoc/synthetic.py). Used by tests/test_synthetic_pipeline.py and CI.
+# Synthetic smoke config: the paper pipeline on eight synthetic subjects (all three scales), with no
+# downloads (see src/hoc/synthetic.py). Used by scripts/reproduce.py --smoke, the tests and CI.
 title = "Synthetic smoke run"
 
 [paths]
-raw_connectomes = "synthetic:subjects=4,seed=7"
+raw_connectomes = "synthetic:subjects=8,seed=7"
 atlas_dir = "synthetic:"
 
 [analysis]
-parcellation_scales = [68]
+parcellation_scales = [68, 114, 219]
 random_seed = 20260423
-top_k_values = [1, 3]
+top_k_values = [1, 2, 3, 5]
 larger_k_fractions = [0.05]
 save_landscape_samples = true
 
@@ -31,7 +31,7 @@ secondary_methods = [
   "triangle_participation",
   "tetrahedron_participation",
 ]
-n_random_rankings = 5
+n_random_rankings = 10
 
 [landscape]
 max_enumerated_sets = 200
@@ -55,8 +55,8 @@ hub_counts = [5]
 methods = ["degree_strength", "cycle_participation"]
 
 [anatomy]
-# Exact Desikan-Killiany base-region names (no substring matching: "cuneus"
-# used to match "precuneus", see baseline/PROVENANCE.md).
+# Exact Desikan-Killiany base-region names (no substring matching, which would
+# let "cuneus" also match "precuneus").
 association_regions = [
   "superiorfrontal", "rostralmiddlefrontal", "caudalmiddlefrontal",
   "lateralorbitofrontal", "medialorbitofrontal", "frontalpole",
@@ -65,3 +65,16 @@ association_regions = [
   "isthmuscingulate", "insula",
 ]
 occipital_regions = ["cuneus", "lateraloccipital", "lingual", "pericalcarine"]
+
+[seeds]
+# Seeds of stages that draw their own random samples (all other draws derive from analysis.random_seed).
+canonical_graphs = 20261001  # model networks (mechanisms/02_canonical_graphs)
+core_cut = 20261026          # matched control edges (mechanisms/07_core_cut)
+
+[sampling]
+# Ensemble sizes of the null, resampling and permutation analyses.
+n_nulls = 2              # null networks per subject and null model (null_models/01_run_nulls)
+n_model_graphs = 2       # model networks per family and weighting (mechanisms/02_canonical_graphs)
+core_cut_draws = 2       # matched control cuts per subject (mechanisms/07_core_cut)
+n_random_lesions = 5     # random lesions per subject (lesions/01_run_reciprocal_lesion)
+n_spins = 50          # spin-test rotations (target_states/05_spin_tests)

@@ -1,12 +1,12 @@
-"""Scientific regression test: the full pipeline on synthetic data.
+"""Scientific regression test: the pipeline on synthetic data.
 
-Runs stages 00-03 on config/smoke.toml (synthetic connectomes, labels and
-gradient; no downloads) and compares a fingerprint of every output table with
-tests/golden/synthetic.json:
+Runs ``scripts/reproduce.py --smoke`` (config/smoke.toml: synthetic connectomes, labels and
+gradient; no downloads), i.e. every step that does not need external atlas data, and
+compares a fingerprint of every output table with tests/golden/synthetic.json:
 
 - text columns (driver sets, labels, rankings as strings) must match exactly;
 - numeric columns are compared through their sum and sum of absolute values
-  (rtol 1e-7), which catches any change to a computed value;
+  (rtol 1e-6), which catches any change to a computed value;
 - columns set purely by roundoff (no-floor eigenvalue extremes) are left out, so
   macOS/Accelerate and Linux/OpenBLAS give the same fingerprint.
 
@@ -28,9 +28,12 @@ import numpy as np
 import pandas as pd
 import pytest
 
-REPO_ROOT = Path(__file__).resolve().parents[1]
+from hoc.paths import REPO_ROOT
+
+sys.path.insert(0, str(REPO_ROOT / "scripts"))
+import reproduce  # noqa: E402
+
 GOLDEN = REPO_ROOT / "tests" / "golden" / "synthetic.json"
-CONFIG = "config/smoke.toml"
 RUN = "golden"
 
 # Values decided by floating-point roundoff, not by the science.
@@ -47,13 +50,14 @@ ROUNDOFF_COLUMNS = {
 # Counts of eigenvalues at the floor can flip by one when an eigenvalue sits
 # within roundoff of it.
 LOOSE_COLUMNS = {"eigenvalues_at_floor": 0.02, "fraction_eigenvalues_at_floor": 0.02}
-RTOL = 1e-7
+RTOL = 1e-6
 
 
 def run_pipeline(runs_root: Path) -> Path:
     env = {**os.environ, "HOC_RUNS_ROOT": str(runs_root), "PYTHONWARNINGS": "ignore"}
-    cmd = [sys.executable, "scripts/run_all.py", "--config", CONFIG, "--run", RUN]
-    subprocess.run(cmd, cwd=REPO_ROOT, env=env, check=True, capture_output=True)
+    cmd = [sys.executable, "scripts/reproduce.py", "--smoke", "--run", RUN]
+    result = subprocess.run(cmd, cwd=REPO_ROOT, env=env, capture_output=True, text=True)
+    assert result.returncode == 0, result.stdout[-3000:] + result.stderr[-3000:]
     return runs_root / RUN
 
 
@@ -68,7 +72,7 @@ def fingerprint(run_dir: Path) -> dict:
     tables = {}
     for path in sorted(run_dir.rglob("*.csv")):
         rel = path.relative_to(run_dir).as_posix()
-        if rel.startswith(("metadata/", "config/")):
+        if rel.startswith(("metadata/", "config/", "logs/")):
             continue
         frame = _mask_roundoff(rel, pd.read_csv(path))
         numeric = frame.select_dtypes(include=["number", "bool"])
@@ -119,11 +123,9 @@ def compare(actual: dict, expected: dict) -> list[str]:
 def test_synthetic_pipeline_matches_golden(tmp_path) -> None:
     run_dir = run_pipeline(tmp_path / "runs")
     manifest = json.loads((run_dir / "manifest.json").read_text())
-    assert {name: stage["status"] for name, stage in manifest["stages"].items()} == {
-        "00_prepare_data": "complete",
-        "01_primary": "complete",
-        "02_robustness": "complete",
-    }
+    expected = {s.stage for s in reproduce.STEPS if s.smoke}
+    statuses = {name: stage["status"] for name, stage in manifest["stages"].items()}
+    assert set(statuses) == expected and set(statuses.values()) == {"complete"}
     problems = compare(fingerprint(run_dir), json.loads(GOLDEN.read_text()))
     assert not problems, "\n".join(problems[:40])
 

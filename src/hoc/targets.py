@@ -8,10 +8,9 @@ import nibabel as nib
 import numpy as np
 import pandas as pd
 
-from .atlas import EXCLUDED_LABELS, SCALE_TO_RESOLUTION, region_set_mask
 from . import synthetic
+from .atlas import EXCLUDED_LABELS, SCALE_TO_RESOLUTION, region_set_mask
 from .paths import resolve_repo_path
-
 
 LANDMARK_DEFINITIONS = {
     "landmark_v1": {
@@ -301,15 +300,6 @@ def _sphere_coordinates(sphere_paths, hemi: str) -> np.ndarray:
     """Load vertex coordinates for the requested hemisphere from a set of sphere surfaces."""
     path = next(str(p) for p in sphere_paths if f"hemi-{hemi}" in str(p))
     return np.asarray(nib.load(path).agg_data()[0], dtype=float)
-
-
-def masked_top_indices(scores: np.ndarray, mask: np.ndarray, count: int) -> np.ndarray:
-    """Select the highest-scoring nodes inside a mask."""
-    masked_indices = np.where(mask)[0]
-    if masked_indices.size == 0:
-        raise ValueError("Requested target mask is empty for this atlas scale.")
-    local_order = masked_indices[np.argsort(-scores[masked_indices], kind="mergesort")]
-    return local_order[:count]
 
 
 def normalized_mask_vector(mask: np.ndarray) -> np.ndarray:

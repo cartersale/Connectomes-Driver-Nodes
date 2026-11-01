@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from itertools import combinations
-
 import networkx as nx
 import numpy as np
 from ripser import ripser

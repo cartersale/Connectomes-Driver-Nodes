@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 from pathlib import Path
-import pickle
 
 import numpy as np
 import pandas as pd
@@ -24,15 +23,6 @@ def write_npz(path_like: str | Path, **arrays: np.ndarray) -> Path:
     path = resolve_repo_path(path_like)
     path.parent.mkdir(parents=True, exist_ok=True)
     np.savez_compressed(path, **arrays)
-    return path
-
-
-def write_pickle(path_like: str | Path, payload: object) -> Path:
-    """Write a binary pickle for nested dictionaries."""
-    path = resolve_repo_path(path_like)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    with path.open("wb") as handle:
-        pickle.dump(payload, handle)
     return path
 
 

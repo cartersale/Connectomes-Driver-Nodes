@@ -53,8 +53,8 @@ hub_counts = [5, 10, 15]
 methods = ["degree_strength", "cycle_participation"]
 
 [anatomy]
-# Exact Desikan-Killiany base-region names (no substring matching: "cuneus"
-# used to match "precuneus", see baseline/PROVENANCE.md).
+# Exact Desikan-Killiany base-region names (no substring matching, which would
+# let "cuneus" also match "precuneus").
 association_regions = [
   "superiorfrontal", "rostralmiddlefrontal", "caudalmiddlefrontal",
   "lateralorbitofrontal", "medialorbitofrontal", "frontalpole",
@@ -63,3 +63,16 @@ association_regions = [
   "isthmuscingulate", "insula",
 ]
 occipital_regions = ["cuneus", "lateraloccipital", "lingual", "pericalcarine"]
+
+[seeds]
+# Seeds of stages that draw their own random samples (all other draws derive from analysis.random_seed).
+canonical_graphs = 20261001  # model networks (mechanisms/02_canonical_graphs)
+core_cut = 20261026          # matched control edges (mechanisms/07_core_cut)
+
+[sampling]
+# Ensemble sizes of the null, resampling and permutation analyses.
+n_nulls = 50              # null networks per subject and null model (null_models/01_run_nulls)
+n_model_graphs = 50       # model networks per family and weighting (mechanisms/02_canonical_graphs)
+core_cut_draws = 20       # matched control cuts per subject (mechanisms/07_core_cut)
+n_random_lesions = 100     # random lesions per subject (lesions/01_run_reciprocal_lesion)
+n_spins = 10000          # spin-test rotations (target_states/05_spin_tests)
