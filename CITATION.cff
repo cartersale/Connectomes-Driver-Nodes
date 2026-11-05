@@ -1,6 +1,6 @@
 cff-version: 1.2.0
 message: "If you use this code, please cite the article."
-title: "Multi-site hub inputs funnel control into the dominant mode of the human connectome: analysis code"
+title: "Hub Inputs Funnel Control into the Connectome's Dominant Mode: analysis code"
 authors:
   - family-names: Sale
     given-names: Carter
@@ -11,10 +11,10 @@ authors:
   - family-names: Richardson
     given-names: Michael J.
 license: MIT
-repository-code: "https://github.com/cartersale/Homology-Control-Connectomes"
+repository-code: "https://github.com/cartersale/Connectomes-Driver-Nodes"
 preferred-citation:
   type: article
-  title: "Multi-site hub inputs funnel control into the dominant mode of the human connectome"
+  title: "Hub Inputs Funnel Control into the Connectome's Dominant Mode"
   authors:
     - family-names: Sale
       given-names: Carter
@@ -25,7 +25,3 @@ preferred-citation:
     - family-names: Richardson
       given-names: Michael J.
   year: 2026
-  notes: "Submitted to Network Neuroscience. Preprint: arXiv:2608.03181."
-  identifiers:
-    - type: other
-      value: "arXiv:2608.03181"
