@@ -44,10 +44,10 @@ def cell(r):
 
 
 ORDER = ["landmark_v1", "landmark_m1", "landmark_pcc_precuneus", "landmark_lpfc",
-         "legacy_occipital_module", "kw_occipital_module", "kw_association_module", "legacy_association_vs_occipital", "kw_association_vs_occipital",
+         "kw_occipital_module", "kw_association_module", "kw_association_vs_occipital",
          "net_Visual", "net_SomMot", "net_DorsAttn", "net_VentAttn", "net_Limbic", "net_FrontoParietal", "net_Default",
          "net_unimodal_VisSomMot", "net_transmodal_DefFP", "net_transmodal_vs_unimodal",
-         "legacy_principal_gradient", "principal_gradient", "legacy_bipolar_gradient", "bipolar_gradient", "uniform_cortical", "second_gradient"]
+         "principal_gradient", "bipolar_gradient", "uniform_cortical", "second_gradient"]
 out = []
 for variant in ("full", "drivers_excluded"):
     out.append(f"\n### Named targets, {variant} (median % [95% CI], n neg/pos of 70, rank-biserial, Holm p within scale x family)\n")
@@ -80,7 +80,7 @@ out.append("| target | scale | frac. (subject,k) with >=1 driver inside | mean #
 for t in ORDER:
     for s in C.SCALES:
         r = ov[(ov.target_name == t) & (ov.scale == s)]
-        if len(r) and not t.startswith("legacy_p") and "gradient" not in t:
+        if len(r) and "gradient" not in t:
             r = r.iloc[0]
             out.append(f"| {t} | {s} | {r.frac_any_driver_in_cyc:.2f} / {r.frac_any_driver_in_deg:.2f} | {r.mean_n_drivers_in_cyc:.2f} / {r.mean_n_drivers_in_deg:.2f} | {r.mean_mass_on_drivers_cyc:.3f} / {r.mean_mass_on_drivers_deg:.3f} |")
 
@@ -138,7 +138,7 @@ for n in C.YEO7_NAMES.values():
     out.append(f"| {n} | " + " | ".join(cells) + " |")
 
 out.append("\n### Exact parcels per mask\n")
-for t in ["legacy_occipital_module", "kw_occipital_module", "kw_association_module", "net_Visual", "net_SomMot", "net_DorsAttn", "net_VentAttn",
+for t in ["kw_occipital_module", "kw_association_module", "net_Visual", "net_SomMot", "net_DorsAttn", "net_VentAttn",
           "net_Limbic", "net_FrontoParietal", "net_Default", "landmark_v1", "landmark_m1", "landmark_pcc_precuneus", "landmark_lpfc"]:
     for s in C.SCALES:
         r = masks[(masks.target_name == t) & (masks.scale == s)].iloc[0]

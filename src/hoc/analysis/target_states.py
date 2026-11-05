@@ -32,7 +32,7 @@ from hoc.atlas import EXCLUDED_LABELS, SCALE_TO_RESOLUTION  # noqa: E402
 from hoc.paths import REPO_ROOT as REPO  # noqa: E402
 from hoc.preprocessing import stabilize_adjacency  # noqa: E402
 from hoc.runs import RunContext, stage_from_argv  # noqa: E402
-from hoc.targets import _fsaverage5_from_fslr_index  # noqa: E402
+from hoc.targets import registered_nn  # noqa: E402
 
 # Run-directory paths; set by start_stage() / set_root() before any data access.
 ROOT: Path | None = None  # runs/<name>/
@@ -76,7 +76,7 @@ def start_stage(script: str | Path, requires: tuple[str, ...] | list[str] = ()) 
 
 YEO7_NAMES = {1: "Visual", 2: "SomMot", 3: "DorsAttn", 4: "VentAttn", 5: "Limbic", 6: "FrontoParietal", 7: "Default"}
 
-# Corrected keyword masks: exact Desikan-Killiany base-region membership (no substring matching).
+# Anatomical masks: exact Desikan-Killiany base-region membership.
 ASSOCIATION_BASE = (
     "superiorfrontal", "rostralmiddlefrontal", "caudalmiddlefrontal", "lateralorbitofrontal",
     "medialorbitofrontal", "frontalpole", "superiorparietal", "inferiorparietal", "precuneus",
@@ -111,40 +111,6 @@ def driver_sets() -> pd.DataFrame:
 def driver_lookup() -> dict:
     d = driver_sets()
     return {(r.subject_id, int(r.scale), int(r.k), r.method): r.nodes for r in d.itertuples()}
-
-
-# The first version of this study selected regions by substring match on the base-region name, so
-# "cuneus" also selected precuneus. Its masks are rebuilt here for the "legacy" rows of the target tables.
-FIRST_VERSION_ASSOCIATION_KEYWORDS = ("frontal", "parietal", "precuneus", "cingulate", "insula")
-FIRST_VERSION_OCCIPITAL_KEYWORDS = ("cuneus", "lateraloccipital", "lingual", "pericalcarine", "occipital")
-
-
-def legacy_targets(scale: int) -> dict[str, np.ndarray]:
-    """The association/occipital targets and principal gradient as the first version built them.
-
-    Same construction as hoc.targets.build_targets, with the first version's substring masks.
-    """
-    from hoc.targets import (
-        margulies_principal_gradient,
-        normalize_vector,
-        normalized_mask_vector,
-        normalized_signed_contrast,
-    )
-
-    lab = labels(scale)
-    base = lab["base_region"].str
-    assoc = base.contains("|".join(FIRST_VERSION_ASSOCIATION_KEYWORDS), case=False, regex=True).to_numpy()
-    occ = base.contains("|".join(FIRST_VERSION_OCCIPITAL_KEYWORDS), case=False, regex=True).to_numpy()
-    gradient = margulies_principal_gradient(lab, str(ATLAS_DIR))
-    if np.mean(gradient[assoc]) < np.mean(gradient[occ]):
-        gradient = -gradient
-    return {
-        "association_module": normalized_mask_vector(assoc),
-        "occipital_module": normalized_mask_vector(occ),
-        "association_vs_occipital": normalized_signed_contrast(assoc, occ),
-        "principal_gradient": normalize_vector(gradient),
-        "bipolar_gradient": normalize_vector(np.sign(gradient)),
-    }
 
 
 # ----------------------------------------------------------------------------- control
@@ -255,63 +221,22 @@ def yeo_assignment(scale: int, n_networks: int = 7) -> pd.DataFrame:
     return df
 
 
-def _registration_files(hemi: str) -> tuple[Path, Path, Path]:
-    """(fsLR-32k sphere registered to fsaverage, fsaverage-10k sphere, fsLR-32k no-medial-wall label).
-
-    Resolved through neuromaps (respects $NEUROMAPS_DATA; downloads on first use). The registered
-    fsLR sphere is part of the fsLR atlas download but not listed in fetch_atlas()'s return value, so
-    it is located in the fsLR atlas folder exactly as neuromaps.transforms does.
-    """
-    from neuromaps.datasets import fetch_atlas
-    from neuromaps.datasets.atlases import get_atlas_dir
-
-    fslr = fetch_atlas("fsLR", "32k", verbose=0)
-    fsavg = fetch_atlas("fsaverage", "10k", verbose=0)
-    src = get_atlas_dir("fsLR") / f"tpl-fsLR_space-fsaverage_den-32k_hemi-{hemi}_sphere.surf.gii"
-    if not src.exists():
-        raise FileNotFoundError(f"neuromaps fsLR->fsaverage registration sphere not found: {src}")
-    return src, Path(getattr(fsavg["sphere"], hemi)), Path(getattr(fslr["medial"], hemi))
-
-
 @lru_cache(maxsize=None)
-def _registered_nn(hemi: str) -> np.ndarray:
-    """Nearest non-medial-wall fsLR-32k vertex for each fsaverage5 vertex, using the fsLR sphere
-    *registered to fsaverage* (tpl-fsLR_space-fsaverage_den-32k sphere, HCP/neuromaps), so both meshes
-    share the fsaverage spherical coordinate system."""
-    from scipy.spatial import cKDTree
-
-    src_path, trg_path, medial_path = _registration_files(hemi)
-    src = nib.load(str(src_path)).agg_data()[0]
-    trg = nib.load(str(trg_path)).agg_data()[0]
-    cortex = np.asarray(nib.load(str(medial_path)).agg_data()) > 0
-    src = src / np.linalg.norm(src, axis=1, keepdims=True)
-    trg = trg / np.linalg.norm(trg, axis=1, keepdims=True)
-    idx = np.flatnonzero(cortex)
-    _, nn = cKDTree(src[idx]).query(trg)
-    return idx[nn]
-
-
-@lru_cache(maxsize=None)
-def margulies_vertex(gradient: int, registered: bool = True) -> dict[str, np.ndarray]:
-    """Margulies (2016) gradient on fsaverage5 vertices.
-
-    registered=True  : correct fsLR->fsaverage registration sphere (used for all target analyses).
-    registered=False : legacy repo projection (hoc.targets._fsaverage5_from_fslr_index), which matches the
-                       *native* fsLR sphere to the fsaverage sphere without registration.
-    """
+def margulies_vertex(gradient: int) -> dict[str, np.ndarray]:
+    """Margulies (2016) gradient on fsaverage5 vertices, resampled with hoc.targets.registered_nn."""
     from neuromaps.datasets import fetch_annotation
 
     ann = fetch_annotation(source="margulies2016", desc=f"fcgradient0{gradient}", space="fsLR", den="32k")
     out = {}
     for i, hemi in enumerate(("L", "R")):
         vg = np.asarray(nib.load(str(ann[i])).agg_data(), dtype=float)
-        out[hemi] = vg[_registered_nn(hemi)] if registered else vg[_fsaverage5_from_fslr_index(hemi)]
+        out[hemi] = vg[registered_nn(hemi)]
     return out
 
 
-def margulies_parcel(scale: int, gradient: int, registered: bool = True) -> np.ndarray:
+def margulies_parcel(scale: int, gradient: int) -> np.ndarray:
     """Parcel mean of the vertex-resampled map (same averaging as hoc.targets.margulies_principal_gradient)."""
-    vg = margulies_vertex(gradient, registered)
+    vg = margulies_vertex(gradient)
     return np.array([vg[h][v].mean() if v.size else 0.0 for h, v in parcel_vertices(scale)])
 
 

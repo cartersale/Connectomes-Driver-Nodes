@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""Statistics for corrected targets, driver overlap, driver exclusion and distance.
+"""Statistics for the target sets, driver overlap, driver exclusion and distance.
 
 Convention: per subject, pct = 100 (E_cycle - E_degree)/E_degree averaged over k in {1,2,3,5};
 median across 70 subjects, bootstrap 95% CI (2000, seed 20260423), n negative / positive,
@@ -24,7 +24,7 @@ ctx = C.start_stage(__file__, [C.stage("02_target_energies")])
 warnings.filterwarnings("ignore", category=RuntimeWarning)
 L = pd.read_csv(C.OUT / "target_energies_long.csv.gz")
 rng = np.random.default_rng(C.SEED)
-NAMED = ["landmark", "keyword_module", "yeo7_network", "yeo17_network", "distributed", "distributed_supp", "legacy"]
+NAMED = ["landmark", "keyword_module", "yeo7_network", "yeo17_network", "distributed", "distributed_supp"]
 
 
 def per_subject(df: pd.DataFrame, energy_col: str) -> pd.DataFrame:
@@ -114,8 +114,7 @@ ow.to_csv(C.OUT / "driver_target_overlap.csv", index=False)
 spo = L[L.family == "single_cortical_parcel"].groupby(["scale", "method"]).n_drivers_in.mean()
 spo.to_csv(C.OUT / "single_parcel_driver_rate.csv")
 
-# also the old-vs-corrected paired overlap of the paper's occipital module
-print(named[named.family.isin(["keyword_module", "yeo7_network", "legacy", "distributed", "landmark"])]
+print(named[named.family.isin(["keyword_module", "yeo7_network", "distributed", "landmark"])]
       [["variant", "scale", "target_name", "median_pct", "ci_low", "ci_high", "n_negative", "n_positive", "p_holm", "rank_biserial", "rho_pct_vs_ddist"]]
       .round(4).to_string())
 print(pd.DataFrame(sp_rows).round(4).to_string())

@@ -24,7 +24,7 @@ ctx = C.start_stage(__file__, [C.stage("02_target_energies")])
 
 warnings.filterwarnings("ignore")
 L = pd.read_csv(C.OUT / "target_energies_long.csv.gz")
-L = L[L.family.isin(["landmark", "keyword_module", "yeo7_network", "distributed", "legacy"])]
+L = L[L.family.isin(["landmark", "keyword_module", "yeo7_network", "distributed"])]
 rng = np.random.default_rng(C.SEED)
 w = L.pivot_table(index=["scale", "family", "target_name", "subject_id", "k"], columns="method",
                   values=["energy_full", "n_drivers_in", "dist_nearest"]).reset_index()
