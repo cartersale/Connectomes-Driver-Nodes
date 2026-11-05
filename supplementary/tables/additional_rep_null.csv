@@ -1,0 +1,61 @@
+Group,k,Set,Uniform random,Overlap-matched,Strength-matched
+68 regions,1,Degree strength,+0.25 / 81 / 69,-,-
+68 regions,,Ripser cocycle,+0.25 / 77 / 52,+0.24 / 75 / 51,-0.02 / 46 / 32
+68 regions,,GUDHI pairing,+0.37 / 86 / 66,+0.34 / 81 / 58,+0.01 / 52 / 37
+68 regions,,Length-minimized,+0.35 / 86 / 68,+0.26 / 74 / 50,-0.04 / 44 / 32
+68 regions,,Birth edge,+0.35 / 85 / 63,+0.33 / 83 / 63,+0.04 / 55 / 49
+68 regions,2,Degree strength,-0.44 / 16 / 7,-,-
+68 regions,,Ripser cocycle,+0.09 / 61 / 40,+0.12 / 63 / 44,-0.08 / 37 / 23
+68 regions,,GUDHI pairing,+0.11 / 59 / 42,+0.13 / 62 / 48,-0.09 / 38 / 24
+68 regions,,Length-minimized,-0.10 / 42 / 28,+0.07 / 59 / 43,-0.15 / 36 / 25
+68 regions,,Birth edge,+0.27 / 72 / 54,+0.26 / 75 / 58,+0.00 / 50 / 43
+68 regions,3,Degree strength,-1.10 / 2 / 1,-,-
+68 regions,,Ripser cocycle,-0.11 / 46 / 34,+0.02 / 54 / 37,-0.15 / 35 / 20
+68 regions,,GUDHI pairing,-0.29 / 32 / 18,-0.02 / 52 / 32,-0.17 / 36 / 21
+68 regions,,Length-minimized,-0.62 / 21 / 16,-0.10 / 43 / 31,-0.22 / 34 / 19
+68 regions,,Birth edge,+0.09 / 59 / 48,+0.17 / 66 / 49,-0.03 / 46 / 41
+68 regions,5,Degree strength,-2.36 / 0 / 0,-,-
+68 regions,,Ripser cocycle,-0.55 / 31 / 25,-0.17 / 44 / 32,-0.22 / 37 / 24
+68 regions,,GUDHI pairing,-1.09 / 15 / 9,-0.31 / 35 / 21,-0.29 / 36 / 21
+68 regions,,Length-minimized,-1.64 / 6 / 3,-0.24 / 36 / 19,-0.27 / 36 / 17
+68 regions,,Birth edge,-0.38 / 40 / 32,-0.03 / 50 / 38,-0.11 / 42 / 35
+114 regions,1,Degree strength,+0.29 / 85 / 70,-,-
+114 regions,,Ripser cocycle,+0.19 / 73 / 48,+0.16 / 70 / 43,-0.06 / 40 / 26
+114 regions,,GUDHI pairing,+0.41 / 88 / 64,+0.38 / 84 / 61,+0.01 / 51 / 41
+114 regions,,Length-minimized,+0.39 / 89 / 69,+0.31 / 77 / 54,-0.07 / 39 / 29
+114 regions,,Birth edge,+0.40 / 87 / 62,+0.39 / 85 / 62,+0.06 / 59 / 50
+114 regions,2,Degree strength,-0.36 / 21 / 10,-,-
+114 regions,,Ripser cocycle,+0.11 / 65 / 42,+0.12 / 65 / 41,-0.15 / 33 / 19
+114 regions,,GUDHI pairing,+0.20 / 68 / 47,+0.17 / 65 / 45,-0.14 / 36 / 26
+114 regions,,Length-minimized,-0.18 / 36 / 24,-0.09 / 40 / 25,-0.40 / 20 / 10
+114 regions,,Birth edge,+0.35 / 81 / 60,+0.33 / 78 / 56,+0.00 / 50 / 37
+114 regions,3,Degree strength,-1.15 / 1 / 1,-,-
+114 regions,,Ripser cocycle,+0.05 / 56 / 37,+0.08 / 59 / 39,-0.17 / 33 / 21
+114 regions,,GUDHI pairing,-0.14 / 44 / 33,-0.00 / 51 / 36,-0.26 / 32 / 23
+114 regions,,Length-minimized,-0.85 / 14 / 10,-0.29 / 26 / 15,-0.65 / 16 / 8
+114 regions,,Birth edge,+0.11 / 61 / 41,+0.13 / 61 / 44,-0.13 / 38 / 33
+114 regions,5,Degree strength,-2.55 / 0 / 0,-,-
+114 regions,,Ripser cocycle,-0.20 / 43 / 33,-0.00 / 53 / 41,-0.20 / 34 / 23
+114 regions,,GUDHI pairing,-0.96 / 19 / 12,-0.26 / 38 / 26,-0.50 / 29 / 19
+114 regions,,Length-minimized,-2.08 / 3 / 2,-0.49 / 23 / 10,-0.92 / 14 / 4
+114 regions,,Birth edge,-0.41 / 34 / 26,-0.10 / 49 / 34,-0.25 / 36 / 27
+219 regions,1,Degree strength,+0.36 / 90 / 70,-,-
+219 regions,,Ripser cocycle,+0.17 / 77 / 47,+0.15 / 76 / 44,-0.09 / 37 / 20
+219 regions,,GUDHI pairing,+0.49 / 92 / 69,+0.46 / 90 / 63,+0.12 / 65 / 50
+219 regions,,Length-minimized,+0.45 / 92 / 70,+0.37 / 82 / 59,-0.02 / 48 / 33
+219 regions,,Birth edge,+0.44 / 92 / 68,+0.44 / 91 / 66,+0.09 / 63 / 45
+219 regions,2,Degree strength,-0.13 / 39 / 24,-,-
+219 regions,,Ripser cocycle,+0.24 / 75 / 52,+0.23 / 74 / 51,-0.10 / 35 / 20
+219 regions,,GUDHI pairing,+0.49 / 87 / 65,+0.46 / 88 / 67,+0.03 / 51 / 43
+219 regions,,Length-minimized,+0.07 / 56 / 38,+0.01 / 51 / 34,-0.41 / 23 / 13
+219 regions,,Birth edge,+0.50 / 88 / 62,+0.50 / 88 / 66,+0.05 / 55 / 43
+219 regions,3,Degree strength,-0.66 / 13 / 8,-,-
+219 regions,,Ripser cocycle,+0.28 / 73 / 52,+0.28 / 74 / 51,-0.10 / 36 / 28
+219 regions,,GUDHI pairing,+0.31 / 74 / 55,+0.31 / 72 / 54,-0.12 / 41 / 33
+219 regions,,Length-minimized,-0.41 / 30 / 19,-0.27 / 36 / 24,-0.71 / 19 / 12
+219 regions,,Birth edge,+0.41 / 81 / 60,+0.41 / 81 / 60,-0.05 / 46 / 35
+219 regions,5,Degree strength,-1.83 / 3 / 1,-,-
+219 regions,,Ripser cocycle,+0.24 / 69 / 51,+0.27 / 70 / 52,-0.08 / 36 / 33
+219 regions,,GUDHI pairing,-0.21 / 49 / 34,-0.00 / 52 / 40,-0.38 / 34 / 32
+219 regions,,Length-minimized,-1.44 / 8 / 4,-0.74 / 24 / 13,-1.23 / 14 / 6
+219 regions,,Birth edge,+0.01 / 57 / 44,+0.09 / 59 / 45,-0.29 / 35 / 26

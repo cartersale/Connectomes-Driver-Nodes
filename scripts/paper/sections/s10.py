@@ -1,8 +1,7 @@
-"""Supplement S10: alternative control targets (S10_1-S10_11).
+"""Full tables S10_1-S10_11: target states, spin tests and rank divergence.
 
-All sources are in <run>/target_states/. The occipital module is the corrected mask
-(kw_occipital_module, no precuneus); the legacy masks / misregistered G1 appear only in rows
-explicitly labelled "legacy".
+All sources are in <run>/target_states/. Anatomical modules are exact Desikan-Killiany base-region masks
+(kw_*); gradient targets use the Margulies maps resampled through the registered fsLR sphere.
 
 S10_8 (floor fraction): the degree/cycle columns are computed from sensitivity_summary.csv exactly as
 scripts/analysis/target_states/09_report_tables.py computes its floor-fraction table.
@@ -23,32 +22,27 @@ degree_strength / cycle_participation driver sets, W_eps = W + eps*I with eigenv
 Primary c = 0.1, eps = 1e-5, k in {1,2,3,5}, 70 subjects. pct = 100 (E_cyc - E_deg)/E_deg per subject, averaged over k.
 Negative pct = cycle sets cheaper. Medians across subjects; two-sided Wilcoxon; Holm within scale x target family x variant
 (families: landmark 4, keyword_module 3, yeo7_network 10, distributed {G1, G1 bipolar, uniform},
-distributed_supp {G2, G2 bipolar}, legacy 4). p values exact from the CSV, 2 s.f."""
+distributed_supp {G2, G2 bipolar}). p values exact from the CSV, 2 s.f."""
 
 LABEL = OrderedDict([
     ("net_Visual", "Yeo Visual"), ("net_SomMot", "Yeo SomMot"), ("net_DorsAttn", "Yeo DorsAttn"),
     ("net_VentAttn", "Yeo VentAttn"), ("net_Limbic", "Yeo Limbic"), ("net_FrontoParietal", "Yeo FrontoParietal"),
     ("net_Default", "Yeo Default"), ("net_unimodal_VisSomMot", "Unimodal (Vis+SomMot)"),
     ("net_transmodal_DefFP", "Transmodal (Def+FP)"), ("net_transmodal_vs_unimodal", "Transmodal $-$ unimodal"),
-    ("kw_occipital_module", "Occipital module (corrected)"), ("kw_association_module", "Association module"),
-    ("kw_association_vs_occipital", "Association $-$ occipital (corr.)"),
-    ("legacy_occipital_module", "Occipital module (legacy, +precuneus)"),
-    ("legacy_association_vs_occipital", "Association $-$ occipital (legacy)"),
+    ("kw_occipital_module", "Occipital module"), ("kw_association_module", "Association module"),
+    ("kw_association_vs_occipital", "Association $-$ occipital"),
     ("landmark_v1", "V1 (pericalcarine)"), ("landmark_m1", "M1 (precentral)"),
     ("landmark_pcc_precuneus", "PCC/precuneus"), ("landmark_lpfc", "lPFC"),
-    ("principal_gradient", "G1 (registered)"), ("bipolar_gradient", "G1 bipolar (registered)"),
-    ("legacy_principal_gradient", "G1 (legacy, misregistered)"),
-    ("second_gradient", "G2 (registered)"), ("uniform_cortical", "Uniform cortical"),
+    ("principal_gradient", "G1"), ("bipolar_gradient", "G1 bipolar"),
+    ("second_gradient", "G2"), ("uniform_cortical", "Uniform cortical"),
 ])
 GROUPS = [
     ("Yeo-7 networks", ["net_Visual", "net_SomMot", "net_DorsAttn", "net_VentAttn", "net_Limbic",
                         "net_FrontoParietal", "net_Default", "net_unimodal_VisSomMot", "net_transmodal_DefFP",
                         "net_transmodal_vs_unimodal"]),
-    ("Keyword modules", ["kw_occipital_module", "kw_association_module", "kw_association_vs_occipital",
-                         "legacy_occipital_module", "legacy_association_vs_occipital"]),
+    ("Anatomical modules", ["kw_occipital_module", "kw_association_module", "kw_association_vs_occipital"]),
     ("Landmarks", ["landmark_v1", "landmark_m1", "landmark_pcc_precuneus", "landmark_lpfc"]),
-    ("Gradients / distributed", ["principal_gradient", "bipolar_gradient", "legacy_principal_gradient",
-                                 "second_gradient", "uniform_cortical"]),
+    ("Gradients / distributed", ["principal_gradient", "bipolar_gradient", "second_gradient", "uniform_cortical"]),
 ]
 EPS_LABELS = ("1e-08", "1e-05", "1e-02")
 
@@ -181,8 +175,7 @@ def floor_table(ss: pd.DataFrame, sl: pd.DataFrame) -> str:
 
 def spin_table(sp: pd.DataFrame) -> str:
     names = {"rank_divergence": "Rank divergence", "degree_strength": "Degree strength",
-             "cycle_participation": "Cycle participation", "G1_legacy_projection": "G1 (legacy, misregistered)",
-             "G1_registered": "G1 (registered)", "G2_registered": "G2 (registered)"}
+             "cycle_participation": "Cycle participation", "G1": "G1", "G2": "G2"}
     L = ["\\begin{tabular}{lllrccc}", "\\toprule",
          "Scale & $x$ & $y$ & Spearman $\\rho$ & $p_{\\mathrm{param}}$ & $p_{\\mathrm{spin}}$ (Vasa) & "
          "$p_{\\mathrm{spin}}$ (A--B) \\\\", "\\midrule"]
@@ -228,7 +221,7 @@ def compact(lst) -> str:
 
 
 def parcel_table(mp: pd.DataFrame) -> str:
-    targets = ["kw_occipital_module", "legacy_occipital_module", "kw_association_module", "net_Visual", "net_SomMot",
+    targets = ["kw_occipital_module", "kw_association_module", "net_Visual", "net_SomMot",
                "net_DorsAttn", "net_VentAttn", "net_Limbic", "net_FrontoParietal", "net_Default", "landmark_v1",
                "landmark_m1", "landmark_pcc_precuneus", "landmark_lpfc"]
     L = ["\\begin{tabular}{llr p{12cm}}", "\\toprule", "Target & Scale & $n$ & Parcels \\\\", "\\midrule"]
@@ -253,8 +246,7 @@ def build(res: Path) -> list[Table]:
     named_note = f"""{COMMON}
 {src}named_target_summary.csv (variant = {{v}}; columns median_pct, n_negative, n_positive, p_holm).
 "Drivers excluded" = x* zeroed on the union of both methods' driver sets for that subject/k, renormalized, both energies
-recomputed. Legacy rows (old occipital incl. precuneus; legacy association-vs-occipital; misregistered G1) are included for
-comparison; Holm for them is within the "legacy" family. Bootstrap CIs and rank-biserial r are in the CSV (not tabulated).
+recomputed. Bootstrap CIs and rank-biserial r are in the CSV (not tabulated).
 Yeo-17 targets (family yeo17_network) are in the CSV, not tabulated. At 68 regions DorsAttn = 2 parcels and
 FrontoParietal = 3 parcels; treat them as near-landmarks."""
 
@@ -283,21 +275,18 @@ pct is unbounded above."""),
         Table("S10_6", sens_table(ss, "full"),
               f"""eps/c sensitivity, full targets; median pct, * = Holm p < 0.05 (Holm within scale x family x condition).
 {src}sensitivity_summary.csv (variant = full; median_pct, p_holm). Conditions: eps in {{1e-8, 1e-5, 1e-2}} at c = 0.1;
-c in {{0.01, 1}} at eps = 1e-5. Driver sets fixed.""", long=True),
-        Table("S10_7", sens_table(ss, "drivers_excluded"),
-              f"""eps/c sensitivity, drivers excluded; median pct, * = Holm p < 0.05 (Holm within scale x family x condition).
-{src}sensitivity_summary.csv (variant = drivers_excluded; median_pct, p_holm). Conditions as in S10_6.""", long=True),
+c in {{0.01, 1}} at eps = 1e-5. Driver sets fixed."""),
         Table("S10_8", floor_table(ss, pd.read_csv(T / "sensitivity_long.csv.gz")),
               f"""Fraction of target energy carried by eigen-directions at the eps floor (c = 0.1).
 Degree / Cycle sets: {src}sensitivity_summary.csv (variant = full, c = 0.1; columns floor_frac_deg / floor_frac_cyc =
-per-target median of floor_frac over subjects x k, written by scripts/analysis/target_states/04_sensitivity.py), median over the 22
+per-target median of floor_frac over subjects x k, written by scripts/analysis/target_states/04_sensitivity.py), median over the named
 targets per (scale, eps) -- the same computation as the floor-fraction table of 09_report_tables.py.
 Range of per-target medians: {src}sensitivity_long.csv.gz (c = 0.1, eps = 1e-5), median over subjects x k x method of
 floor_frac per target, then min--max across targets."""),
         Table("S10_9", spin_table(pd.read_csv(T / "spin_tests.csv")),
               f"""Spin tests (10,000 rotations; Vasa primary, Alexander-Bloch "original" secondary; p floor 1e-4); two-sided p.
 {src}spin_tests.csv. Rank divergence = degree rank - cycle rank of subject-averaged scores (+ = cycle priority).
-G1 (legacy) = the first version's misregistered projection; G1/G2 (registered) use the corrected fsLR->fsaverage5 map."""),
+G1/G2: Margulies gradients resampled to fsaverage5 through the registered fsLR sphere."""),
         Table("S10_10", rankdiv_table(pd.read_csv(T / "rank_divergence_network_enrichment.csv")),
               f"""Mean rank divergence (degree rank - cycle rank; + = cycle priority) by Yeo-7 network; n parcels; Vasa spin p
 (uncorrected). {src}rank_divergence_network_enrichment.csv."""),
@@ -305,5 +294,5 @@ G1 (legacy) = the first version's misregistered projection; G1/G2 (registered) u
               f"""Exact parcels per mask. Format: base region (L idx; R idx); 'L'/'R' alone = unsubdivided parcel at scale 68.
 {src}target_mask_parcels.csv, positive support only (none of the listed masks has negative support; signed contrasts and
 gradients are not listed). Yeo-7 parcel assignment = majority vote of fsaverage5 vertices (medial wall excluded)
-(parcel_network_assignment.csv).""", long=True, long_colspec="llr p{10.3cm}"),
+(parcel_network_assignment.csv)."""),
     ]

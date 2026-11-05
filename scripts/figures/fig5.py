@@ -32,16 +32,17 @@ from scipy import stats
 from hoc import figstyle as fs  # noqa: E402
 
 ANT, POST = "#b8312f", "#184f95"  # diverging poles: front (red) and back (blue), as in Fig 4A
+HUMAN = fs.SCALE_COLORS[114]  # one purple for human data in A and B (the x-axis already gives the scale)
 NETS = {  # network: (label, colour, marker)
-    "real": ("Human", "scale", "o"),
+    "real": ("Human", HUMAN, "o"),
     "strength": ("Strength-preserving", "#5f5e59", "s"),
     "geometric": ("Geometry-preserving", "#85847e", "D"),
     "weights": ("Weight-shuffled", "#a9a8a2", "^"),
 }
 Q1 = {  # condition: (label, colour)
-    "human": ("Human", "scale"),
+    "human": ("Human", HUMAN),
     "fixed": ("Null, same c", "#a9a8a2"),
-    "gap": ("Null, gap-matched c", "scale"),  # drawn hollow
+    "gap": ("Null, gap-matched c", "#5f5e59"),  # drawn hollow
 }
 COND = {  # core-cut condition: (label, colour)
     "cross": ("Front-back links", fs.HUB),
@@ -114,8 +115,8 @@ def panel_q1(ax, sets: pd.DataFrame) -> None:
     ax.set_ylim(0.3, 1.0)
     ax.set_ylabel("$q_1$ of degree-strength sets")
     ax.set_xlabel("Regions")
-    hs = handles([(Q1["human"][0], "scale", "o"), (Q1["fixed"][0], Q1["fixed"][1], "o")])
-    hs.append(mpl.lines.Line2D([], [], ls="", marker="o", ms=4, mfc="white", mec=fs.SCALE_COLORS[114], mew=0.9,
+    hs = handles([(Q1["human"][0], HUMAN, "o"), (Q1["fixed"][0], Q1["fixed"][1], "o")])
+    hs.append(mpl.lines.Line2D([], [], ls="", marker="o", ms=4, mfc="white", mec=Q1["gap"][1], mew=0.9,
                                label=Q1["gap"][0]))
     ax.legend(handles=hs, loc="upper center", ncol=3, fontsize=6,
               handletextpad=0.2, columnspacing=0.8, borderaxespad=0.1)

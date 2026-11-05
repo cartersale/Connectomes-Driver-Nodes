@@ -1,4 +1,4 @@
-"""Supplement S8: null networks (S8_1-S8_10), and the main-text numbers computed from the same code.
+"""Full tables S8_1-S8_10: null networks, and the main-text numbers computed from the same code.
 
 Reads <run>/null_models/.
 """
@@ -165,8 +165,8 @@ Wilcoxon p (uncorrected) not printed; all lambda1/gap p <= 1e-11; lambda2: 68 p 
 Also in network_inference.csv but not tabled: decay_ratio_c0.1 (real 0.20/0.17/0.20 vs null 0.31-0.39)."""))
 
 
-def _inf_table(inf: pd.DataFrame, stat: str) -> str:
-    sub = inf[(inf.stat == stat) & (inf.k == "avg")]
+def _inf_table(inf: pd.DataFrame, stat: str, k: str = "avg") -> str:
+    sub = inf[(inf.stat == stat) & (inf.k == k)]
     ncol = 4
     L = ["\\begin{tabular}{lll" + "r" * (ncol * len(SC)) + "}", "\\toprule",
          " & & & " + " & ".join(f"\\multicolumn{{{ncol}}}{{c}}{{{sc}}}" for sc in SC) + " \\\\",
@@ -197,20 +197,15 @@ def _s8_3_to_5(inf: pd.DataFrame) -> list[Table]:
     src = "Source: <run>/null_models/inference.csv (filters: stat == '{}', k == 'avg'; c_ref in 0.01, 0.1, 1; " \
           "c_mode fixed and gap). Real row = real mean. Per null: null mean, z~, n > 95th, p_Holm."
     return [
-        Table("S8_3", _inf_table(inf, "degree_q1"), note(
-            "S8.3 (c): degree-set q1 (k-avg over k=1,2,3,5), real vs null mean, fixed and gap-matched c.",
-            src.format("degree_q1"))),
-        Table("S8_4", _inf_table(inf, "degree_q1perp_pct"), note(
-            "S8.4a (d): W-perp residual -- percentile of degree-set q1(perp) among 100 random sets (k-avg).",
-            src.format("degree_q1perp_pct") + """
-At c = 0.1: z~ 0.29-0.68 (fixed),
-0.18-0.65 (gap); real 0.74/0.74/0.74 vs null 0.67-0.73; p_H <= 0.04.""")),
+        Table("S8_3", _inf_table(inf, "degree_q1", k="avg2+"), note(
+            "S8.3 (c): degree-set q1 (mean over k=2,3,5, as in the main text and Fig. 5B), real vs null mean, fixed and "
+            "gap-matched c.",
+            src.format("degree_q1").replace("k == 'avg'", "k == 'avg2+'"))),
         Table("S8_5", _inf_table(inf, "degree_q1perp"), note(
-            "S8.4b (d): W-perp residual -- raw degree-set q1(perp) (k-avg).",
+            "S8.5: degree-set q1 after projecting out v1 (k-avg).",
             src.format("degree_q1perp") + """
-Raw q1 after projecting out v1. Real vs null is essentially NULL here: c = 0.1 z~ -0.41..+0.29, most p_H = 1; the
-68 geometric null even has real < null (fixed p_H 0.019, gap 6e-6). => "small residual real-brain excess" holds only
-for the percentile-among-random-sets version (S8_4), not raw q1perp.""")),
+At c = 0.1: z~ -0.41..+0.29, most p_H = 1; at 68 regions the geometric null exceeds the empirical networks
+(fixed p_H 0.019, gap-matched 6e-6).""")),
     ]
 
 
@@ -263,7 +258,7 @@ Delta rows are medians -- they differ slightly from the means in S8_2 (e.g. geom
 rho rows = median over subjects of within-subject Spearman across that subject's 50 nulls (nulls only).
 Pearson r(r_W, s'Ws) shown to 3 dp. SD(s's)/mean shown to 4 dp (strength null 0.0005-0.0008 = <0.1%).
 cos(s,v1): real and null means computed from rayleigh/networks.csv.gz (simple mean over networks).
-Slack lambda1 - R1 real = median over subjects of slack_real (same for every null)."""), long=True)
+Slack lambda1 - R1 real = median over subjects of slack_real (same for every null)."""))
 
 
 def _s8_7(assort: dict) -> Table:

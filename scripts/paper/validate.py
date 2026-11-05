@@ -12,9 +12,11 @@ Checks (any failure exits non-zero, and the pipeline step does not complete):
 Reported, not failed:
   3. numbers whose computed text differs from the token the manuscript prints (registry ``printed``);
   4. stages whose outputs were reused from another run.
-With --manuscript DIR (a folder holding new_main.tex and supp_mat.tex):
-  5. tables the supplement inputs that the run does not generate, and generated tables it does not input;
-  6. printed tokens no longer found in the manuscript (the registry's record of the text is out of date);
+With --manuscript DIR (a folder holding the main text, --main, and supp_mat.tex):
+  5. tables the supplement inputs that the run does not generate, and generated tables that are neither input by
+     the supplement nor published (scripts/paper/table_catalog.py);
+  6. printed tokens found in none of the main text, the supplement and supplementary/additional_analyses.md
+     (the registry's record of the text is out of date);
   7. LaTeX number macros the manuscript uses that the registry does not define.
 
 The report is written to <run>/paper/validation_report.md. The reference is never updated implicitly:
@@ -34,6 +36,11 @@ from pathlib import Path
 
 from hoc.paths import REPO_ROOT
 from hoc.runs import git_state, read_manifest, resolve_run_dir, stage_from_argv
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from table_catalog import GROUPS  # noqa: E402
+
+ADDITIONAL = REPO_ROOT / "supplementary" / "additional_analyses.md"
 
 REFERENCE = REPO_ROOT / "reference"
 NUMBERS_REF = REFERENCE / "paper_numbers.json"
@@ -120,25 +127,25 @@ def reused(run_dir: Path) -> list[str]:
     return out
 
 
-def manuscript_checks(numbers: dict, tables: dict[str, Path], folder: Path) -> list[str]:
-    main = (folder / "new_main.tex").read_text() if (folder / "new_main.tex").exists() else ""
+def manuscript_checks(numbers: dict, tables: dict[str, Path], folder: Path, main_name: str) -> list[str]:
+    main = (folder / main_name).read_text() if (folder / main_name).exists() else ""
     supp = (folder / "supp_mat.tex").read_text() if (folder / "supp_mat.tex").exists() else ""
-    if not main and not supp:
-        return [f"- **no new_main.tex or supp_mat.tex in {folder}**"]
+    if not main or not supp:
+        return [f"- **{main_name} or supp_mat.tex not found in {folder}**"]
     out = []
-    cited = set(re.findall(r"\\[sl]tab\{([^}]+)\}", supp))
-    cited_files = {f"{c}_long.tex" if f"\\ltab{{{c}}}" in supp else f"{c}.tex" for c in cited}
+    cited_files = {f"{c}.tex" for c in re.findall(r"\\stab\{([^}]+)\}", supp)}
+    published = {f"{tid}.tex" for _, _, _, tabs in GROUPS for _, tid, _ in tabs}
     missing = sorted(c for c in cited_files if c not in tables)
-    uncited = sorted(t for t in tables if t not in cited_files)
+    unused = sorted(t for t in tables if t not in cited_files | published)
     out.append(f"- Supplement inputs {len(cited_files)} tables; " + (f"**not generated: {missing}**" if missing else "all generated."))
-    out.append(f"- Generated but not input by the supplement ({len(uncited)}): {', '.join(uncited) or 'none'}")
-    text = main + "\n" + supp
+    out.append(f"- Generated but neither input nor published ({len(unused)}): {', '.join(unused) or 'none'}")
+    text = main + "\n" + supp + "\n" + (ADDITIONAL.read_text() if ADDITIONAL.exists() else "")
     stale = []
     for name, v in numbers.items():
         token = v["context"].get("printed")
         if token and not re.search(r"(?<![\d.])" + re.escape(token) + r"(?![\d])", text):
             stale.append(f"`{name}` ({token})")
-    out.append(f"- Printed tokens no longer found in the manuscript ({len(stale)}): " + (", ".join(stale) or "none"))
+    out.append(f"- Printed tokens found in none of the documents ({len(stale)}): " + (", ".join(stale) or "none"))
     used = set(re.findall(r"\\([MS][A-Z][A-Za-z]+)\b", text))
     undefined = sorted(m for m in used if m not in numbers)
     out.append(f"- Number macros used in the manuscript: {len(used & set(numbers))} defined"
@@ -165,7 +172,8 @@ def main() -> None:
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("--run", default=None)
     p.add_argument("--overwrite", action="store_true")
-    p.add_argument("--manuscript", type=Path, default=None, help="Folder with new_main.tex and supp_mat.tex.")
+    p.add_argument("--manuscript", type=Path, default=None, help="Folder with the main text and supp_mat.tex.")
+    p.add_argument("--main", default="main.tex", help="File name of the main text in --manuscript (default main.tex).")
     p.add_argument("--write-reference", action="store_true", help="Write reference/ from this run.")
     p.add_argument("--reason", default=None, help="Why an existing reference is replaced (required to replace).")
     args = p.parse_args()
@@ -191,7 +199,7 @@ def main() -> None:
               "## 3. Computed numbers against the manuscript text", "", *printed_differences(numbers), "",
               "## 4. Reused stages", "", *reused(run_dir), ""]
     if args.manuscript:
-        report += ["## 5-7. Manuscript folder " + f"`{args.manuscript}`", "", *manuscript_checks(numbers, tables, args.manuscript), ""]
+        report += ["## 5-7. Manuscript folder " + f"`{args.manuscript}`", "", *manuscript_checks(numbers, tables, args.manuscript, args.main), ""]
     out = run_dir / "paper" / ("validation_report.md" if not standalone else "validation_report_manuscript.md")
     out.write_text("\n".join(report))
     print("\n".join(report))

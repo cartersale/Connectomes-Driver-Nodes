@@ -92,7 +92,7 @@ def panel_strength(ax, nodes: pd.DataFrame) -> None:
     ax.set_xscale("log")
     ax.set_yscale("log")
     ax.set_xlabel("Strength $s_i$")
-    ax.set_ylabel("Neighbours' $v_1$ loading $m_i$")
+    ax.set_ylabel("Mean $v_1$ of neighbors")
     fs.style(ax)
     ax.text(0.04, 0.96, f"median within-subject\nSpearman $\\rho$ = {med[SCALE]:.2f}", transform=ax.transAxes,
             ha="left", va="top", fontsize=6, color=fs.INK2)

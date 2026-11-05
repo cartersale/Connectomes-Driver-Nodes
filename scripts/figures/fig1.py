@@ -118,9 +118,9 @@ def panel_brain(fig, cell, geo, strength, v1, hub) -> dict:
 
 
 def panel_strips(ax, vals: dict, rng) -> None:
-    """Hub set (orange bar) against the random sets (grey strip, median line)."""
+    """Hub set (orange dot) against the random sets (grey strip, median line)."""
     for g, (name, (h, r)) in enumerate(vals.items()):
-        ax.bar(g - 0.17, h, width=0.26, color=fs.HUB)
+        ax.scatter(g - 0.17, h, s=28, color=fs.HUB, edgecolor="white", lw=0.6, zorder=4)
         x = g + 0.17 + rng.uniform(-0.1, 0.1, len(r))
         ax.scatter(x, r, s=1.5, color=fs.RANDOM, lw=0, alpha=0.5, rasterized=True, zorder=2)
         ax.plot([g + 0.03, g + 0.31], [np.median(r)] * 2, color=fs.INK, lw=0.9, zorder=3)
