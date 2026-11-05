@@ -1,4 +1,4 @@
-"""Supplement S5: damping c and horizon T (S5_1-S5_11).
+"""Full tables S5_1-S5_11: damping c, horizon T, larger driver sets and the nctpy normalization.
 
 Sources are under <run>/sensitivity/ and <run>/concentration/. Numbers quoted in the
 notes (check values, flip points, D values, large-k sizes) are computed from the saved CSVs.
@@ -121,8 +121,6 @@ For q1, 'positive' means cycle MORE concentrated than degree (cd_q1) or degree M
 
     # ---------------- S5c: sign-flip points ----------------
     sf = pd.read_csv(REG / "csweep_signflip.csv")
-    sk = pd.read_csv(REG / "csweep_signflip_per_k.csv")
-    dfs = pd.read_csv(Q1 / "decay_flip_summary.csv")
     rows = []
     for metric in ("effective_rank", "participation_ratio"):
         for scale in SCALES:
@@ -137,33 +135,9 @@ For q1, 'positive' means cycle MORE concentrated than degree (cd_q1) or degree M
     note = f"""S5c(i). c at which the cycle - degree difference changes sign (eps = 1e-5, k-averaged), from <run>/sensitivity/csweep_signflip.csv:
 'Mean curve' / 'Median curve' = linear interpolation of the zero crossing of the mean / median paired difference on the {len(cs)}-point c grid;
 'n+ < 35' = c at which fewer than half the subjects are positive (interpolated); last / first grid c with a Holm-significant positive /
-negative difference. '--' (PR, {' and '.join(map(str, pr_none))}): no sign change within c <= {cs[-1]:g}. Note the interpolated ER flip points are {slash(er_flip, 2).replace('/', ' / ')},
-not 'c ~ 0.6-0.7 (68, 114)'."""
+negative difference. '--' (PR, {' and '.join(map(str, pr_none))}): no sign change within c <= {cs[-1]:g}. Interpolated ER flip points (mean curve): {slash(er_flip, 2).replace('/', ' / ')}."""
     parts.append(Table("S5_5", tab, note))
 
-    rows = []
-    for scale in SCALES:
-        for k in (1, 2, 3, 5):
-            x = sk[(sk.scale == scale) & (sk.k == k)].iloc[0]
-            rows.append([str(scale) if k == 1 else "", str(k), num(x.c_flip_mean), num(x.c_flip_npos35)])
-    tab = tabular("llcc", ["Scale & $k$ & Mean-curve flip & $n_+<35$ flip \\\\"], rows)
-    note = """S5c(ii). Per-k ER sign-flip points (cycle - degree), from <run>/sensitivity/csweep_signflip_per_k.csv (eps = 1e-5).
-At k = 1 the ER difference is already near zero or negative at c = 0.1 (see S5f / T1-per-k), so its flip lies below the primary c.
-'--' = no zero crossing within the saved grid (empty CSV value; at k = 5 the 68/114 difference stays positive to c = 2)."""
-    parts.append(Table("S5_6", tab, note))
-
-    rows = []
-    for _, x in dfs.iterrows():
-        rows.append([{"cd_er": "Cycle $-$ degree ER", "cd_q1": "Cycle $-$ degree $q_1$"}[x.curve],
-                     {"flip_c": "$c$", "flip_decay": "decay ratio $d$"}[x.axis],
-                     num(x.median_68), num(x.median_114), num(x.median_219),
-                     f"{int(x.n_flip_68)} / {int(x.n_flip_114)} / {int(x.n_flip_219)}", num(x.max_over_min), ptex(x.kruskal_p)])
-    tab = tabular("llcccccc", ["Curve & Axis & Median 68 & Median 114 & Median 219 & Subjects that flip & max/min & Kruskal $p$ \\\\"], rows)
-    q1f = dfs[dfs.curve == "cd_q1"].iloc[0]
-    note = f"""S5c(iii)/S5d(ii). Per-subject first zero crossing on the 25-point grid, on the c axis and on the decay-ratio axis d = c/(c + lambda1 - lambda2).
-Source: <run>/concentration/decay_flip_summary.csv (medians over subjects that flip; 'Subjects that flip' of 70 per scale; max/min of the
-three scale medians; Kruskal-Wallis across scales). Only {int(q1f.n_flip_68)} / {int(q1f.n_flip_114)} / {int(q1f.n_flip_219)} subjects ever show a sign change in cycle - degree q1."""
-    parts.append(Table("S5_7", tab, note))
 
     # ---------------- S5d: decay collapse ----------------
     col = pd.read_csv(Q1 / "decay_collapse.csv")

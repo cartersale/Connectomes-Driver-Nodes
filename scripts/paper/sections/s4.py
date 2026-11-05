@@ -1,4 +1,4 @@
-"""Supplement S4: epsilon sweep, floor definitions, q1 vs eps, eigenvalue extremes (S4_1-S4_5).
+"""Full tables S4_1-S4_5: epsilon sweep, floor definitions, q1 vs eps, eigenvalue extremes.
 
 All sources are under <run>/sensitivity/, <run>/concentration/ and <run>/spectra/.
 """
@@ -172,5 +172,5 @@ all sets). lambda_min, lambda_max are eigenvalues of the floored W_eps. lambda_m
 equals lambda_max/eps. Last column is lambda_max/tr on the FLOORED Gramian (top1_share), which differs from the lead metric q1 (raw W)
 in the 3rd decimal at most at eps = 1e-5. Random / matched rows: means over all 100 sets per subject (matched sets as generated
 in the spectra run)."""
-    parts.append(Table("S4_5", tab, note, long=True))
+    parts.append(Table("S4_5", tab, note))
     return parts

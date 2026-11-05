@@ -1,7 +1,6 @@
-"""Supplement S7: set-level mechanism tables (S7_1-S7_11).
+"""Full tables S7_1-S7_9: single-region measures, set-level predictors and coverage.
 
 Sources are under <run>/modal_controllability/, <run>/concentration/ and <run>/mechanisms/.
-The L_S-q1 pooling table (S7_11) is computed by ``ls_q1_candidates`` below.
 """
 
 from __future__ import annotations
@@ -9,7 +8,6 @@ from __future__ import annotations
 from pathlib import Path
 
 from common import SCALES, Table, np, pd
-from scipy.stats import spearmanr
 
 S = list(SCALES)
 C = [0.01, 0.1, 1.0]
@@ -52,31 +50,8 @@ def notes(label: str, caption: str, note: str | None, size: str, detail: str) ->
     return "\n".join(out)
 
 
-def _rho(x: pd.DataFrame) -> float:
-    return spearmanr(x.loading, x.q1)[0]
-
-
-def ls_q1_candidates(res: Path) -> pd.DataFrame:
-    """Spearman rho(L_S, q1) from concentration/set_q1.csv.gz under several poolings."""
-    d = pd.read_csv(res / "concentration" / "set_q1.csv.gz", usecols=["subject_id", "scale", "c", "k", "family", "loading", "q1"])
-    out = []
-    for c in C:
-        for sc in S:
-            g = d[(d.c == c) & (d.scale == sc)]
-            for name, sub in [("all families, all k", g), ("all families, k>=2", g[g.k >= 2]),
-                              ("rankings+random (no cf/matched), all k", g[g.family.isin(BASE_FAMILIES)]),
-                              ("rankings+random, k>=2", g[g.family.isin(BASE_FAMILIES) & (g.k >= 2)])]:
-                out.append((c, str(sc), name, "pooled", _rho(sub)))
-            for name, sub in [("all families, all k", g), ("all families, k>=2", g[g.k >= 2])]:
-                r = pd.Series({sid: _rho(x) for sid, x in sub.groupby("subject_id")})
-                out.append((c, str(sc), name, "within-subj median", r.median()))
-            per = pd.DataFrame([(k, _rho(x)) for (_, k), x in g.groupby(["subject_id", "k"])], columns=["k", "rho"])
-            for k, v in per.groupby("k").rho.median().items():
-                out.append((c, str(sc), f"all families, k={k}", "within-subj(k) median", v))
-        g = d[d.c == c]
-        out.append((c, "all", "all families, all k", "pooled", _rho(g)))
-        out.append((c, "all", "all families, k>=2", "pooled", _rho(g[g.k >= 2])))
-    return pd.DataFrame(out, columns=["c", "scale", "sets", "pooling", "rho"])
+IDS = {"tab:S7_nodelevel": "S7_1", "tab:S7_withinsubj": "S7_2", "tab:S7_drivergram": "S7_3", "tab:S7_comm_geo": "S7_4",
+       "tab:S7_modal_sets": "S7_5", "tab:S7_coverage": "S7_7", "tab:S7_coverage_rho": "S7_8", "tab:S7_hubloading": "S7_9"}
 
 
 def build(res: Path) -> list[Table]:
@@ -84,7 +59,7 @@ def build(res: Path) -> list[Table]:
     tables = []
 
     def add(label, caption, colspec, header, rows, note, detail, size="\\scriptsize"):
-        tables.append(Table(f"S7_{len(tables) + 1}", tab(colspec, header, rows), notes(label, caption, note, size, detail)))
+        tables.append(Table(IDS[label], tab(colspec, header, rows), notes(label, caption, note, size, detail)))
 
     # --- S7.1 node-level correspondence
     n_all = pd.read_csv(M / "node_level_correlations.csv")
@@ -241,31 +216,6 @@ def build(res: Path) -> list[Table]:
   top_avg_ctrl vs eigenvector Jaccard = 0.88–0.98 at c = 0.1 (0.89–0.96 at k = 3).""",
         size="\\tiny")
 
-    # --- S7.6 ranked-set prediction (q1)
-    h = pd.read_csv(M / "ranked_set_prediction_summary.csv")
-    h = h[(h.c == 0.1) & (h.target == "q1")]
-    rows = []
-    cells = [f2(h[(h.scale == s) & (h.k == k) & (h.model == "node3")].obs_median.iloc[0]) for s in S for k in K]
-    rows.append("Observed cycle $-$ degree $\\Delta q_1$ & " + " & ".join(cells) + " \\\\")
-    for m, ml in [("node3", "node scores"), ("node3+redGperp", "node scores + $\\bar r_{G\\perp}$"),
-                  ("pshare", "Perron share $\\pi_S$"), ("q1G", "$q_1(G_S)$")]:
-        cells = []
-        for s in S:
-            for k in K:
-                r = h[(h.scale == s) & (h.k == k) & (h.model == m)].iloc[0]
-                cells.append(f"{f2(r.pred_median)} [{f2(r.rho_obs_pred_across_subjects)}]")
-        rows.append(f"Predicted: {ml} & " + " & ".join(cells) + " \\\\")
-    add("tab:S7_rankedpred",
-        "Out-of-sample prediction of the cycle $-$ degree $q_1$ difference from linear models fit on each subject's 100 random sets ($c=0.1$). Median predicted difference across subjects [Spearman $\\rho$ between observed and predicted differences across subjects].",
-        "l" + "c" * 9, scale_hdr + [kcols + "\\\\"], rows, None,
-        """Source: modal_controllability/ranked_set_prediction_summary.csv, target q1, c = 0.1.
-  Models are fit per subject on the 100 random sets (z-scored predictors), then applied to the cycle and degree sets.
-  Cells: median predicted cycle - degree Δq1 [Spearman rho between observed and predicted across subjects].
-  The node-score model overshoots the observed difference (frac_explained 0.80–1.98).
-  pi_S and q1(G_S) under-predict the magnitude (0.27–0.78) but track subjects best (rho up to 0.98).
-  ER-target rows exist in the CSV but are not tabulated. Node models predict the wrong sign for ER at 114/219 for k = 2–3.""",
-        size="\\tiny")
-
     # --- S7.7 coverage
     cb = pd.read_csv(MECH / "coverage_by_criterion.csv")
     cb = cb[cb.kgrp == "2+"]
@@ -355,78 +305,4 @@ def build(res: Path) -> list[Table]:
   L_max (largest attainable): real 0.74 / 0.67 / 0.58 vs nulls 0.53–0.79.
   "strength_assort" here is bct assortativity_wei (0.14 / 0.21 / 0.19), not the edge-weighted r_W of the Rayleigh-bound analysis (S8).""")
 
-    # --- S7.10 assortativity vs hub loading
-    ha = pd.read_csv(MECH / "hub_loading_assort_corr.csv")
-    rows = []
-    for y, yl in [("rho_logs_logm", "$\\rho(s_i,m_i)$"), ("cos_s_v1", "$\\cos(s,v_1)$"), ("L_deg_5", "$L_S$ (top-5 strength)"),
-                  ("l1", "$\\ell_1$"), ("gap", "Gap")]:
-        cells = []
-        for s in S:
-            r = ha[(ha.scale == s) & (ha.y == y)].iloc[0]
-            cells.append(f"{f2(r.rho_with_assort)} ({r.p:.2g})")
-        rows.append(yl + " & " + " & ".join(cells) + " \\\\")
-    add("tab:S7_assortcorr",
-        "Across real subjects ($n=70$): Spearman $\\rho$ of strength assortativity (bct) with hub-loading quantities ($p$).",
-        "lccc", ["& 68 & 114 & 219 \\\\"], rows, None,
-        """Source: mechanisms/hub_loading_assort_corr.csv (across 70 real subjects).
-  bct assortativity predicts rho(s_i, m_i) (0.60 / 0.57 / 0.66) but not L_S, the gap or l1 (|rho| <= 0.29).
-  The largest |rho| is l1 at 68, rho = -0.286, p = 0.016 (nominal; uncorrected).""")
-
-    # --- S7.11 L_S vs q1 candidates
-    cand = ls_q1_candidates(res)
-    pool = pd.read_csv(M / "pooled_spearman.csv")
-    pool = pool[(pool.target == "q1") & (pool.predictor == "perron_loading")]
-    xs = pd.read_csv(M / "cycle_minus_degree_node_vs_set.csv")
-    rows = []
-
-    def crow(lab, getter):
-        rows.append(lab + " & " + " & ".join(f2(getter(c, s)) for c in C for s in S) + " \\\\")
-
-    def cget(sets, pooling=None):
-        def get(c, s):
-            m = (cand.c == c) & (cand.scale == str(s)) & (cand.sets == sets)
-            if pooling is not None:
-                m &= cand.pooling == pooling
-            x = cand[m]
-            assert len(x) == 1, (sets, pooling, c, s)
-            return x.rho.iloc[0]
-        return get
-
-    crow("(a) Pooled, all sets, all $k$", cget("all families, all k", "pooled"))
-    crow("(b) Pooled, all sets, $k\\ge2$", cget("all families, k>=2", "pooled"))
-    crow("(c) Within-subj., all sets, $k\\ge2$", cget("all families, k>=2", "within-subj median"))
-    for k in [1, 2, 3, 5]:
-        crow(f"(d) Within-subj., all sets, $k={k}$", cget(f"all families, k={k}"))
-    for k in K:
-        crow(f"(e) Pooled (modal file), $k={k}$", lambda c, s, k=k: pool[(pool.c == c) & (pool.scale == s) & (pool.k == k)].rho.iloc[0])
-    for k in K:
-        crow(f"(f) Across subj., $\\Delta L_S$ vs $\\Delta q_1$, $k={k}$",
-             lambda c, s, k=k: xs[(xs.c == c) & (xs.scale == s) & (xs.k == k)]["q1~perron_loading"].iloc[0])
-    f9 = xs[(xs.c == 0.1) & xs.k.isin(K) & xs.scale.isin(S)]["q1~perron_loading"]
-    add("tab:S7_LS_q1",
-        "Spearman $\\rho(L_S,q_1)$ under different poolings of driver sets.",
-        "l" + "c" * 9,
-        ["& \\multicolumn{3}{c}{$c=0.01$} & \\multicolumn{3}{c}{$c=0.1$} & \\multicolumn{3}{c}{$c=1$} \\\\",
-         "\\cmidrule(lr){2-4}\\cmidrule(lr){5-7}\\cmidrule(lr){8-10}",
-         "Pooling " + "& 68 & 114 & 219 " * 3 + "\\\\"], rows,
-        "(a)--(d) computed by us (read-only) from \\texttt{concentration/set\\_q1.csv.gz} (all 18 set families incl.\\ random and matched sets; $q_1$ on raw $W$). (e) \\texttt{modal\\_controllability/pooled\\_spearman.csv} (random + ranked + counterfactual sets, pooled over subjects). (f) \\texttt{modal\\_controllability/cycle\\_minus\\_degree\\_node\\_vs\\_set.csv}: across 70 subjects, cycle $-$ degree differences.",
-        f"""Spearman rho(L_S, q1) under different poolings of driver sets.
-  (sensitivity/perron_spearman.csv and spectra/ hold L_S vs ER, not q1.)
-  Rows:
-    (a)-(d) COMPUTED in s7.ls_q1_candidates from concentration/set_q1.csv.gz (columns loading, q1; all 18 families incl. random AND
-      matched sets; q1 on raw W).
-      The frame also has "rankings+random only" variants (not tabulated; that variant omits cycle_resid).
-    (e) modal_controllability/pooled_spearman.csv, predictor perron_loading, target q1 (random + ranked + counterfactual; no matched sets).
-    (f) modal_controllability/cycle_minus_degree_node_vs_set.csv "q1~perron_loading" (across subjects, cycle - degree differences).
-  POOLING: rows (a)-(d) pool all 18 families INCLUDING the degree/spatial matched sets; (e) excludes matched sets; S7_4's
-  rho_L (within subject, 14 named + 100 random, k >= 2) also excludes them. These are different set collections.
-  Findings:
-    - At c = 0.1, pooled across k, rho(L_S, q1) is ~0 or negative: 0.03 / -0.06 / -0.19 (all k); -0.05 for all scales pooled.
-      This is because L_S grows with k while q1 does not, and at k = 1 the relation is strongly NEGATIVE (within-subject -0.89 / -0.87 / -0.87).
-    - Within a fixed k >= 3 it is strong: within-subject median 0.80 / 0.52 / 0.35 (k = 3), 0.95 / 0.88 / 0.76 (k = 5).
-      Pooled (modal file): 0.55 / 0.40 / 0.23 (k = 3), 0.85 / 0.74 / 0.59 (k = 5).
-    - Strongest at c = 0.01: pooled k >= 2, 0.88 / 0.80 / 0.66 (0.80 all scales pooled); within-subject k >= 2, 0.87 / 0.83 / 0.66.
-    - For the cycle vs degree comparison the relevant row is (f): across subjects, Delta L_S vs Delta q1 at c = 0.1.
-      The plain mean of those 9 cells is {f9.mean():.3f} (computed here). It is an across-subject correlation of differences, NOT "across all sets".""",
-        size="\\tiny")
     return tables

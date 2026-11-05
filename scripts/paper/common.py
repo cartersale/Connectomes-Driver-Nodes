@@ -1,7 +1,9 @@
-"""Shared helpers for the supplement-table builders in sections/.
+"""Shared helpers for the full-table builders in sections/.
 
 A builder module defines ``build(res: Path) -> list[Table]``, where ``res`` is the
 run directory (runs/<name>/). ``tables.py`` runs every builder and writes the files.
+Table ids (S4_1, S10_9, ...) are stable file names; ``table_catalog.py`` assigns each
+table to a section of the Supporting Information or to the additional analyses.
 Formatting is fixed: the tables must stay byte-identical to the release reference
 (reference/tables.sha256, checked by validate.py).
 """
@@ -42,19 +44,15 @@ LABEL = {
 
 @dataclass
 class Table:
-    """One supplement table, written to ``<id>.tex`` (and ``<id>_long.tex``).
+    """One full table, written to ``<id>.tex``.
 
-    ``tex`` is the tabular environment only (no comments). ``long`` also writes a
-    longtable copy for tables that break across pages; ``long_colspec`` replaces
-    the column spec in that copy when it differs. ``notes`` (source files,
+    ``tex`` is the tabular environment only (no comments). ``notes`` (source files,
     filters, definitions) go to ``notes/<id>.txt``.
     """
 
     id: str
     tex: str
     notes: str = ""
-    long: bool = False
-    long_colspec: str | None = None
 
 
 def is_nan(x) -> bool:
@@ -105,13 +103,3 @@ def tabular(colspec, header_lines, rows):
     out.append("\\bottomrule")
     out.append("\\end{tabular}")
     return "\n".join(out)
-
-
-def to_longtable(tex: str, colspec: str | None = None) -> str:
-    """The longtable copy used by \\ltab in supp_mat.tex."""
-    lines = tex.splitlines()
-    first = lines[0]
-    assert first.startswith("\\begin{tabular}{"), first
-    spec = first[len("\\begin{tabular}{"):-1] if colspec is None else colspec
-    body = "\n".join(lines[1:]).replace("\\end{tabular}", "\\end{longtable}")
-    return f"\\begin{{longtable}}{{{spec}}}\n\\caption{{\\ltcap}}\\label{{\\ltlab}}\\\\\n{body}"

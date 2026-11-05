@@ -3,9 +3,9 @@
 
     python scripts/paper/assemble.py --run paper
 
-After this step <run>/paper/ holds everything the manuscript uses:
-  figures/        main-text figures (PDF, SVG, PNG) and supp/ for the supplementary figures
-  tables/         supplementary tables (LaTeX), built by tables.py
+After this step <run>/paper/ holds the tables, numbers and provenance the manuscript uses (the figures are in
+<run>/figures/):
+  tables/         full tables and the tables the Supporting Information prints (LaTeX), built by tables.py
   key_results.json, numbers.csv, numbers.tex      the number registry, built by key_numbers.py
   validation_report.md                            built by validate.py
   provenance.json  config, seeds, input checksums, package versions, git commits and, per stage, the script
@@ -15,13 +15,10 @@ After this step <run>/paper/ holds everything the manuscript uses:
 from __future__ import annotations
 
 import json
-import shutil
 
 from hoc.runs import read_manifest, stage_from_argv
 
 STAGE = "paper/assemble"
-MAIN_FIGURES = ("fig1", "fig2", "fig3", "fig3b", "fig4", "fig5")
-SUPP_FIGURES = {"concentration/fig_decay_collapse.png": "supp/fig_decay_collapse.png"}
 
 
 def main() -> None:
@@ -29,20 +26,6 @@ def main() -> None:
     ctx.require_stage("paper/validate")
     ctx.begin()
     run, out = ctx.root, ctx.root / "paper"
-    written = []
-    for name in MAIN_FIGURES:
-        for ext in ("pdf", "svg", "png"):
-            src = run / "figures" / f"{name}.{ext}"
-            dst = out / "figures" / src.name
-            dst.parent.mkdir(parents=True, exist_ok=True)
-            shutil.copy2(src, dst)
-            written.append(dst)
-    for src_rel, dst_rel in SUPP_FIGURES.items():
-        dst = out / "figures" / dst_rel
-        dst.parent.mkdir(parents=True, exist_ok=True)
-        shutil.copy2(run / src_rel, dst)
-        written.append(dst)
-
     manifest = read_manifest(run)
     stages = manifest["stages"]
     last_env = next((rec["environment"] for rec in reversed(list(stages.values())) if rec.get("environment")), {})
@@ -65,9 +48,8 @@ def main() -> None:
     }
     path = out / "provenance.json"
     path.write_text(json.dumps(provenance, indent=1, default=str) + "\n")
-    written.append(path)
-    print(f"assembled {len(written)} files in {out}")
-    ctx.finish(outputs=written)
+    print(f"wrote {path}")
+    ctx.finish(outputs=[path])
 
 
 if __name__ == "__main__":

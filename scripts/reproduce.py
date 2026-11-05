@@ -172,7 +172,7 @@ STEPS += [
          ("concentration/02_tables", "concentration/03_decay_collapse", "concentration/04_redundancy_geodesic",
           "null_models/03_gap_mediators", "null_models/04_rayleigh_bound", "target_states/09_report_tables",
           "lesions/02_analyze_reciprocal_lesion", "topology/summarize_perturbation", "topology/summarize_representatives",
-          "mechanisms/02_canonical_graphs", "mechanisms/03_coverage_distance", "sensitivity/00_validate",
+          "mechanisms/02_canonical_graphs", "mechanisms/03_coverage_distance", "mechanisms/07_core_cut", "sensitivity/00_validate",
           "sensitivity/07_report_tables", "spectra/02_analyze", "modal_controllability/02_analyze_modal"),
          ("paper/tables/*.tex",), smoke=False),
     Step("paper/numbers", "scripts/paper/key_numbers.py",
@@ -181,7 +181,7 @@ STEPS += [
           "null_models/00_validate", P1),
          ("paper/key_results.json", "paper/numbers.csv", "paper/numbers.tex"), smoke=False),
     Step("paper/validate", "scripts/paper/validate.py", ("paper/numbers",), ("paper/validation_report.md",), smoke=False),
-    Step("paper/assemble", "scripts/paper/assemble.py", ("paper/validate",), ("paper/provenance.json", "paper/figures/fig1.pdf"),
+    Step("paper/assemble", "scripts/paper/assemble.py", ("paper/validate",), ("paper/provenance.json",),
          smoke=False),
 ]
 BY_STAGE = {s.stage: s for s in STEPS}

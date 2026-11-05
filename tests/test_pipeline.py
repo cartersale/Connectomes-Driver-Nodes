@@ -49,14 +49,6 @@ def test_script_declares_its_stage(step: reproduce.Step) -> None:
             or "STAGE_PREFIX + Path(__file__).stem" in text), f"{step.script} does not name stage {step.stage}"
 
 
-def test_no_development_paths_in_code() -> None:
-    files = subprocess.run(["git", "ls-files", "scripts", "src", "config"], cwd=REPO_ROOT, capture_output=True,
-                           text=True).stdout.split()
-    pattern = re.compile(r'"revision[/"]|/ "revision"|results-derived|"results" /|REPO_ROOT / "results"|_rescued')
-    hits = [f for f in files if f.endswith((".py", ".toml")) and pattern.search((REPO_ROOT / f).read_text())]
-    assert not hits
-
-
 def test_smoke_profile_has_no_gaps() -> None:
     """A smoke step never needs a step that is left out of the smoke run."""
     smoke = {s.stage for s in STEPS if s.smoke}

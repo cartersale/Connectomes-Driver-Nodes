@@ -1,4 +1,4 @@
-"""Supplement S11: reciprocal hub lesions (S11_1-S11_6).
+"""Full tables S11_1-S11_6: reciprocal hub lesions.
 
 All sources are in <run>/lesions/. The two correlations in the S11_6 footer are computed from
 lesion_rows.csv.gz exactly as scripts/analysis/lesions/02_analyze_reciprocal_lesion.py computes
@@ -67,21 +67,6 @@ def crossover_table(cs: pd.DataFrame) -> str:
                 v, lo, hi = f2(r["mean"]), f2(r.ci_lo), f2(r.ci_hi)
             L.append(f"{names[m] if lt == 'degree' else ''} & {nm} & {v} & [{lo}, {hi}] & {int(r.n_pos)}/{int(r.n)} & "
                      f"{pf(r.p_holm)} & {f2(r.r_rb)} \\\\")
-    return _end(L)
-
-
-def holm_cells_table(cs: pd.DataFrame) -> str:
-    L = ["\\begin{tabular}{lccc}", "\\toprule",
-         "Metric & Degree lesion & Cycle lesion & Random lesion \\\\", "\\midrule"]
-    for m, nm in [("dER", "ER"), ("dPR", "PR"), ("dER_excess", "ER excess"), ("dPct_ER", "ER percentile"),
-                  ("dPct_PR", "PR percentile"), ("dER_perN", "ER/$N$ (not recommended)")]:
-        cells = []
-        for lt in LESIONS:
-            c = cs[(cs.metric == m) & (cs.protocol == "static") & (cs.lesion_type == lt) & (cs.scale != "pooled")]
-            assert len(c) == 9, (m, lt)
-            sig = c[c.p_holm < 0.05]
-            cells.append(f"{int((sig['mean'] < 0).sum())} ($D<0$) / {int((sig['mean'] > 0).sum())} ($D>0$)")
-        L.append(nm + " & " + " & ".join(cells) + " \\\\")
     return _end(L)
 
 
@@ -193,11 +178,6 @@ of mean; Wilcoxon; Holm within metric x protocol (30 tests: 27 cells + 3 pooled)
 Pct metrics in percentile points (x100).
 {COMMON}
 {src}crossover_stats.csv (protocol = static, scale = pooled; metrics dER, dPR, dPct_ER, dPct_PR)."""),
-        Table("S11_3", holm_cells_table(cs),
-              f"""Number of Holm-significant (p_H < 0.05) scale x h cells out of 9, by sign of D (static).
-{COMMON}
-Computed from {src}crossover_stats.csv: for each metric x lesion, the 9 non-pooled (scale, h) rows with p_holm < 0.05, split by
-the sign of mean D."""),
         Table("S11_4", protocol_table(cs),
               f"""Protocol dependence. Mean ER and PR loss (pooled) under static vs recompute protocols; D = cycle - degree with
 n(D>0)/70 and Holm p.

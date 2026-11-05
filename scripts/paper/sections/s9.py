@@ -1,4 +1,4 @@
-"""Supplement S9: representative-cycle conventions and perturbation stability (S9_1-S9_8).
+"""Full tables S9_1-S9_8: representative-cycle conventions and perturbation stability.
 
 All sources are under <run>/topology/.
 """
@@ -101,7 +101,7 @@ overlap-matched = 100 random sets sharing exactly as many nodes with the degree 
 sets whose members match the variant's nodes' strength ranks within +/-5% of N. Degree row: degree set vs uniform null.
 Source: <run>/topology/tables/rep_null_comparisons.csv (columns random_mean, mean_pct_random, random_n_positive, overlap_*,
 strength_*). CIs and Wilcoxon p are in the CSV."""
-    parts.append(Table("S9_4", tab, note, long=True))
+    parts.append(Table("S9_4", tab, note))
 
     # ---------------- S9d: distance regressions ----------------
     dr = pd.read_csv(tb / "rep_distance_regressions.csv")

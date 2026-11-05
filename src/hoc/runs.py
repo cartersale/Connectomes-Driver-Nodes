@@ -455,7 +455,7 @@ def stage_from_argv(
 
 
 def reader_run_dir(argv: list[str] | None = None, *, variant: str | None = None) -> Path:
-    """Run directory for read-only consumers (figure scripts, notebooks).
+    """Run directory for read-only consumers (figure and table scripts).
 
     Uses ``--run`` from ``argv`` if present, else ``$HOC_RUN``, else the default,
     and fails clearly when the directory does not exist.

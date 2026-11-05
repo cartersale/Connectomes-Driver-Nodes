@@ -1,4 +1,4 @@
-"""Supplement S6: all criteria vs random sets, and matched controls (S6_1-S6_6).
+"""Full tables S6_1-S6_6: all criteria vs random sets, and matched controls.
 
 All sources are under <run>/concentration/.
 """
@@ -46,7 +46,7 @@ def build(res: Path) -> list[Table]:
     Wilcoxon p and Holm p (column p_holm) are in the CSV. q1 is on raw W; ER and PR on W_eps.
     For ER/PR, positive Delta = MORE evenly distributed than random; for q1, positive Delta = MORE concentrated than random.
     Top-k modal (Gu) and (CT) are near-identical sets; 'Lowest Perron loading' = the k nodes with smallest v1(i)^2."""
-        parts.append(Table(f"S6_{len(parts) + 1}", tab, note, long=True))
+        parts.append(Table(f"S6_{len(parts) + 1}", tab, note))
 
     # matched controls
     COMPS = ["cycle - degree", "cycle - random", "cycle - degree_matched", "cycle - spatial_matched", "cycle - degree_spatial_matched",
@@ -79,5 +79,5 @@ def build(res: Path) -> list[Table]:
     defined in scripts/analysis/concentration/02_tables.py). Spatially matched and degree+spatially matched sets exist only for k >= 2, so their
     'avg' rows average k in {{2,3,5}} (n_k = 3) and equal the 'avg k>=2' rows. 'Degree-residualized cycle' = cycle participation after
     regressing out degree strength (family cycle_resid)."""
-        parts.append(Table(f"S6_{len(parts) + 1}", tab, note, long=True))
+        parts.append(Table(f"S6_{len(parts) + 1}", tab, note))
     return parts

@@ -1,0 +1,43 @@
+Group,Set,log10 lambda_min,% rows lambda_min=eps,log10 lambda_max (SD),Frac. numerically 0,Frac. lambda(W)<eps,lambda_max/tr W_eps
+68 regions,Degree strength,-5.00,100,+0.34 (0.10),0.71,0.86,0.77
+68 regions,Eigenvector centrality,-5.00,100,+0.40 (0.09),0.71,0.87,0.81
+68 regions,Betweenness,-5.00,100,+0.07 (0.21),0.70,0.86,0.66
+68 regions,Cycle participation,-5.00,100,-0.16 (0.23),0.70,0.86,0.59
+68 regions,Participation coefficient,-5.00,100,-0.37 (0.12),0.70,0.87,0.52
+68 regions,Triangle participation,-5.00,100,-0.23 (0.19),0.70,0.87,0.59
+68 regions,Tetrahedron participation,-5.00,100,-0.32 (0.15),0.70,0.87,0.55
+68 regions,Degree-normalized cycle part.,-5.00,100,-0.47 (0.05),0.72,0.90,0.51
+68 regions,Cycle criticality,-5.00,100,-0.05 (0.25),0.70,0.86,0.62
+68 regions,Cycle part. (degree-residualized),-5.00,100,-0.37 (0.10),0.70,0.87,0.52
+68 regions,Random (100/subject),-5.00,100,-0.36 (0.05),0.70,0.87,0.53
+68 regions,Degree-matched random,-5.00,100,-0.22 (0.14),0.70,0.86,0.55
+68 regions,Spatially matched random,-5.00,100,-0.30 (0.06),0.65,0.85,0.40
+68 regions,Degree+spatially matched random,-5.00,100,-0.18 (0.16),0.64,0.84,0.44
+114 regions,Degree strength,-5.00,100,+0.28 (0.10),0.82,0.92,0.77
+114 regions,Eigenvector centrality,-5.00,100,+0.33 (0.09),0.82,0.92,0.80
+114 regions,Betweenness,-5.00,100,+0.02 (0.22),0.81,0.92,0.67
+114 regions,Cycle participation,-5.00,100,-0.31 (0.24),0.81,0.92,0.56
+114 regions,Participation coefficient,-5.00,100,-0.49 (0.10),0.82,0.92,0.52
+114 regions,Triangle participation,-5.00,100,-0.49 (0.10),0.82,0.92,0.51
+114 regions,Tetrahedron participation,-5.00,100,-0.50 (0.09),0.82,0.92,0.51
+114 regions,Degree-normalized cycle part.,-5.00,100,-0.55 (0.07),0.83,0.94,0.51
+114 regions,Cycle criticality,-5.00,100,-0.06 (0.23),0.81,0.92,0.63
+114 regions,Cycle part. (degree-residualized),-5.00,100,-0.46 (0.13),0.81,0.92,0.51
+114 regions,Random (100/subject),-5.00,100,-0.46 (0.07),0.82,0.92,0.52
+114 regions,Degree-matched random,-5.00,100,-0.36 (0.15),0.81,0.92,0.52
+114 regions,Spatially matched random,-5.00,100,-0.43 (0.06),0.78,0.91,0.38
+114 regions,Degree+spatially matched random,-5.00,100,-0.32 (0.17),0.78,0.90,0.41
+219 regions,Degree strength,-5.00,100,+0.18 (0.14),0.90,0.95,0.72
+219 regions,Eigenvector centrality,-5.00,100,+0.27 (0.11),0.90,0.96,0.79
+219 regions,Betweenness,-5.00,100,-0.14 (0.24),0.90,0.95,0.61
+219 regions,Cycle participation,-5.00,100,-0.46 (0.13),0.90,0.96,0.52
+219 regions,Participation coefficient,-5.00,100,-0.55 (0.07),0.90,0.96,0.51
+219 regions,Triangle participation,-5.00,100,-0.54 (0.08),0.90,0.96,0.51
+219 regions,Tetrahedron participation,-5.00,100,-0.54 (0.08),0.90,0.96,0.51
+219 regions,Degree-normalized cycle part.,-5.00,100,-0.59 (0.06),0.91,0.97,0.51
+219 regions,Cycle criticality,-5.00,100,-0.23 (0.23),0.90,0.95,0.58
+219 regions,Cycle part. (degree-residualized),-5.00,100,-0.53 (0.08),0.90,0.96,0.50
+219 regions,Random (100/subject),-5.00,100,-0.53 (0.06),0.90,0.96,0.51
+219 regions,Degree-matched random,-5.00,100,-0.44 (0.09),0.90,0.96,0.51
+219 regions,Spatially matched random,-5.00,100,-0.51 (0.05),0.88,0.95,0.36
+219 regions,Degree+spatially matched random,-5.00,100,-0.40 (0.11),0.88,0.95,0.39

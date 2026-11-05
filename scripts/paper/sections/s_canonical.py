@@ -1,4 +1,4 @@
-"""Supplement S_canonical: hub concentration in canonical model networks vs connectomes.
+"""Full table S_canonical: hub concentration in canonical model networks vs connectomes.
 
 Built from <run>/mechanisms/canonical_summary.csv (written by
 scripts/analysis/mechanisms/02_canonical_graphs.py).

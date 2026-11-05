@@ -40,6 +40,7 @@ def panel_split(fig, cell, root: Path, axes_tab: pd.DataFrame, subj: pd.DataFram
     m = float(np.abs(a).max())
     norm = TwoSlopeNorm(vmin=-m, vcenter=0, vmax=m)
     sub = cell.subgridspec(1, 3, width_ratios=[1, 1, 1.05], wspace=0.22)
+    brains = []
     for j, view in enumerate(("L_medial", "R_medial")):
         ax = fig.add_subplot(sub[0, j])
         fs.draw_view(ax, geo, view, a, fs.DIV, norm, outline=top)
@@ -51,6 +52,16 @@ def panel_split(fig, cell, root: Path, axes_tab: pd.DataFrame, subj: pd.DataFram
         else:
             ax.text(0.02, 0.08, "front", transform=ax.transAxes, color=fs.DIV(0.95), fontsize=6, ha="left", va="top")
             ax.text(0.98, 0.08, "back", transform=ax.transAxes, color=fs.DIV(0.05), fontsize=6, ha="right", va="top")
+        brains.append(ax)
+    # signed colorbar centred under the two views: sign = side of the split, 0 = on the boundary
+    p0, p1 = brains[0].get_position(), brains[1].get_position()
+    w = 0.16
+    cax = fig.add_axes([(p0.x0 + p1.x1) / 2 - w / 2, p0.y0 - 0.02, w, 0.012])
+    cb = fig.colorbar(mpl.cm.ScalarMappable(norm=norm, cmap=fs.DIV), cax=cax, orientation="horizontal")
+    cb.outline.set_visible(False)
+    cb.set_ticks([-m, 0, m], labels=["−", "0", "+"])
+    cax.tick_params(length=0, labelsize=6, pad=1)
+    cb.set_label("$v_2$–$v_3$ axis", fontsize=6, color=fs.INK2, labelpad=1)
     # which eigenvector holds the split
     ax = fig.add_subplot(sub[0, 2])
     names = ("v2", "v3", "later")
