@@ -1,4 +1,0 @@
-scale,selection_strategy,target_family,metric,n_parcels,median_parcel_subject_average,ci_low,ci_high,n_significantly_negative,n_significantly_positive,n_null,fraction_significantly_negative,fraction_significantly_positive,fraction_null
-68,static,single_cortical_parcel,pct_cycle_minus_degree,68,-0.296080467785303,-1.3681583893049925,13.375844995038094,26,16,26,0.3823529411764705,0.2352941176470588,0.3823529411764705
-114,static,single_cortical_parcel,pct_cycle_minus_degree,114,-0.8993871835610818,-1.5865607112971118,-0.5376076893252225,57,29,28,0.5,0.2543859649122807,0.2456140350877192
-219,static,single_cortical_parcel,pct_cycle_minus_degree,219,-0.4266518527834985,-0.6043276407066678,-0.2699639704448529,110,50,59,0.502283105022831,0.228310502283105,0.2694063926940639

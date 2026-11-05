@@ -16,9 +16,6 @@ venv/
 # --- Local material that is not part of the code release ---
 /paper/
 /presentation/
-/media/
-/results
-/figures/
 
 # --- LaTeX build artifacts ---
 *.tex

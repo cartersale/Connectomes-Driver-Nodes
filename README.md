@@ -1,11 +1,9 @@
-# Multi-site hub inputs funnel control into the dominant mode of the human connectome
+# Hub Inputs Funnel Control into the Connectome's Dominant Mode
 
 Analysis code for:
 
 > Carter Sale, Marco Coraggio, Mengsen Zhang, Michael J. Richardson.
-> *Multi-site hub inputs funnel control into the dominant mode of the human connectome.*
-> Submitted to *Network Neuroscience*. An earlier version is available as a preprint:
-> arXiv:2608.03181 (posted as "Persistent Homology Broadens the Controllable Subspace in Human Structural Connectomes").
+> *Hub Inputs Funnel Control into the Connectome's Dominant Mode.*
 
 ## Overview
 
@@ -29,7 +27,7 @@ Requires [uv](https://docs.astral.sh/uv/). The environment is locked (`uv.lock`)
 produced the paper's results; uv installs Python 3.12 if needed.
 
 ```bash
-git clone https://github.com/cartersale/Homology-Control-Connectomes.git && cd Homology-Control-Connectomes
+git clone https://github.com/cartersale/Connectomes-Driver-Nodes.git && cd Connectomes-Driver-Nodes
 uv sync --frozen --all-extras
 uv run pytest                 # unit tests, about a minute
 ```
@@ -74,12 +72,12 @@ uv run pytest -m slow                          # the same, compared with tests/g
 
 ## Results
 
-Everything the manuscript uses ends up in `runs/paper/paper/`:
+The figures are written to `runs/paper/figures/` (PDF, SVG and PNG). Everything else the manuscript uses ends up in
+`runs/paper/paper/`:
 
 | Path | Contents |
 | --- | --- |
-| `figures/` | Figures 1–5 (and Fig. 3B) as PDF, SVG and PNG; `supp/` holds the supplementary figures |
-| `tables/` | Every supplementary table as LaTeX (`S4_1.tex`, ...), with `notes/` describing how each was computed |
+| `tables/` | The full tables as LaTeX (`S4_1.tex`, ...), with `notes/` describing how each was computed, and the tables the Supporting Information prints (`C_*.tex`, `S_canonical.tex`) |
 | `key_results.json` | Every number quoted in the paper, unrounded, with its source file and what it refers to |
 | `numbers.csv` | The same as a table, with the presentation text and the text the manuscript prints |
 | `numbers.tex` | One LaTeX macro per number (`\newcommand{\MQOneHubTwoFiveMin}{67}`) |
@@ -87,6 +85,8 @@ Everything the manuscript uses ends up in `runs/paper/paper/`:
 | `provenance.json` | Configuration, seeds, input checksums, package versions and git commits of the run |
 
 The intermediate outputs of each analysis are in `runs/paper/<group>/` (for example `runs/paper/concentration/`).
+The full tables are also published in [`supplementary/`](supplementary/) as CSV files with an index, together with
+analyses that are not part of the paper ([`supplementary/additional_analyses.md`](supplementary/additional_analyses.md)).
 [docs/paper_map.md](docs/paper_map.md) maps every figure panel and table of the manuscript to the script that
 makes it and the outputs it reads.
 
@@ -110,7 +110,8 @@ scripts/analysis/          one folder per analysis, scripts numbered in run orde
   lesions/                 reciprocal hub lesions
   topology/                stability of cycle participation across representatives and perturbations
 scripts/figures/           Figures 1-5
-scripts/paper/             supplementary tables, number registry, validation, assembly, manuscript sync
+scripts/paper/             tables, number registry, validation, assembly, manuscript sync, CSV publication
+supplementary/             every full table as CSV, with an index and the methods of the additional analyses
 reference/                 release reference: input checksums, paper numbers, table checksums
 tests/                     unit tests and the synthetic-pipeline regression test
 docs/                      data, reproduction, pipeline and figure/table map, limitations
@@ -118,14 +119,13 @@ docs/                      data, reproduction, pipeline and figure/table map, li
 
 ## Citation
 
-Until the article is published, please cite the preprint (see [CITATION.cff](CITATION.cff)):
+If you use this code, please cite the article (see [CITATION.cff](CITATION.cff)):
 
 ```bibtex
-@misc{sale2026hubinputs,
-  title  = {Multi-site hub inputs funnel control into the dominant mode of the human connectome},
+@article{sale2026hubinputs,
+  title  = {Hub Inputs Funnel Control into the Connectome's Dominant Mode},
   author = {Sale, Carter and Coraggio, Marco and Zhang, Mengsen and Richardson, Michael J.},
   year   = {2026},
-  note   = {Submitted to Network Neuroscience. Preprint: arXiv:2608.03181},
 }
 ```
 

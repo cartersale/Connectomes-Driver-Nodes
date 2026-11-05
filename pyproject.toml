@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "higher-order-connectomes"
 version = "0.1.0"
-description = "Analysis code for: Multi-site hub inputs funnel control into the dominant mode of the human connectome."
+description = "Analysis code for: Hub Inputs Funnel Control into the Connectome's Dominant Mode."
 readme = "README.md"
 requires-python = ">=3.12,<3.13"
 dependencies = [
