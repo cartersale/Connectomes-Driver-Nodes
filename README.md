@@ -1,4 +1,4 @@
-# Homology-Control-Connectomes
+# Connectome Driver Nodes
 
 Analysis code for:
 
