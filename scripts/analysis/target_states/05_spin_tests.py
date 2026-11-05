@@ -2,8 +2,8 @@
 """Spin tests for parcelwise correlations.
 
 Rank divergence = degree rank - cycle rank from subject-averaged scores (positive = cycle priority).
-Correlated (Spearman) with: Margulies G1 (the first version's misregistered projection, reported as the legacy row; and the
-correctly registered projection), Margulies G2 (registered). Also degree vs cycle participation (subject-averaged scores).
+Correlated (Spearman) with the Margulies G1 and G2 gradients (fsLR resampled to fsaverage5 through the registered
+sphere, hoc.targets.registered_nn). Also degree vs cycle participation (subject-averaged scores).
 Nulls: 10,000 spherical rotations of parcel centroids on the fsaverage5 sphere, reassigned with the Vasa (2018)
 method and, secondarily, the original Alexander-Bloch (2018) method (neuromaps.nulls.spins.gen_spinsamples),
 seed 20260423. Two-sided p = (1 + #|rho_null| >= |rho_obs|) / (1 + n_spins). The rank-divergence map is spun.
@@ -56,15 +56,14 @@ for scale in C.SCALES:
     spins = {m: gen_spinsamples(coords, hemiid, n_rotate=N_SPIN, method=m, seed=C.SEED) for m in ("vasa", "original")}
     rt = rank_table(scale)
     maps = {
-        "G1_legacy_projection": C.margulies_parcel(scale, 1, registered=False),
-        "G1_registered": C.margulies_parcel(scale, 1),
-        "G2_registered": C.margulies_parcel(scale, 2),
+        "G1": C.margulies_parcel(scale, 1),
+        "G2": C.margulies_parcel(scale, 2),
     }
     div = rt.divergence.to_numpy()
     tests = [("rank_divergence", name, div, m) for name, m in maps.items()]
     tests.append(("degree_strength", "cycle_participation", rt.degree_strength.to_numpy(), rt.cycle_participation.to_numpy()))
-    tests += [("degree_strength", name, rt.degree_strength.to_numpy(), m) for name, m in maps.items() if "legacy" not in name]
-    tests += [("cycle_participation", name, rt.cycle_participation.to_numpy(), m) for name, m in maps.items() if "legacy" not in name]
+    tests += [("degree_strength", name, rt.degree_strength.to_numpy(), m) for name, m in maps.items()]
+    tests += [("cycle_participation", name, rt.cycle_participation.to_numpy(), m) for name, m in maps.items()]
     for xname, yname, x, y in tests:
         r = spearmanr(x, y)
         row = dict(scale=scale, x=xname, y=yname, spearman_rho=r.statistic, parametric_p=r.pvalue, n_parcels=len(x), n_spins=N_SPIN)

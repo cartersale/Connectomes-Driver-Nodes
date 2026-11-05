@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""Target energies with corrected targets, driver-target overlap, driver-excluded targets, and distance.
+"""Target energies for the target sets, driver-target overlap, driver-excluded targets, and distance.
 
 Per subject x scale x k x method (static top-k degree_strength / cycle_participation, saved driver sets):
   energy_full      x*^T W_eps^{-1} x*  (c = 0.1, eps = 1e-5)

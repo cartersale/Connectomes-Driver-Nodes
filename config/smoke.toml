@@ -55,8 +55,7 @@ hub_counts = [5]
 methods = ["degree_strength", "cycle_participation"]
 
 [anatomy]
-# Exact Desikan-Killiany base-region names (no substring matching, which would
-# let "cuneus" also match "precuneus").
+# Exact Desikan-Killiany base-region names.
 association_regions = [
   "superiorfrontal", "rostralmiddlefrontal", "caudalmiddlefrontal",
   "lateralorbitofrontal", "medialorbitofrontal", "frontalpole",
