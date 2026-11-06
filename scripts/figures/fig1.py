@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""Figure 1: where inputs enter shapes what they can reach (orienting figure).
+"""Figure 1: the control model, the leading eigenvector v1 and a three-hub driver set.
 
 A  The control model on the real network: the cohort-reference connectome seen from above, node size = strength,
    strongest 5% of links drawn. Inputs u(t) enter the 3 strongest regions (hub set).
