@@ -48,10 +48,21 @@ def mean_pairwise(M: np.ndarray, nodes: np.ndarray) -> float:
     return float(vals.mean()) if np.all(np.isfinite(vals)) else np.nan
 
 
+def rank(v: np.ndarray) -> np.ndarray:
+    """Average ranks of ``v`` rounded to 10 significant digits, so values equal up to roundoff tie on every
+    machine (random sets repeat, and their q1 and distances then differ only in the last digits)."""
+    v = np.asarray(v, dtype=float)
+    scale = 10.0 ** np.floor(np.log10(np.abs(np.where(v == 0, 1.0, v))))
+    return pd.Series(np.round(v / scale, 9) * scale).rank().to_numpy()
+
+
 def rank_resid(y: np.ndarray, covs: list[np.ndarray]) -> np.ndarray:
-    r = pd.Series(y).rank().to_numpy()
-    Z = np.column_stack([np.ones_like(r)] + [pd.Series(c).rank().to_numpy() for c in covs])
-    return r - Z @ np.linalg.lstsq(Z, r, rcond=None)[0]
+    r = rank(y)
+    Z = np.column_stack([np.ones_like(r)] + [rank(c) for c in covs])
+    e = r - Z @ np.linalg.lstsq(Z, r, rcond=None)[0]
+    # When the covariates determine the ranks, what is left is roundoff; zero it so corr() returns NaN.
+    e[np.abs(e) < 1e-9 * len(r)] = 0.0
+    return e
 
 
 def corr(a, b) -> float:
@@ -86,17 +97,17 @@ def job(scale: int, si: int, A: np.ndarray, sets: pd.DataFrame) -> list[dict]:
             L = g["loading"].to_numpy()
             ok = np.all([np.isfinite(v) for v in x.values()], axis=0)
             row = {"scale": scale, "subject_id": f"sub-{si:03d}", "c": c, "k": k, "n_sets": int(ok.sum())}
-            rq = pd.Series(q1[ok]).rank().to_numpy()
+            rq = rank(q1[ok])
             rq_L = rank_resid(q1[ok], [L[ok]])
-            row["rho_L"] = corr(pd.Series(L[ok]).rank().to_numpy(), rq)
+            row["rho_L"] = corr(rank(L[ok]), rq)
             for p in PREDICTORS:
                 xp = x[p][ok]
-                row[f"rho_{p}"] = corr(pd.Series(xp).rank().to_numpy(), rq)
+                row[f"rho_{p}"] = corr(rank(xp), rq)
                 row[f"prho_{p}|L"] = corr(rank_resid(xp, [L[ok]]), rq_L)
             for geo in ("geo_inv", "geo_log"):
                 row[f"prho_comm|L,{geo}"] = corr(rank_resid(x["comm"][ok], [L[ok], x[geo][ok]]), rank_resid(q1[ok], [L[ok], x[geo][ok]]))
                 row[f"prho_{geo}|L,comm"] = corr(rank_resid(x[geo][ok], [L[ok], x["comm"][ok]]), rank_resid(q1[ok], [L[ok], x["comm"][ok]]))
-            row["rho_geo_inv_comm"] = corr(pd.Series(x["geo_inv"][ok]).rank().to_numpy(), pd.Series(x["comm"][ok]).rank().to_numpy())
+            row["rho_geo_inv_comm"] = corr(rank(x["geo_inv"][ok]), rank(x["comm"][ok]))
             rows.append(row)
     return rows
 

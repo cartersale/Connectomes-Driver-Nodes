@@ -7,8 +7,10 @@ compares a fingerprint of every output table with tests/golden/synthetic.json:
 - text columns (driver sets, labels, rankings as strings) must match exactly;
 - numeric columns are compared through their sum and sum of absolute values
   (rtol 1e-6), which catches any change to a computed value;
-- columns set purely by roundoff (no-floor eigenvalue extremes) are left out, so
-  macOS/Accelerate and Linux/OpenBLAS give the same fingerprint.
+- columns set purely by roundoff (no-floor eigenvalue extremes) are left out.
+
+The fingerprints are computed on macOS (arm64, Apple Accelerate), and CI runs this test there: the synthetic
+data has many values tied up to roundoff, which other BLAS libraries can rank differently.
 
 If a change to the numbers is intended, regenerate the golden file with
     uv run python tests/test_synthetic_pipeline.py --update
