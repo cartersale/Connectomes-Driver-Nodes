@@ -37,12 +37,14 @@ def pow10_ceil(x: float) -> str:
 
 
 def _mk(name, value, computed, printed, source, locus, context, bound=None):
-    """Build a Number with the computed text; the token printed in the manuscript goes to context["printed"]."""
+    """Build a Number with the computed text; the token printed in the manuscript goes to context["printed"]
+    (None: the number is stated in words that carry no token)."""
     ctx = dict(context)
     if bound is not None:  # bound = (holds: bool, description)
         ctx["bound"] = bound[1]
         ctx["bound_holds"] = bool(bound[0])
-    ctx["printed"] = printed
+    if printed is not None:
+        ctx["printed"] = printed
     return Number(name, float(value), computed, source, tuple(locus), ctx)
 
 
@@ -82,13 +84,14 @@ def collect(run: Path) -> list[Number]:
                    ("subsec:model", "subsec:perron"),
                    {"stat": "number of isolated (zero-strength) regions in the disconnected subject, each scale"}))
 
-    # ---- methods:gramian: "This solution agreed with a direct Lyapunov solver to within 10^{-13}."
+    # ---- Methods, Controllability Gramian (a subsection without a label): "Some analyses used a direct Lyapunov
+    #      solver instead; the two solutions agreed to within 10^{-13}."
     v = json.loads((rev / "sensitivity" / "validation.json").read_text())["library_vs_eigbasis"]
     worst = max(v["max_abs_W"], v["rel_W"])
     out.append(_mk("MLyapunovAgreement", worst, pow10_ceil(worst), "10^{-13}",
                    f"sensitivity/00_validate: sensitivity/validation.json | library_vs_eigbasis max(max_abs_W="
                    f"{v['max_abs_W']:.2g}, rel_W={v['rel_W']:.2g}); next power of ten",
-                   ("methods:gramian",), {"comparison": "closed-form eigenbasis Gramian vs scipy Lyapunov solver"},
+                   ("subsec:gramian",), {"comparison": "closed-form eigenbasis Gramian vs scipy Lyapunov solver"},
                    bound=(worst <= 1e-13, "<=")))
 
     # ---- subsec:nulls: "mean correlation with the original strengths 0.998 to 0.999"
@@ -99,6 +102,17 @@ def collect(run: Path) -> list[Number]:
     for nm, val, ms in (("MStrengthNullFidelityMin", sr.min(), "0.998"), ("MStrengthNullFidelityMax", sr.max(), "0.999")):
         out.append(_mk(nm, val, fx(val, 3), ms, src.format("min" if nm.endswith("Min") else "max"), ("subsec:nulls",),
                        {"null": "strength", "stat": "mean over subjects and nulls", "per_scale": sr.round(4).to_dict()}))
+
+    # ---- subsec:nulls: "the five strongest regions were almost always unchanged"; sec:nulls: "almost always kept the
+    #      five strongest regions". Share of strength-preserving nulls whose five strongest regions are those of the
+    #      connectome (Jaccard index 1); no token is printed.
+    top5 = pd.read_csv(rev / "null_models" / "networks.csv.gz", usecols=["null", "scale", "strength_top5_jaccard"])
+    kept = top5[top5.null == "strength"].groupby("scale").strength_top5_jaccard.apply(lambda j: float((j == 1).mean()))
+    out.append(_mk("MStrengthNullTopFiveKeptPctMin", 100 * kept.min(), fx(100 * kept.min(), 1), None,
+                   "null_models/02_analyze: null_models/networks.csv.gz | null == 'strength' (70 subjects x 50 nulls per "
+                   "scale); share of nulls with strength_top5_jaccard == 1, x 100, min over scales (per scale: "
+                   + ", ".join(f"{s}: {100 * v:.1f}" for s, v in kept.items()) + "); text: 'almost always'",
+                   ("subsec:nulls", "sec:nulls"), {"null": "strength", "stat": "share of null networks, min over scales"}))
 
     # ---- subsec:nulls: "mean connection length within 1\% of the original"
     real = nf[nf.null == "real"].set_index("scale").mean_edge_length

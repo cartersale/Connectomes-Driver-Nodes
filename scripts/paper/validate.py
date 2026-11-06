@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""Check a run's paper numbers and tables against the release reference, and report on the manuscript.
+r"""Check a run's paper numbers and tables against the release reference, and report on the manuscript.
 
     python scripts/paper/validate.py --run paper                     # as the pipeline step paper/validate
     python scripts/paper/validate.py --run paper --manuscript DIR    # also check a manuscript folder (read-only)
@@ -15,7 +15,12 @@ Reported, not failed:
 With --manuscript DIR (a folder holding the main text, --main, and supp_mat.tex):
   5. tables the supplement inputs that the run does not generate, and generated tables that are neither input by
      the supplement nor published (scripts/paper/table_catalog.py);
-  6. printed tokens found in neither the main text nor the supplement (the registry's record of the text is out of date);
+  6. printed tokens not found at their locus. Each number's ``locus`` names LaTeX labels; the token is searched only in
+     the text those labels anchor (comments and ``\rev{...}`` wrappers removed): for a figure or table label, its
+     caption; for any other label, the block from the heading before the label (\section, \subsection,
+     \subsubsection or \paragraph) to the next heading of the same or higher level, without the figures and tables
+     placed inside it. Loci with no such label are reported as unknown. A token missing at its locus but present
+     elsewhere in the main text or supplement is reported with that information;
   7. LaTeX number macros the manuscript uses that the registry does not define.
 
 The report is written to <run>/paper/validation_report.md. The reference is never updated implicitly:
@@ -96,14 +101,15 @@ def compare_reference(numbers: dict, tables: dict[str, Path]) -> list[str]:
 
 def printed_differences(numbers: dict) -> list[str]:
     rows = [(k, v["text"], v["context"]["printed"], v["locus"], v["source"]) for k, v in numbers.items()
-            if "printed" in v["context"] and v["context"]["printed"] != v["text"]]
+            if v["context"].get("printed") is not None and v["context"]["printed"] != v["text"]]
+    unprinted = [k for k, v in numbers.items() if v["context"].get("printed") is None]
     if not rows:
-        return ["Every computed number matches the token the manuscript prints."]
-    out = [f"{len(rows)} numbers differ from the manuscript text. The computed value is the result; the manuscript "
-           "should be corrected (or the sentence's selection reconsidered):", "",
-           "| name | computed | printed | where | source |", "|---|---|---|---|---|"]
-    out += [f"| `{k}` | {t} | {p} | {', '.join(loc)} | {s.split('|')[0].strip()} |" for k, t, p, loc, s in rows]
-    unprinted = [k for k, v in numbers.items() if "printed" not in v["context"]]
+        out = ["Every computed number matches the token the manuscript prints."]
+    else:
+        out = [f"{len(rows)} numbers differ from the manuscript text. The computed value is the result; the manuscript "
+               "should be corrected (or the sentence's selection reconsidered):", "",
+               "| name | computed | printed | where | source |", "|---|---|---|---|---|"]
+        out += [f"| `{k}` | {t} | {p} | {', '.join(loc)} | {s.split('|')[0].strip()} |" for k, t, p, loc, s in rows]
     if unprinted:
         out += ["", f"{len(unprinted)} numbers have no recorded printed token: " + ", ".join(f"`{k}`" for k in unprinted)]
     return out
@@ -124,6 +130,81 @@ def reused(run_dir: Path) -> list[str]:
     return out
 
 
+HEADINGS = {"section": 1, "subsection": 2, "subsubsection": 3, "paragraph": 4}
+HEADING_RE = re.compile(r"\\(section|subsection|subsubsection|paragraph)\*?\{")
+FLOAT_RE = re.compile(r"\\begin\{(figure|table)\*?\}.*?\\end\{\1\*?\}", re.S)
+
+
+def braced(text: str, start: int) -> tuple[str, int]:
+    """The content of the brace group opening at ``text[start] == "{"``, and the index after its closing brace."""
+    depth = 0
+    for i in range(start, len(text)):
+        if text[i] == "{" and text[i - 1] != "\\":
+            depth += 1
+        elif text[i] == "}" and text[i - 1] != "\\":
+            depth -= 1
+            if depth == 0:
+                return text[start + 1:i], i + 1
+    return text[start + 1:], len(text)
+
+
+def strip_rev(text: str) -> str:
+    """Replace every ``\\rev{x}`` by ``x``."""
+    while (i := text.find("\\rev{")) >= 0:
+        inner, end = braced(text, i + 4)
+        text = text[:i] + inner + text[end:]
+    return text
+
+
+def locus_text(doc: str, label: str) -> str | None:
+    """The text a label anchors in one document (see the module docstring); None if the label is not in it."""
+    m = re.search(r"\\label\{" + re.escape(label) + r"\}", doc)
+    if m is None:  # tables of the supplement: \stab{file}{caption}{label}
+        for s in re.finditer(r"\\stab\{", doc):
+            _, end = braced(doc, s.end() - 1)
+            caption, end = braced(doc, end)
+            lab, _ = braced(doc, end)
+            if lab == label:
+                return caption
+        return None
+    for f in FLOAT_RE.finditer(doc):
+        if f.start() < m.start() < f.end():
+            c = f.group(0).find("\\caption{")
+            return braced(f.group(0), c + len("\\caption"))[0] if c >= 0 else f.group(0)
+    heads = [(h.start(), HEADINGS[h.group(1)]) for h in HEADING_RE.finditer(doc)]
+    before = [h for h in heads if h[0] < m.start()]
+    if not before:
+        return None
+    start, level = before[-1]
+    end = next((pos for pos, lv in heads if pos > m.start() and lv <= level), len(doc))
+    return FLOAT_RE.sub(" ", doc[start:end])
+
+
+def has_token(token: str, text: str) -> bool:
+    return re.search(r"(?<![\d.])" + re.escape(token) + r"(?![\d])", text) is not None
+
+
+def anchored_check(numbers: dict, main: str, supp: str) -> dict[str, list]:
+    """Search each printed token at its locus. Returns ``missing`` [(name, token, locus, found elsewhere)] and
+    ``unknown`` [(name, locus)]."""
+    main, supp = (strip_rev(re.sub(r"(?<!\\)%.*", "", doc)) for doc in (main, supp))
+    cache: dict[str, str | None] = {}
+    missing, unknown = [], []
+    for name, v in numbers.items():
+        token = v["context"].get("printed")
+        if not token:
+            continue
+        for label in v["locus"]:
+            if label not in cache:
+                texts = [t for t in (locus_text(main, label), locus_text(supp, label)) if t is not None]
+                cache[label] = "\n".join(texts) if texts else None
+            if cache[label] is None:
+                unknown.append((name, label))
+            elif not has_token(token, cache[label]):
+                missing.append((name, token, label, has_token(token, main + "\n" + supp)))
+    return {"missing": missing, "unknown": unknown}
+
+
 def manuscript_checks(numbers: dict, tables: dict[str, Path], folder: Path, main_name: str) -> list[str]:
     main = (folder / main_name).read_text() if (folder / main_name).exists() else ""
     supp = (folder / "supp_mat.tex").read_text() if (folder / "supp_mat.tex").exists() else ""
@@ -136,13 +217,13 @@ def manuscript_checks(numbers: dict, tables: dict[str, Path], folder: Path, main
     unused = sorted(t for t in tables if t not in cited_files | published)
     out.append(f"- Supplement inputs {len(cited_files)} tables; " + (f"**not generated: {missing}**" if missing else "all generated."))
     out.append(f"- Generated but neither input nor published ({len(unused)}): {', '.join(unused) or 'none'}")
+    check = anchored_check(numbers, main, supp)
+    stale = [f"`{name}` ({token}) at {label}" + (" (found elsewhere in the document)" if elsewhere else "")
+             for name, token, label, elsewhere in check["missing"]]
+    out.append(f"- Printed tokens not found at their locus ({len(stale)}): " + (", ".join(stale) or "none"))
+    unknown = [f"`{name}` ({label})" for name, label in check["unknown"]]
+    out.append(f"- Loci with no label in the main text or supplement ({len(unknown)}): " + (", ".join(unknown) or "none"))
     text = main + "\n" + supp
-    stale = []
-    for name, v in numbers.items():
-        token = v["context"].get("printed")
-        if token and not re.search(r"(?<![\d.])" + re.escape(token) + r"(?![\d])", text):
-            stale.append(f"`{name}` ({token})")
-    out.append(f"- Printed tokens found in none of the documents ({len(stale)}): " + (", ".join(stale) or "none"))
     used = set(re.findall(r"\\([MS][A-Z][A-Za-z]+)\b", text))
     undefined = sorted(m for m in used if m not in numbers)
     out.append(f"- Number macros used in the manuscript: {len(used & set(numbers))} defined"
