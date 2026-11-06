@@ -11,7 +11,6 @@ import pandas as pd
 from . import synthetic
 from .paths import resolve_repo_path
 
-
 SCALE_TO_RESOLUTION = {
     68: "033",
     114: "060",

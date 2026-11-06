@@ -3,8 +3,8 @@
 Environment variables only take effect if they are set before numpy loads its
 BLAS, so ``import hoc`` sets them as defaults (inherited by every subprocess and
 joblib worker), and ``threadpoolctl`` limits OpenBLAS/MKL pools that are already
-loaded. Apple Accelerate cannot be changed after loading; launch through
-``run_all.py`` or ``make`` (which set the variables first) to pin it too.
+loaded. Apple Accelerate cannot be changed after loading, so run steps through
+``scripts/reproduce.py``, which sets the variables before each step starts.
 
 Set ``HOC_BLAS_THREADS`` to use more threads.
 """

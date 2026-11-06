@@ -3,15 +3,15 @@
 from __future__ import annotations
 
 from functools import lru_cache
+from pathlib import Path
 
 import nibabel as nib
 import numpy as np
 import pandas as pd
 
-from .atlas import EXCLUDED_LABELS, SCALE_TO_RESOLUTION, region_set_mask
 from . import synthetic
+from .atlas import EXCLUDED_LABELS, SCALE_TO_RESOLUTION, region_set_mask
 from .paths import resolve_repo_path
-
 
 LANDMARK_DEFINITIONS = {
     "landmark_v1": {
@@ -253,8 +253,8 @@ def margulies_principal_gradient(labels: pd.DataFrame, atlas_dir: str) -> np.nda
     """Project the Margulies et al. (2016) principal functional gradient onto atlas parcels.
 
     The published fcgradient01 map (fsLR-32k) is resampled to fsaverage5 by
-    nearest-neighbor matching on the spherical registration and averaged within each
-    Cammoun parcel. Unlike the leading nontrivial eigenvector of the structural
+    nearest-neighbor matching on the fsLR sphere registered to fsaverage (``registered_nn``)
+    and averaged within each Cammoun parcel. Unlike the leading nontrivial eigenvector of the structural
     affinity, which is dominated by the interhemispheric split, this yields the genuine
     unimodal-to-transmodal gradient of macroscale cortical organization.
     """
@@ -270,7 +270,7 @@ def margulies_principal_gradient(labels: pd.DataFrame, atlas_dir: str) -> np.nda
     parcel_values: dict[tuple[str, str], float] = {}
     for hemi_index, hemi in enumerate(("L", "R")):
         vertex_gradient = np.asarray(nib.load(str(annotation[hemi_index])).agg_data(), dtype=float)
-        gradient_fsaverage5 = vertex_gradient[_fsaverage5_from_fslr_index(hemi)]
+        gradient_fsaverage5 = vertex_gradient[registered_nn(hemi)]
         annot_path = atlas_path / f"atl-Cammoun2012_space-fsaverage5_res-{resolution}_hemi-{hemi}_deterministic.annot"
         vertex_labels, _, names = nib.freesurfer.read_annot(str(annot_path))
         for idx, raw_name in enumerate(names):
@@ -285,31 +285,40 @@ def margulies_principal_gradient(labels: pd.DataFrame, atlas_dir: str) -> np.nda
     ).to_numpy(dtype=float)
 
 
-@lru_cache(maxsize=None)
-def _fsaverage5_from_fslr_index(hemi: str) -> np.ndarray:
-    """Nearest fsLR-32k vertex for each fsaverage5 vertex, matched on the sphere."""
+def _registration_files(hemi: str) -> tuple[Path, Path, Path]:
+    """(fsLR-32k sphere registered to fsaverage, fsaverage-10k sphere, fsLR-32k no-medial-wall label).
+
+    Resolved through neuromaps (respects $NEUROMAPS_DATA; downloads on first use). The registered
+    fsLR sphere is part of the fsLR atlas download but not listed in fetch_atlas()'s return value, so
+    it is located in the fsLR atlas folder exactly as neuromaps.transforms does.
+    """
     from neuromaps.datasets import fetch_atlas
+    from neuromaps.datasets.atlases import get_atlas_dir
+
+    fslr = fetch_atlas("fsLR", "32k", verbose=0)
+    fsavg = fetch_atlas("fsaverage", "10k", verbose=0)
+    src = get_atlas_dir("fsLR") / f"tpl-fsLR_space-fsaverage_den-32k_hemi-{hemi}_sphere.surf.gii"
+    if not src.exists():
+        raise FileNotFoundError(f"neuromaps fsLR->fsaverage registration sphere not found: {src}")
+    return src, Path(getattr(fsavg["sphere"], hemi)), Path(getattr(fslr["medial"], hemi))
+
+
+@lru_cache(maxsize=None)
+def registered_nn(hemi: str) -> np.ndarray:
+    """Nearest non-medial-wall fsLR-32k vertex for each fsaverage5 vertex, using the fsLR sphere
+    registered to fsaverage (tpl-fsLR_space-fsaverage_den-32k sphere, HCP/neuromaps), so both meshes
+    share the fsaverage spherical coordinate system."""
     from scipy.spatial import cKDTree
 
-    source_sphere = _sphere_coordinates(fetch_atlas("fsLR", "32k")["sphere"], hemi)
-    target_sphere = _sphere_coordinates(fetch_atlas("fsaverage", "10k")["sphere"], hemi)
-    _, nearest = cKDTree(source_sphere).query(target_sphere)
-    return nearest
-
-
-def _sphere_coordinates(sphere_paths, hemi: str) -> np.ndarray:
-    """Load vertex coordinates for the requested hemisphere from a set of sphere surfaces."""
-    path = next(str(p) for p in sphere_paths if f"hemi-{hemi}" in str(p))
-    return np.asarray(nib.load(path).agg_data()[0], dtype=float)
-
-
-def masked_top_indices(scores: np.ndarray, mask: np.ndarray, count: int) -> np.ndarray:
-    """Select the highest-scoring nodes inside a mask."""
-    masked_indices = np.where(mask)[0]
-    if masked_indices.size == 0:
-        raise ValueError("Requested target mask is empty for this atlas scale.")
-    local_order = masked_indices[np.argsort(-scores[masked_indices], kind="mergesort")]
-    return local_order[:count]
+    src_path, trg_path, medial_path = _registration_files(hemi)
+    src = nib.load(str(src_path)).agg_data()[0]
+    trg = nib.load(str(trg_path)).agg_data()[0]
+    cortex = np.asarray(nib.load(str(medial_path)).agg_data()) > 0
+    src = src / np.linalg.norm(src, axis=1, keepdims=True)
+    trg = trg / np.linalg.norm(trg, axis=1, keepdims=True)
+    idx = np.flatnonzero(cortex)
+    _, nn = cKDTree(src[idx]).query(trg)
+    return idx[nn]
 
 
 def normalized_mask_vector(mask: np.ndarray) -> np.ndarray:

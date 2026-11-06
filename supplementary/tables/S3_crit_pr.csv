@@ -1,0 +1,85 @@
+Group,k,68 Delta,68 Pct.,68 n_>,114 Delta,114 Pct.,114 n_>,219 Delta,219 Pct.,219 n_>
+Degree strength,1,+0.14,nan,67/70,+0.18,nan,70/70,+0.24,nan,70/70
+Degree strength,2,-0.62,nan,2/70,-0.58,nan,1/70,-0.40,nan,7/70
+Degree strength,3,-1.40,nan,0/70,-1.47,nan,0/70,-1.12,nan,3/70
+Degree strength,5,-2.86,nan,0/70,-3.12,nan,0/70,-2.68,nan,0/70
+Degree strength,avg k>=2,-1.63,nan,0/70,-1.72,nan,0/70,-1.40,nan,0/70
+Degree strength,avg all,-1.18,nan,0/70,-1.25,nan,0/70,-0.99,nan,0/70
+Eigenvector centrality,1,+0.11,nan,67/70,+0.17,nan,70/70,+0.20,nan,70/70
+Eigenvector centrality,2,-0.82,nan,0/70,-0.76,nan,0/70,-0.66,nan,1/70
+Eigenvector centrality,3,-1.61,nan,0/70,-1.62,nan,0/70,-1.53,nan,0/70
+Eigenvector centrality,5,-3.08,nan,0/70,-3.30,nan,0/70,-3.26,nan,0/70
+Eigenvector centrality,avg k>=2,-1.83,nan,0/70,-1.89,nan,0/70,-1.82,nan,0/70
+Eigenvector centrality,avg all,-1.35,nan,0/70,-1.38,nan,0/70,-1.31,nan,0/70
+Top-k average controllability,1,+0.11,nan,67/70,+0.17,nan,70/70,+0.20,nan,70/70
+Top-k average controllability,2,-0.80,nan,1/70,-0.75,nan,0/70,-0.66,nan,0/70
+Top-k average controllability,3,-1.59,nan,0/70,-1.61,nan,0/70,-1.49,nan,0/70
+Top-k average controllability,5,-3.04,nan,0/70,-3.28,nan,0/70,-3.19,nan,0/70
+Top-k average controllability,avg k>=2,-1.81,nan,0/70,-1.88,nan,0/70,-1.78,nan,0/70
+Top-k average controllability,avg all,-1.33,nan,0/70,-1.37,nan,0/70,-1.28,nan,0/70
+Betweenness,1,+0.23,nan,61/70,+0.24,nan,66/70,+0.27,nan,67/70
+Betweenness,2,-0.21,nan,27/70,-0.21,nan,26/70,+0.00,nan,42/70
+Betweenness,3,-0.74,nan,17/70,-0.80,nan,16/70,-0.44,nan,28/70
+Betweenness,5,-1.89,nan,6/70,-2.26,nan,6/70,-1.51,nan,12/70
+Betweenness,avg k>=2,-0.95,nan,9/70,-1.09,nan,7/70,-0.65,nan,21/70
+Betweenness,avg all,-0.65,nan,10/70,-0.76,nan,7/70,-0.42,nan,24/70
+Participation coefficient,1,+0.03,nan,25/70,-0.03,nan,14/70,-0.02,nan,14/70
+Participation coefficient,2,+0.05,nan,36/70,-0.04,nan,17/70,-0.02,nan,16/70
+Participation coefficient,3,+0.07,nan,47/70,+0.01,nan,29/70,-0.02,nan,21/70
+Participation coefficient,5,+0.09,nan,56/70,+0.01,nan,42/70,+0.01,nan,30/70
+Participation coefficient,avg k>=2,+0.07,nan,55/70,-0.01,nan,33/70,-0.01,nan,23/70
+Participation coefficient,avg all,+0.06,nan,52/70,-0.01,nan,32/70,-0.01,nan,21/70
+Triangle participation,1,+0.00,nan,21/70,-0.01,nan,16/70,-0.03,nan,14/70
+Triangle participation,2,-0.08,nan,18/70,-0.05,nan,12/70,-0.05,nan,17/70
+Triangle participation,3,-0.24,nan,30/70,-0.06,nan,14/70,-0.05,nan,22/70
+Triangle participation,5,-0.74,nan,29/70,+0.02,nan,42/70,-0.03,nan,25/70
+Triangle participation,avg k>=2,-0.35,nan,26/70,-0.03,nan,28/70,-0.04,nan,21/70
+Triangle participation,avg all,-0.26,nan,26/70,-0.02,nan,25/70,-0.04,nan,20/70
+Tetrahedron participation,1,-0.02,nan,16/70,-0.04,nan,12/70,-0.03,nan,12/70
+Tetrahedron participation,2,-0.05,nan,18/70,-0.06,nan,10/70,-0.06,nan,14/70
+Tetrahedron participation,3,-0.07,nan,32/70,-0.06,nan,15/70,-0.07,nan,14/70
+Tetrahedron participation,5,-0.25,nan,45/70,+0.02,nan,35/70,-0.07,nan,14/70
+Tetrahedron participation,avg k>=2,-0.13,nan,35/70,-0.03,nan,24/70,-0.06,nan,14/70
+Tetrahedron participation,avg all,-0.10,nan,33/70,-0.03,nan,24/70,-0.06,nan,13/70
+Cycle participation,1,+0.16,nan,52/70,+0.12,nan,41/70,+0.09,nan,37/70
+Cycle participation,2,-0.04,nan,30/70,-0.01,nan,32/70,+0.12,nan,41/70
+Cycle participation,3,-0.30,nan,32/70,-0.13,nan,33/70,+0.11,nan,44/70
+Cycle participation,5,-0.93,nan,22/70,-0.52,nan,36/70,-0.02,nan,46/70
+Cycle participation,avg k>=2,-0.43,nan,27/70,-0.22,nan,33/70,+0.07,nan,46/70
+Cycle participation,avg all,-0.28,nan,26/70,-0.13,nan,31/70,+0.08,nan,49/70
+Cycle part. (degree-residualized),1,+0.07,nan,38/70,+0.04,nan,27/70,+0.04,nan,27/70
+Cycle part. (degree-residualized),2,+0.10,nan,41/70,+0.04,nan,37/70,+0.06,nan,32/70
+Cycle part. (degree-residualized),3,+0.11,nan,48/70,+0.04,nan,44/70,+0.07,nan,34/70
+Cycle part. (degree-residualized),5,+0.06,nan,53/70,+0.01,nan,47/70,+0.10,nan,41/70
+Cycle part. (degree-residualized),avg k>=2,+0.09,nan,49/70,+0.03,nan,48/70,+0.07,nan,35/70
+Cycle part. (degree-residualized),avg all,+0.09,nan,49/70,+0.03,nan,48/70,+0.07,nan,37/70
+Degree-normalized cycle part.,1,-0.11,nan,1/70,-0.10,nan,0/70,-0.08,nan,0/70
+Degree-normalized cycle part.,2,-0.15,nan,3/70,-0.16,nan,0/70,-0.14,nan,0/70
+Degree-normalized cycle part.,3,-0.14,nan,6/70,-0.18,nan,0/70,-0.18,nan,0/70
+Degree-normalized cycle part.,5,+0.06,nan,44/70,-0.14,nan,6/70,-0.22,nan,0/70
+Degree-normalized cycle part.,avg k>=2,-0.08,nan,15/70,-0.16,nan,0/70,-0.18,nan,0/70
+Degree-normalized cycle part.,avg all,-0.08,nan,11/70,-0.15,nan,0/70,-0.15,nan,0/70
+Cycle criticality,1,+0.23,nan,62/70,+0.32,nan,66/70,+0.30,nan,64/70
+Cycle criticality,2,-0.05,nan,38/70,-0.10,nan,33/70,+0.15,nan,48/70
+Cycle criticality,3,-0.47,nan,26/70,-0.62,nan,21/70,-0.26,nan,31/70
+Cycle criticality,5,-1.44,nan,14/70,-1.88,nan,12/70,-1.24,nan,16/70
+Cycle criticality,avg k>=2,-0.65,nan,16/70,-0.86,nan,15/70,-0.45,nan,24/70
+Cycle criticality,avg all,-0.43,nan,21/70,-0.57,nan,15/70,-0.26,nan,26/70
+Top-k modal controllability (Gu),1,-0.12,nan,0/70,-0.10,nan,0/70,-0.08,nan,0/70
+Top-k modal controllability (Gu),2,-0.17,nan,0/70,-0.16,nan,0/70,-0.14,nan,0/70
+Top-k modal controllability (Gu),3,-0.18,nan,1/70,-0.19,nan,0/70,-0.18,nan,0/70
+Top-k modal controllability (Gu),5,-0.03,nan,27/70,-0.16,nan,3/70,-0.23,nan,0/70
+Top-k modal controllability (Gu),avg k>=2,-0.13,nan,4/70,-0.17,nan,0/70,-0.19,nan,0/70
+Top-k modal controllability (Gu),avg all,-0.12,nan,3/70,-0.16,nan,0/70,-0.16,nan,0/70
+Top-k modal controllability (CT),1,-0.12,nan,0/70,-0.10,nan,0/70,-0.08,nan,0/70
+Top-k modal controllability (CT),2,-0.17,nan,0/70,-0.16,nan,0/70,-0.14,nan,0/70
+Top-k modal controllability (CT),3,-0.18,nan,1/70,-0.19,nan,0/70,-0.18,nan,0/70
+Top-k modal controllability (CT),5,-0.03,nan,27/70,-0.16,nan,2/70,-0.23,nan,0/70
+Top-k modal controllability (CT),avg k>=2,-0.13,nan,4/70,-0.17,nan,0/70,-0.19,nan,0/70
+Top-k modal controllability (CT),avg all,-0.12,nan,3/70,-0.16,nan,0/70,-0.16,nan,0/70
+Lowest Perron loading,1,-0.11,nan,0/70,-0.10,nan,0/70,-0.08,nan,0/70
+Lowest Perron loading,2,-0.17,nan,0/70,-0.16,nan,0/70,-0.14,nan,0/70
+Lowest Perron loading,3,-0.17,nan,1/70,-0.18,nan,0/70,-0.18,nan,0/70
+Lowest Perron loading,5,-0.03,nan,29/70,-0.15,nan,6/70,-0.23,nan,0/70
+Lowest Perron loading,avg k>=2,-0.12,nan,4/70,-0.17,nan,1/70,-0.18,nan,0/70
+Lowest Perron loading,avg all,-0.12,nan,3/70,-0.15,nan,0/70,-0.16,nan,0/70

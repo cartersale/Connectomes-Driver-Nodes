@@ -2,10 +2,10 @@ from __future__ import annotations
 
 import numpy as np
 
+from hoc import targets as targets_module
 from hoc.control import assemble_gramian, gramian_metrics, single_node_gramians
 from hoc.preprocessing import preprocess_structural_adjacency, stabilize_adjacency
 from hoc.rankings import top_k_excluding_nodes
-from hoc import targets as targets_module
 from hoc.targets import build_target_metadata, build_targets, normalize_vector
 
 
