@@ -59,7 +59,10 @@ def rank(v: np.ndarray) -> np.ndarray:
 def rank_resid(y: np.ndarray, covs: list[np.ndarray]) -> np.ndarray:
     r = rank(y)
     Z = np.column_stack([np.ones_like(r)] + [rank(c) for c in covs])
-    return r - Z @ np.linalg.lstsq(Z, r, rcond=None)[0]
+    e = r - Z @ np.linalg.lstsq(Z, r, rcond=None)[0]
+    # When the covariates determine the ranks, what is left is roundoff; zero it so corr() returns NaN.
+    e[np.abs(e) < 1e-9 * len(r)] = 0.0
+    return e
 
 
 def corr(a, b) -> float:
