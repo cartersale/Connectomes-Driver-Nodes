@@ -28,7 +28,7 @@ REQUIRES = (
     "concentration/02_tables", "concentration/03_decay_collapse", "concentration/04_redundancy_geodesic",
     "null_models/03_gap_mediators", "null_models/04_rayleigh_bound", "target_states/09_report_tables",
     "lesions/02_analyze_reciprocal_lesion", "topology/summarize_perturbation", "topology/summarize_representatives",
-    "mechanisms/02_canonical_graphs", "mechanisms/03_coverage_distance", "mechanisms/07_core_cut", "sensitivity/00_validate",
+    "mechanisms/01_hub_loading", "mechanisms/02_canonical_graphs", "mechanisms/03_coverage_distance", "mechanisms/07_core_cut", "sensitivity/00_validate",
     "sensitivity/07_report_tables", "spectra/02_analyze", "modal_controllability/02_analyze_modal",
 )
 

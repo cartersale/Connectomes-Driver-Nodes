@@ -27,7 +27,7 @@ from hoc.runs import stage_from_argv  # noqa: E402
 
 STAGE = "paper/numbers"
 # paper/tables already requires most analysis stages; these are read only by the number registry.
-REQUIRES = ("paper/tables", "mechanisms/04_leading_eigenvectors", "mechanisms/05_second_subspace",
+REQUIRES = ("paper/tables", "mechanisms/01_hub_loading", "mechanisms/04_leading_eigenvectors", "mechanisms/05_second_subspace",
             "mechanisms/07_core_cut", "mechanisms/08_gramian_alignment", "concentration/06_er_avgctrl",
             "null_models/02_analyze", "null_models/00_validate", "primary/01_primary_analysis")
 

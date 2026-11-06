@@ -80,3 +80,50 @@ def test_imports_resolve() -> None:
                         except ImportError:
                             missing.append(f"{f}: {node.module}.{alias.name}")
     assert not missing
+
+
+def _output_owners() -> dict[str, set[str]]:
+    """File name -> stages that declare it as an output (globs left out)."""
+    owners: dict[str, set[str]] = {}
+    for s in STEPS:
+        for pattern in s.outputs:
+            name = pattern.rsplit("/", 1)[-1]
+            if not any(ch in name for ch in "*?["):
+                owners.setdefault(name, set()).add(s.stage)
+    return owners
+
+
+@pytest.mark.parametrize("step", [s for s in STEPS if s.group in ("paper", "figures")], ids=lambda s: s.stage)
+def test_reads_come_from_declared_upstream(step: reproduce.Step) -> None:
+    """Every declared output named in a paper or figure step's code (its script and the local modules it imports)
+    is produced by a stage upstream of it, so --only and the staleness check see the dependency."""
+    import ast
+
+    from hoc.runs import code_record
+
+    owners = _output_owners()
+    upstream = reproduce.with_upstream({step.stage})
+    missing = []
+    for rel in code_record(REPO_ROOT / step.script)["files"]:
+        if not rel.startswith("scripts/"):
+            continue
+        for node in ast.walk(ast.parse((REPO_ROOT / rel).read_text())):
+            if isinstance(node, ast.Constant) and isinstance(node.value, str):
+                name = node.value.rsplit("/", 1)[-1]
+                if name in owners and not owners[name] & upstream:
+                    missing.append(f"{rel}: {node.value!r} comes from {sorted(owners[name])}")
+    assert not missing, "\n".join(sorted(set(missing)))
+
+
+def test_status_sees_changes_to_imported_modules() -> None:
+    from hoc.runs import code_record
+
+    step = reproduce.BY_STAGE["paper/tables"]
+    code = code_record(REPO_ROOT / step.script)
+    rec = {"status": "complete", "finished": "9999", "code": code}
+    assert reproduce.status({"stages": {step.stage: rec}}, step, "cfg") == ("done", "")
+    changed = {**code["files"], "scripts/paper/condense.py": "0" * 64}
+    rec = {**rec, "code": {"sha256": "x", "files": changed}}
+    state, why = reproduce.status({"stages": {step.stage: rec}}, step, "cfg")
+    assert state == "stale" and "scripts/paper/condense.py" in why
+    assert "src/hoc/runs.py" in code["files"] and "scripts/paper/sections/s7.py" in code["files"]
