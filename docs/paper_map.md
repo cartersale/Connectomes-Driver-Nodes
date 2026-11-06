@@ -16,7 +16,7 @@ pipeline step that writes each one is listed in [pipeline.md](pipeline.md).
 
 Shared style, colours, criterion order and brain-surface drawing: `src/hoc/figstyle.py`.
 
-Steps outside the repository (see [limitations.md](limitations.md)): Fig. 3 is assembled with the separately
+Steps outside the repository: Fig. 3 is assembled with the separately
 drawn panel B (`fig3b`); the panel letters and some labels of Fig. 5 are added in a vector editor.
 
 ## Supplementary figures
@@ -70,8 +70,8 @@ The Supporting Information (`supp_mat.tex`, six sections) inputs only its own ta
 
 ## Numbers in the text
 
-`scripts/paper/key_numbers.py` (pipeline step `paper/numbers`) recomputes every number quoted in the main text,
-the Supporting Information and `supplementary/additional_analyses.md` with the modules in `scripts/paper/registry/`:
+`scripts/paper/key_numbers.py` (pipeline step `paper/numbers`) recomputes every number quoted in the main text
+and the Supporting Information with the modules in `scripts/paper/registry/`:
 
 | Part of the paper | Registry module |
 | --- | --- |
@@ -81,7 +81,6 @@ the Supporting Information and `supplementary/additional_analyses.md` with the m
 | `subsec:nulls_results`, Fig. 5 caption | `main_nulls.py` |
 | Methods | `methods.py` |
 | Supporting Information, Sections S2–S6 (`sec:robustness`, `sec:criteria`, `sec:modes`, `sec:nulls`, `sec:core`) | `supplement.py` |
-| `supplementary/additional_analyses.md` | `additional.py` |
 
 Each number's entry in `paper/numbers.csv` gives its source file and selection, the manuscript labels where it
 appears, and what it refers to (scale, $k$, $c$, criterion, comparison, statistic).

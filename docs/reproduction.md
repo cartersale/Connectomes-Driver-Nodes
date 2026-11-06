@@ -79,10 +79,11 @@ full run with `validate.py --write-reference`. It is never updated implicitly: r
 which is stored in the file together with the run and commit it came from.
 
 `--manuscript <folder>` (with `--main <file>`, default `main.tex`) compares the run with the main text and
-`supp_mat.tex` in that folder and with `supplementary/additional_analyses.md`: tables the supplement inputs that
+`supp_mat.tex` in that folder: tables the supplement inputs that
 the run does not generate, number macros the text uses that the registry does not define, and numbers whose
 computed text differs from what the documents print. `scripts/paper/sync.py --manuscript <folder>` lists (and
-with `--apply` copies) the generated tables and `numbers.tex` into the manuscript folder, and the figures with `--figures`; see
+with `--apply` copies) the generated tables and `numbers.tex` into the manuscript folder, and the figures with
+`--figures`; see
 [paper_map.md](paper_map.md) for the table layout and `scripts/paper/publish_tables.py`.
 
 ## Smoke run

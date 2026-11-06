@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""Figure 3: the shared pattern is a mode of the midline core.
+"""Figure 3: the leading eigenvector v1 and the loading of driver sets on it.
 
 A  v1 on the left medial surface: group mean and four individual subjects, chosen at the min / 25th / 50th / 75th
    percentile of their correlation with the group mean (114 regions). Right: that correlation for every subject at

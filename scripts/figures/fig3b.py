@@ -1,8 +1,7 @@
 #!/usr/bin/env python
 """Figure 3B on its own: strength vs neighbours' loading m_i.
 
-Drawn separately so it can replace panel B in the hand-assembled Figure 3. Shows the empirical association directly:
-do strong regions connect to regions with high v1 loading? m_i is the strength-weighted mean v1 loading of region
+Drawn separately so it can replace panel B in the hand-assembled Figure 3. m_i is the strength-weighted mean v1 loading of region
 i's neighbours. Grey dots: every region in every subject (114 regions; log axes; the one zero-strength region is
 dropped). Black line: median m_i within strength deciles. Text: median within-subject Spearman rho.
 

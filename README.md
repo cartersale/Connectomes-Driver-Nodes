@@ -10,16 +10,16 @@ Analysis code for:
 We model 70 human structural connectomes, at three parcellation scales (68, 114 and 219 cortical regions), as
 linear dynamical systems driven at a few regions, and compare driver sets chosen by degree strength, eigenvector
 centrality, average and modal controllability, betweenness, participation coefficient, and cycle and triangle
-participation from persistent homology. The paper shows that:
+participation from persistent homology. For each connectome and driver set, the code computes:
 
-1. average control energy does not distinguish sparse driver sets, because most Gramian eigenvalues sit at the
-   regularization floor;
-2. combining hubs concentrates controllability onto a single pattern (high $q_1 = \lambda_{\max}(W)/\mathrm{tr}\,W$);
-3. that pattern is the connectome's leading eigenvector $v_1$, a mode of the midline structural core;
-4. the next slowest modes divide the core and fade faster by the spectral gap, so damping and the gap control
-   how strongly hub inputs concentrate; and
-5. strong links among core regions (edge-weighted strength assortativity) give human connectomes a larger
-   spectral gap than null networks that preserve strength, geometry or topology.
+- the controllability Gramian $W$ and its average control energy, effective rank, participation ratio and the share
+  of controllability on the most reachable pattern, $q_1 = \lambda_{\max}(W)/\mathrm{tr}\,W$;
+- the comparison of every criterion with 100 random driver sets of the same size;
+- the alignment of the most reachable pattern with the connectome's eigenvectors, and $q_1$ with the leading
+  eigenvector projected out;
+- the dependence on the stabilization margin $c$, the regularization floor $\epsilon$ and finite control horizons;
+- the same quantities in strength-, geometry- and weight-preserving null networks, and the effect on the spectral
+  gap of weakening classes of connections.
 
 ## Installation
 
@@ -114,7 +114,7 @@ scripts/paper/             tables, number registry, validation, assembly, manusc
 supplementary/             every full table as CSV, with an index and the methods of the additional analyses
 reference/                 release reference: input checksums, paper numbers, table checksums
 tests/                     unit tests and the synthetic-pipeline regression test
-docs/                      data, reproduction, pipeline and figure/table map, limitations
+docs/                      data, reproduction, pipeline and figure/table map
 ```
 
 ## Citation

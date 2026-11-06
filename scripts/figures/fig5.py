@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""Figure 5: strong links among core regions give human connectomes a large spectral gap.
+"""Figure 5: spectral gap and q1 in connectomes and null networks, and weakening links within the core.
 
 A  Spectral gap l1 - l2 by scale: human connectomes and the three null models (strength-preserving,
    geometry-preserving, weight-shuffled). Small dots: subjects (nulls: mean of each subject's 50 nulls). Large dots:
