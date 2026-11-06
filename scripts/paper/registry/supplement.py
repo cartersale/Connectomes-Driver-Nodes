@@ -135,10 +135,12 @@ def _criteria(c: Collector) -> None:
     c.add("SRepERDiffMin", kav.min(), f"{kav.min():+.2f}", "+0.23", srcd.format("min"), L)
     c.add("SRepERDiffMax", kav.max(), f"{kav.max():+.2f}", "+1.05", srcd.format("max"), L)
     dr = c.csv(tb + "rep_distance_regressions.csv")
-    r2 = dr[dr.k >= 2].jaccard_degree_partial_r2
-    src = f"topology/summarize_representatives: {tb}rep_distance_regressions.csv | k >= 2, all scales; {{}} jaccard_degree_partial_r2, %"
-    c.add("SRepOverlapRsqMin", 100 * r2.min(), pct(r2.min()), "25", src.format("min"), L, {"k": ">=2"})
-    c.add("SRepOverlapRsqMax", 100 * r2.max(), pct(r2.max()), "72", src.format("max"), L, {"k": ">=2"})
+    # "the overlap with the degree-strength set explained 25% to 71% of the variance in this difference for k in {2, 3, 5}"
+    r2 = dr[dr.k.isin([2, 3, 5])].jaccard_degree_partial_r2
+    src = (f"topology/summarize_representatives: {tb}rep_distance_regressions.csv | k in 2,3,5, all scales; {{}} "
+           "jaccard_degree_partial_r2, %")
+    c.add("SRepOverlapRsqMin", 100 * r2.min(), pct(r2.min()), "25", src.format("min"), L, {"k": "2,3,5"})
+    c.add("SRepOverlapRsqMax", 100 * r2.max(), pct(r2.max()), "71", src.format("max"), L, {"k": "2,3,5"})
 
 
 # ============================================================================ S4 sec:modes
@@ -184,9 +186,18 @@ def _modes(c: Collector) -> None:
         r = abs(float(np.corrcoef(core[col], (core.hemi == "R").astype(float))[0, 1]))
         c.add(f"SModesHemi{nm}{SCN[s]}", r, f2(r), ms_, srch.format(col), L, {"scale": s})
 
-    # model networks: spectral gap 0.14 to 0.32, against 0.43 to 0.54
+    # model networks: "For k >= 2, the excess was smaller than in the connectomes (0.11 to 0.28, against 0.31 to 0.37),
+    # as was the spectral gap (0.14 to 0.32, against 0.43 to 0.54)."
     cs = c.csv("mechanisms/canonical_summary.csv")
     w = cs[(cs.weighting == "weighted") & np.isclose(cs.c, 0.1) & (cs.kgrp == "2+")]
+    srce = ("mechanisms/02_canonical_graphs: mechanisms/canonical_summary.csv | weighting == weighted, c == 0.1, kgrp == 2+ "
+            "(mean over k in 2,3,5 and graphs); {} deg_minus_rand_q1")
+    for sel, nm, lo_, hi_, over in ((w.model != "CONN", "Model", "0.11", "0.28", "models ER, BA, WS, SBM, RGG x scales"),
+                                    (w.model == "CONN", "Conn", "0.31", "0.37", "the connectomes (model CONN) x scales")):
+        x = w[sel].deg_minus_rand_q1
+        ctx = {"c": 0.1, "k": "2,3,5", "comparison": "degree-strength minus random mean"}
+        c.add(f"S{nm}ExcessQOneMin", x.min(), f2(x.min()), lo_, srce.format(f"min over {over} of"), L, ctx)
+        c.add(f"S{nm}ExcessQOneMax", x.max(), f2(x.max()), hi_, srce.format(f"max over {over} of"), L, ctx)
     srcm = "mechanisms/02_canonical_graphs: mechanisms/canonical_summary.csv | weighting == weighted, c == 0.1, kgrp == 2+; {} gap"
     for sel, nm, lo_, hi_ in ((w.model != "CONN", "Model", "0.14", "0.32"), (w.model == "CONN", "Conn", "0.43", "0.54")):
         g = w[sel].gap
@@ -291,18 +302,19 @@ def _core(c: Collector) -> None:
               f"mechanisms/07_core_cut: mechanisms/core_cut_baseline.csv | partition == {part}, scale == {s}; median v2_split_corr",
               L)
 
-    # first-order prediction
+    # first-order prediction (the bound and the correlations are also quoted in the main text, subsec:nulls_results)
+    LM = (L, "subsec:nulls_results")
     sel = fo[fo.partition.isin(["labels", "v2sign"]) & (fo.alpha <= 0.5)]
     err = float((sel.median_pred_dgap_pct - sel.median_dgap_pct).abs().max())
     c.add("SCoreFirstOrderWithinPP", err, f"{ceil_to(err, 0):.0f}", "5",
           "mechanisms/07_core_cut: mechanisms/core_cut_first_order.csv | partition in labels, v2sign; alpha <= 0.5; all "
-          f"conditions and scales; max |median_pred_dgap_pct - median_dgap_pct| = {err:.2f}, rounded up", L,
+          f"conditions and scales; max |median_pred_dgap_pct - median_dgap_pct| = {err:.2f}, rounded up", LM,
           bound=(err <= 5, "<="))
     rho = fo[np.isclose(fo.alpha, 0.5) & fo.condition.isin(["cross", "within_matched", "other_matched"])].rho
     srcr = ("mechanisms/07_core_cut: mechanisms/core_cut_first_order.csv | alpha == 0.5, condition in cross, within_matched, "
             "other_matched (all partitions); {} rho")
-    c.add("SCoreFirstOrderRhoMin", rho.min(), f2(rho.min()), "0.84", srcr.format("min"), L)
-    c.add("SCoreFirstOrderRhoMax", rho.max(), f2(rho.max()), "0.99", srcr.format("max"), L)
+    c.add("SCoreFirstOrderRhoMin", rho.min(), f2(rho.min()), "0.84", srcr.format("min"), LM)
+    c.add("SCoreFirstOrderRhoMax", rho.max(), f2(rho.max()), "0.99", srcr.format("max"), LM)
     d = c.csv("mechanisms/core_cut.csv.gz", usecols=["subject_id", "scale", "partition", "alpha", "condition", "dgap", "pred_dgap"])
     d = d[(d.partition == "labels") & np.isclose(d.alpha, 0.5) & d.condition.isin(["cross", "within_matched"])]
     p = d.groupby(["scale", "subject_id", "condition"])[["dgap", "pred_dgap"]].mean().unstack("condition")
