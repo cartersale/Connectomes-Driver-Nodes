@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""Figure 4: the next slowest modes divide the core and fade faster by the spectral gap.
+"""Figure 4: the v2-v3 split of the core, q1 with v1 projected out, and q1 against damping and the spectral gap.
 
 A  The front-back split of the core: consensus axis a of the v2-v3 plane on the medial surface (114 regions; red =
    front, blue = back), outlining the top 20% of regions by v1. Right: which eigenvector holds the split in each

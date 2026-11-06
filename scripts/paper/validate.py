@@ -15,8 +15,7 @@ Reported, not failed:
 With --manuscript DIR (a folder holding the main text, --main, and supp_mat.tex):
   5. tables the supplement inputs that the run does not generate, and generated tables that are neither input by
      the supplement nor published (scripts/paper/table_catalog.py);
-  6. printed tokens found in none of the main text, the supplement and supplementary/additional_analyses.md
-     (the registry's record of the text is out of date);
+  6. printed tokens found in neither the main text nor the supplement (the registry's record of the text is out of date);
   7. LaTeX number macros the manuscript uses that the registry does not define.
 
 The report is written to <run>/paper/validation_report.md. The reference is never updated implicitly:
@@ -39,8 +38,6 @@ from hoc.runs import git_state, read_manifest, resolve_run_dir, stage_from_argv
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from table_catalog import GROUPS  # noqa: E402
-
-ADDITIONAL = REPO_ROOT / "supplementary" / "additional_analyses.md"
 
 REFERENCE = REPO_ROOT / "reference"
 NUMBERS_REF = REFERENCE / "paper_numbers.json"
@@ -139,7 +136,7 @@ def manuscript_checks(numbers: dict, tables: dict[str, Path], folder: Path, main
     unused = sorted(t for t in tables if t not in cited_files | published)
     out.append(f"- Supplement inputs {len(cited_files)} tables; " + (f"**not generated: {missing}**" if missing else "all generated."))
     out.append(f"- Generated but neither input nor published ({len(unused)}): {', '.join(unused) or 'none'}")
-    text = main + "\n" + supp + "\n" + (ADDITIONAL.read_text() if ADDITIONAL.exists() else "")
+    text = main + "\n" + supp
     stale = []
     for name, v in numbers.items():
         token = v["context"].get("printed")

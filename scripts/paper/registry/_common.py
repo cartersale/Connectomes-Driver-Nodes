@@ -1,4 +1,4 @@
-"""Formatting helpers and the number collector shared by the supplement and additional-analyses registries."""
+"""Formatting helpers and the number collector shared by the supplement registry."""
 
 from __future__ import annotations
 
