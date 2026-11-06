@@ -2,8 +2,8 @@
 
 Each module covers one part of the paper and defines ``collect(run) -> list[Number]``, where ``run`` is the run
 directory (``runs/<name>/``). Modules for the main text also define ``PRINTED``: the token the manuscript
-prints for each number; the Methods, supplement and additional-analyses modules keep that token in
-``context["printed"]``. ``additional`` covers supplementary/additional_analyses.md. ``scripts/paper/validate.py`` reports every
+prints for each number; the Methods and supplement modules keep that token in
+``context["printed"]``. ``scripts/paper/validate.py`` reports every
 number whose computed text differs from the printed token.
 
 Formatting conventions (``Number.text``):
@@ -15,7 +15,7 @@ Formatting conventions (``Number.text``):
   (up for "within"/"at most", down for "at least"); ``value`` holds the actual extreme.
 - A few results are printed as words ("one", "five to six times", "every"); the text holds the word and
   ``value`` the number.
-- Names: ``M`` (main text), ``S`` (supplement) or ``A`` (additional analyses) + CamelCase letters; per-scale numbers end in
+- Names: ``M`` (main text) or ``S`` (supplement) + CamelCase letters; per-scale numbers end in
   ``SixtyEight`` / ``OneFourteen`` / ``TwoNineteen``; range ends in ``Min`` / ``Max``.
 """
 
@@ -25,10 +25,10 @@ import re
 from dataclasses import replace
 from pathlib import Path
 
-from . import additional, main_core_divisions, main_energy_hubs, main_leading_mode, main_nulls, methods, supplement
+from . import main_core_divisions, main_energy_hubs, main_leading_mode, main_nulls, methods, supplement
 from .record import Number
 
-MODULES = (main_energy_hubs, main_leading_mode, main_core_divisions, main_nulls, methods, supplement, additional)
+MODULES = (main_energy_hubs, main_leading_mode, main_core_divisions, main_nulls, methods, supplement)
 
 
 def collect(run: Path) -> list[Number]:

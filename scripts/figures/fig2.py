@@ -1,10 +1,10 @@
 #!/usr/bin/env python
-"""Figure 2: combining hubs concentrates controllability onto a shared pattern.
+"""Figure 2: normalized Gramian spectra and q1 by number of drivers and by criterion.
 
 A  Normalized Gramian spectra, lambda_i(W) / tr W (the fraction of total controllability along each of the Gramian's
    eigenvectors, largest first), for one representative subject: one hub vs one random region (top), three hubs vs
-   three random regions (bottom). The first six eigenvalues are shown; the rest of the spectrum holds at most 0.2% of
-   the total in every case (printed when the script runs), so the bars sum to one to within that. q1 is the first bar.
+   three random regions (bottom). The first six eigenvalues are shown; the share held by the rest of the spectrum is printed
+   when the script runs. q1 is the first bar.
 B  q1 against the number of drivers k (1, 2, 3, 5) for degree-strength, cycle-participation and random sets. Small
    dots are subjects (random: the mean of each subject's 100 random sets); large dots are means with 95% CIs, joined
    by thin lines to guide the eye (only these k were measured).
