@@ -10,9 +10,9 @@ The name comes from ``--run``, then ``$HOC_RUN``, then ``"main"``. A
 never write into a full run's directory.
 
 Each run directory holds ``manifest.json`` with the config hash, subject set,
-input checksums and, per stage, the script checksum, random seed, arguments,
-git state and package versions of every start or resume, timing and output
-checksums. A stage refuses to run when the directory was made
+input checksums and, per stage, the checksums of the stage's code (its script and every local module the script
+imports, see :func:`code_record`), random seed, arguments, git state and package versions of every start or
+resume, timing and output checksums. A stage refuses to run when the directory was made
 with a different config or subject set, or when the stage has already finished,
 unless ``--overwrite`` is given.
 """
@@ -20,6 +20,7 @@ unless ``--overwrite`` is given.
 from __future__ import annotations
 
 import argparse
+import ast
 import datetime as _dt
 import hashlib
 import json
@@ -28,6 +29,7 @@ import platform
 import subprocess
 import sys
 from dataclasses import dataclass, field
+from functools import lru_cache
 from importlib import metadata as _metadata
 from pathlib import Path
 
@@ -35,6 +37,8 @@ from .paths import REPO_ROOT
 from .threads import THREAD_ENV_VARS, threadpool_record
 
 RUNS_ROOT_ENV = "HOC_RUNS_ROOT"
+INPUTS_REFERENCE = REPO_ROOT / "reference" / "inputs.sha256"
+NEUROMAPS_PREFIX = "$NEUROMAPS_DATA/"
 RUN_ENV = "HOC_RUN"
 DEFAULT_RUN = "main"
 MANIFEST_NAME = "manifest.json"
@@ -178,19 +182,148 @@ def _relative(path: Path) -> str:
         return str(path)
 
 
-def collect_inputs(config: dict) -> list[Path]:
-    """Input files named by a config's ``[paths]`` block."""
+def neuromaps_data_dir() -> Path:
+    """Where neuromaps keeps its downloads (``$NEUROMAPS_DATA``, default ``~/neuromaps-data``)."""
+    return Path(os.environ.get("NEUROMAPS_DATA", Path.home() / "neuromaps-data"))
+
+
+def reference_inputs() -> list[tuple[str, str, Path]]:
+    """(name, sha256, local path) for every external input listed in ``reference/inputs.sha256``.
+
+    Names are repository-relative, except ``$NEUROMAPS_DATA/...`` for the maps and surfaces neuromaps downloads.
+    """
+    if not INPUTS_REFERENCE.is_file():
+        return []
+    entries = []
+    for line in INPUTS_REFERENCE.read_text().splitlines():
+        if not line.strip() or line.startswith("#"):
+            continue
+        digest, name = line.split(maxsplit=1)
+        path = neuromaps_data_dir() / name[len(NEUROMAPS_PREFIX):] if name.startswith(NEUROMAPS_PREFIX) else REPO_ROOT / name
+        entries.append((name, digest, path))
+    return entries
+
+
+def collect_inputs(config: dict) -> list[tuple[str, Path]]:
+    """(name, path) of the input files a run with this config reads.
+
+    These are the files named by the config's ``[paths]`` block and, for runs on the real data, every external input
+    listed in ``reference/inputs.sha256`` that is present (the Yeo networks and the neuromaps maps and surfaces).
+    Names are repository-relative, or ``$NEUROMAPS_DATA/...``, so the manifest holds no local paths.
+    """
+    from . import synthetic
+
     paths_cfg = config.get("paths", {})
     files: list[Path] = []
     raw = paths_cfg.get("raw_connectomes")
-    if raw:
+    if raw and not synthetic.is_synthetic(raw):
         files.append(REPO_ROOT / raw if not Path(raw).is_absolute() else Path(raw))
     atlas_dir = paths_cfg.get("atlas_dir")
-    if atlas_dir:
+    if atlas_dir and not synthetic.is_synthetic(atlas_dir):
         atlas = REPO_ROOT / atlas_dir if not Path(atlas_dir).is_absolute() else Path(atlas_dir)
         if atlas.is_dir():
             files.extend(sorted(p for p in atlas.iterdir() if p.is_file() and p.name != ".DS_Store"))
-    return [p for p in files if p.exists()]
+    named = {_relative(p): p for p in files if p.exists()}
+    if named:  # real data: add the other reference inputs
+        for name, _, path in reference_inputs():
+            if path.is_file():
+                named.setdefault(name, path)
+    return sorted(named.items())
+
+
+# --------------------------------------------------------------------------- code checksums
+
+
+def _module_files(name: str, roots: tuple[Path, ...]) -> list[Path]:
+    """Files executed by ``import name`` when ``name`` resolves under one of ``roots`` (package __init__ files
+    included); empty for modules outside the repository."""
+    parts = name.split(".")
+    for root in roots:
+        if not ((root / parts[0]).is_dir() or (root / f"{parts[0]}.py").is_file()):
+            continue
+        found = []
+        for i in range(1, len(parts) + 1):
+            base = root.joinpath(*parts[:i])
+            if (base / "__init__.py").is_file():
+                found.append(base / "__init__.py")
+            elif base.with_suffix(".py").is_file():
+                found.append(base.with_suffix(".py"))
+                break
+            else:
+                break
+        return found
+    return []
+
+
+def _imports(path: Path, roots: tuple[Path, ...]) -> list[Path]:
+    """Local files imported by one Python file.
+
+    Covers ``import a.b``, ``from a import b`` (b may be a submodule), relative imports, and
+    ``importlib.import_module(f"pkg.{...}")``, which is taken to mean any module of ``pkg``.
+    """
+    tree = ast.parse(path.read_text(), filename=str(path))
+    package = path.parent
+    out: list[Path] = []
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Import):
+            for alias in node.names:
+                out += _module_files(alias.name, roots)
+        elif isinstance(node, ast.ImportFrom):
+            if node.level:
+                base = package
+                for _ in range(node.level - 1):
+                    base = base.parent
+                names = [f"{node.module}.{a.name}" if node.module else a.name for a in node.names]
+                if node.module:
+                    out += _module_files(node.module, (base,))
+                for n in names:
+                    out += _module_files(n, (base,))
+            elif node.module:
+                out += _module_files(node.module, roots)
+                for alias in node.names:
+                    out += _module_files(f"{node.module}.{alias.name}", roots)
+        elif (isinstance(node, ast.Call) and getattr(node.func, "attr", getattr(node.func, "id", None)) == "import_module"
+              and node.args):
+            arg = node.args[0]
+            if isinstance(arg, ast.Constant) and isinstance(arg.value, str):
+                out += _module_files(arg.value, roots)
+            elif isinstance(arg, ast.JoinedStr) and arg.values and isinstance(arg.values[0], ast.Constant):
+                prefix = str(arg.values[0].value)
+                if prefix.endswith("."):
+                    for pkg_init in _module_files(prefix[:-1], roots):
+                        if pkg_init.name == "__init__.py":
+                            out += sorted(pkg_init.parent.glob("*.py"))
+    return out
+
+
+@lru_cache(maxsize=None)
+def _code_files(script: Path) -> tuple[Path, ...]:
+    roots = (script.parent, REPO_ROOT / "src")
+    seen: set[Path] = set()
+    todo = [script]
+    while todo:
+        path = todo.pop().resolve()
+        if path in seen or not path.is_file():
+            continue
+        seen.add(path)
+        todo += _imports(path, roots)
+    return tuple(sorted(seen))
+
+
+def code_record(script: str | Path) -> dict | None:
+    """Checksums of a stage's code: its script and every local module the script imports, transitively.
+
+    Local modules are those under ``src/`` (the ``hoc`` package) or next to the script (for example
+    ``scripts/paper/registry/``). ``{"sha256": <digest of all files>, "files": {path: sha256}}``, or None when the
+    script is not a Python file.
+    """
+    path = Path(script)
+    path = path if path.is_absolute() else Path.cwd() / path
+    if path.suffix != ".py" or not path.is_file():
+        return None
+    files = {_relative(p): sha256_file(p) for p in _code_files(path.resolve())}
+    digest = hashlib.sha256("".join(f"{k} {v}\n" for k, v in sorted(files.items())).encode()).hexdigest()
+    return {"sha256": digest, "files": files}
 
 
 def _script_record(argv: list[str]) -> dict | None:
@@ -347,8 +480,7 @@ class RunContext:
         if subject_ids is not None:
             manifest["subjects"] = [str(s) if not isinstance(s, (int, float)) else s for s in subject_ids]
         if hash_inputs and self.config:
-            for path in collect_inputs(self.config):
-                key = _relative(path)
+            for key, path in collect_inputs(self.config):
                 stat = path.stat()
                 cached = manifest["inputs"].get(key)
                 if cached and cached.get("size") == stat.st_size and cached.get("mtime") == stat.st_mtime:
@@ -368,6 +500,7 @@ class RunContext:
             "started": self._started,
             **({"resumed": [*previous.get("resumed", []), now]} if resumed else {}),
             "script": _script_record(self.argv),
+            "code": code_record(self.argv[0]) if self.argv else None,
             "random_seed": self.config.get("analysis", {}).get("random_seed"),
             "stage_seeds": self.config.get("seeds", {}),
             "argv": self.argv,
@@ -384,22 +517,25 @@ class RunContext:
         """Mark the stage complete and record checksums of its outputs.
 
         ``outputs`` defaults to every file in the run directory modified since
-        the stage started, excluding variant folders and ``logs/`` folders.
-        Stages that run concurrently should pass ``outputs`` explicitly.
+        the stage started, excluding variant folders, ``logs/`` folders, the config snapshot, ``.DS_Store``
+        files, and the folders of other stage groups (``<group>/`` of every other stage in the manifest), which
+        are written by those stages. Stages that write into another group's folder must pass ``outputs``.
         """
         manifest = read_manifest(self.root) or {"stages": {}}
         record = manifest["stages"].setdefault(self.stage, {})
         if outputs is None:
             started = _dt.datetime.fromisoformat(self._started).timestamp() if self._started else 0.0
-            outputs = [
-                p
-                for p in self.root.rglob("*")
-                if p.is_file()
-                and p.name not in (MANIFEST_NAME, MANIFEST_NAME + ".tmp")
-                and "variants" not in p.relative_to(self.root).parts
-                and "logs" not in p.relative_to(self.root).parts
-                and p.stat().st_mtime >= started - 1
-            ]
+            own = self.stage.split("/")[0]
+            foreign = {name.split("/")[0] for name in manifest.get("stages", {})} - {own}
+            outputs = []
+            for p in self.root.rglob("*"):
+                parts = p.relative_to(self.root).parts
+                if (p.is_file()
+                        and p.name not in (MANIFEST_NAME, MANIFEST_NAME + ".tmp", ".DS_Store")
+                        and "variants" not in parts and "logs" not in parts
+                        and parts[0] != "config" and parts[0] not in foreign
+                        and p.stat().st_mtime >= started - 1):
+                    outputs.append(p)
         record["outputs"] = {
             str(Path(p).resolve().relative_to(self.root.resolve())): sha256_file(p) for p in sorted(map(Path, outputs))
         }
