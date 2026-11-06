@@ -3,10 +3,12 @@
 from __future__ import annotations
 
 import json
+from pathlib import Path
 
 import pytest
 
 from hoc import runs
+from hoc.config import load_config
 from hoc.paths import REPO_ROOT
 
 
@@ -106,8 +108,9 @@ def test_require_stage(runs_tmp):
     assert ctx.require_stage("primary/00_prepare_data")["status"] == "complete"
 
 
-def test_input_hashes(runs_tmp):
+def test_input_hashes(runs_tmp, monkeypatch):
     tmp, config = runs_tmp
+    monkeypatch.setattr(runs, "INPUTS_REFERENCE", tmp / "no_reference.sha256")
     raw = tmp / "raw.mat"
     raw.write_bytes(b"connectomes")
     atlas = tmp / "atlas"
@@ -117,6 +120,58 @@ def test_input_hashes(runs_tmp):
     ctx = _ctx(config, run="canon").begin(["sub-000"])
     inputs = runs.read_manifest(ctx.root)["inputs"]
     assert {v["sha256"] for v in inputs.values()} == {runs.sha256_file(raw), runs.sha256_file(atlas / "a.annot")}
+
+
+def test_reference_inputs_recorded_by_name(runs_tmp, monkeypatch):
+    """Real-data runs also hash the reference inputs (Yeo, neuromaps), named as in reference/inputs.sha256."""
+    tmp, config = runs_tmp
+    neuromaps = tmp / "nm"
+    (neuromaps / "atlases").mkdir(parents=True)
+    (neuromaps / "atlases" / "sphere.gii").write_bytes(b"sphere")
+    monkeypatch.setenv("NEUROMAPS_DATA", str(neuromaps))
+    reference = tmp / "inputs.sha256"
+    reference.write_text(f"{runs.sha256_file(neuromaps / 'atlases' / 'sphere.gii')}  $NEUROMAPS_DATA/atlases/sphere.gii\n")
+    monkeypatch.setattr(runs, "INPUTS_REFERENCE", reference)
+    raw = tmp / "raw.mat"
+    raw.write_bytes(b"connectomes")
+    config.write_text(f'[paths]\nraw_connectomes = "{raw}"\n')
+    inputs = runs.read_manifest(_ctx(config, run="canon").begin(["sub-000"]).root)["inputs"]
+    assert inputs["$NEUROMAPS_DATA/atlases/sphere.gii"]["sha256"] == runs.sha256_file(neuromaps / "atlases" / "sphere.gii")
+    assert not any(str(neuromaps) in key for key in inputs)
+    # synthetic runs read no external files
+    config.write_text('[paths]\nraw_connectomes = "synthetic:subjects=2"\natlas_dir = "synthetic:"\n')
+    assert runs.collect_inputs(load_config(config)) == []
+
+
+def test_code_record_follows_local_imports(tmp_path):
+    scripts = tmp_path / "scripts"
+    (scripts / "pkg").mkdir(parents=True)
+    (scripts / "pkg" / "__init__.py").write_text("")
+    (scripts / "pkg" / "part.py").write_text("X = 1\n")
+    (scripts / "helper.py").write_text("from hoc.runs import sha256_file\n")
+    script = scripts / "step.py"
+    script.write_text("import importlib\nimport numpy\nimport helper\n"
+                      "def load(name):\n    return importlib.import_module(f'pkg.{name}')\n")
+    record = runs.code_record(script)
+    files = {Path(k).name if Path(k).is_absolute() else k for k in record["files"]}
+    assert {"step.py", "helper.py", "part.py", "src/hoc/runs.py", "src/hoc/__init__.py"} <= files
+    assert not any("numpy" in k for k in record["files"])
+    before = record["sha256"]
+    (scripts / "pkg" / "part.py").write_text("X = 2\n")
+    assert runs.code_record(script)["sha256"] != before
+
+
+def test_finish_records_only_this_stage_group(runs_tmp):
+    _, config = runs_tmp
+    other = runs.RunContext(stage="other/01_y", config_path=config, run="canon", argv=["test"]).begin(hash_inputs=False)
+    ctx = runs.RunContext(stage="group/01_x", config_path=config, run="canon", argv=["test"]).begin(hash_inputs=False)
+    for rel in ("group/a.csv", "other/b.csv", "processed/c.npz", ".DS_Store", "group/.DS_Store"):
+        path = ctx.path(rel)
+        path.write_text("x")
+    ctx.finish()
+    outputs = set(runs.read_manifest(ctx.root)["stages"]["group/01_x"]["outputs"])
+    assert outputs == {"group/a.csv", "processed/c.npz"}
+    assert other.root == ctx.root
 
 
 def test_reader_run_dir(runs_tmp, monkeypatch):

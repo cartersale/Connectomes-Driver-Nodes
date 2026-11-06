@@ -8,6 +8,8 @@ uv run python scripts/reproduce.py --check-inputs
 
 which compares all 50 files with `reference/inputs.sha256`, the checksums of the files the paper's results
 were computed from.
+Every run also records the checksum of each of these files that is present in its `manifest.json` (under
+`inputs`, with the same names), so the run's provenance names the exact data it read.
 
 ## Structural connectomes
 

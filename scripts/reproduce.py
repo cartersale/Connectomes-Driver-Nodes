@@ -8,8 +8,9 @@
     python scripts/reproduce.py --run paper --only figures paper     # these groups (and anything they need)
     python scripts/reproduce.py --check-inputs            # verify the external data against reference/inputs.sha256
 
-A step is skipped when the run's manifest records it as complete and it is still current: same script, same
-config, and finished after every step it depends on. A step that is complete but no longer current is *stale*;
+A step is skipped when the run's manifest records it as complete and it is still current: same code (its script
+and every local module the script imports, from src/hoc/ or next to the script), same config, and finished after
+every step it depends on. A step that is complete but no longer current is *stale*;
 the runner stops and names it rather than silently mixing old and new outputs. Rerun it (and everything
 downstream) with ``--rerun-stale``, or rerun one step with ``--force STAGE``.
 
@@ -40,10 +41,17 @@ from pathlib import Path
 import hoc  # noqa: F401 - sets BLAS thread defaults inherited by every step
 from hoc.config import CONFIG_ENV, DEFAULT_CONFIG, config_digest
 from hoc.paths import REPO_ROOT
-from hoc.runs import MANIFEST_NAME, read_manifest, resolve_run_dir, sha256_file
+from hoc.runs import (
+    INPUTS_REFERENCE,
+    MANIFEST_NAME,
+    code_record,
+    read_manifest,
+    reference_inputs,
+    resolve_run_dir,
+    sha256_file,
+)
 
 SMOKE_CONFIG = "config/smoke.toml"
-INPUTS_REFERENCE = REPO_ROOT / "reference" / "inputs.sha256"
 
 
 @dataclass(frozen=True)
@@ -172,11 +180,12 @@ STEPS += [
          ("concentration/02_tables", "concentration/03_decay_collapse", "concentration/04_redundancy_geodesic",
           "null_models/03_gap_mediators", "null_models/04_rayleigh_bound", "target_states/09_report_tables",
           "lesions/02_analyze_reciprocal_lesion", "topology/summarize_perturbation", "topology/summarize_representatives",
-          "mechanisms/02_canonical_graphs", "mechanisms/03_coverage_distance", "mechanisms/07_core_cut", "sensitivity/00_validate",
+          "mechanisms/01_hub_loading", "mechanisms/02_canonical_graphs", "mechanisms/03_coverage_distance",
+          "mechanisms/07_core_cut", "sensitivity/00_validate",
           "sensitivity/07_report_tables", "spectra/02_analyze", "modal_controllability/02_analyze_modal"),
          ("paper/tables/*.tex",), smoke=False),
     Step("paper/numbers", "scripts/paper/key_numbers.py",
-         ("paper/tables", "mechanisms/04_leading_eigenvectors", "mechanisms/05_second_subspace", "mechanisms/07_core_cut",
+         ("paper/tables", "mechanisms/01_hub_loading", "mechanisms/04_leading_eigenvectors", "mechanisms/05_second_subspace", "mechanisms/07_core_cut",
           "mechanisms/08_gramian_alignment", "concentration/06_er_avgctrl", "null_models/02_analyze",
           "null_models/00_validate", P1),
          ("paper/key_results.json", "paper/numbers.csv", "paper/numbers.tex"), smoke=False),
@@ -245,11 +254,19 @@ def status(manifest: dict, step: Step, config_sha: str) -> tuple[str, str]:
         return "pending", ""
     if rec.get("status") != "complete":
         return rec.get("status", "pending"), "interrupted; will resume"
-    reasons = []
-    script = rec.get("script") or {}
-    current = sha256_file(REPO_ROOT / step.script)
-    if script.get("sha256") != current:
-        reasons.append("script changed" if script else "no script checksum recorded")
+    reasons, note = [], ""
+    code = rec.get("code")
+    if code and not rec.get("reused_from"):
+        now = (code_record(REPO_ROOT / step.script) or {}).get("files", {})
+        changed = sorted(k for k in set(code.get("files", {})) | set(now) if code.get("files", {}).get(k) != now.get(k))
+        if changed:
+            reasons.append("code changed: " + ", ".join(changed[:3]) + (f" and {len(changed) - 3} more" if len(changed) > 3 else ""))
+    else:
+        script = rec.get("script") or {}
+        if script.get("sha256") != sha256_file(REPO_ROOT / step.script):
+            reasons.append("script changed" if script else "no script checksum recorded")
+        elif not rec.get("reused_from"):
+            note = "only the script was checksummed when it ran; imported modules were not"
     if manifest.get("config", {}).get("sha256") not in (None, config_sha):
         reasons.append("config changed")
     finished = rec.get("finished", "")
@@ -259,7 +276,7 @@ def status(manifest: dict, step: Step, config_sha: str) -> tuple[str, str]:
             reasons.append(f"{r} finished later")
     if reasons:
         return "stale", "; ".join(reasons)
-    return ("reused" if rec.get("reused_from") else "done"), ""
+    return ("reused" if rec.get("reused_from") else "done"), note
 
 
 # --------------------------------------------------------------------------- checks
@@ -294,21 +311,16 @@ def check_inputs() -> int:
     Paths are relative to the repository, except ``$NEUROMAPS_DATA/...`` (maps that neuromaps downloads; default
     ``~/neuromaps-data``).
     """
-    neuromaps = Path(os.environ.get("NEUROMAPS_DATA", Path.home() / "neuromaps-data"))
-    bad = total = 0
-    for line in INPUTS_REFERENCE.read_text().splitlines():
-        if not line.strip() or line.startswith("#"):
-            continue
-        digest, name = line.split(maxsplit=1)
-        total += 1
-        path = neuromaps / name.split("/", 1)[1] if name.startswith("$NEUROMAPS_DATA/") else REPO_ROOT / name
+    bad = 0
+    entries = reference_inputs()
+    for name, digest, path in entries:
         if not path.is_file():
             print(f"MISSING  {name}")
             bad += 1
         elif sha256_file(path) != digest:
             print(f"DIFFERS  {name}")
             bad += 1
-    print(f"{total - bad}/{total} input files match {INPUTS_REFERENCE.relative_to(REPO_ROOT)}")
+    print(f"{len(entries) - bad}/{len(entries)} input files match {INPUTS_REFERENCE.relative_to(REPO_ROOT)}")
     return bad
 
 
@@ -323,11 +335,12 @@ def reuse(step: Step, source_run: str, run_dir: Path, config_path: Path) -> None
     if not rec or rec.get("status") != "complete":
         sys.exit(f"--reuse: stage {step.stage} is not complete in run {source_run}")
     dst = read_manifest(run_dir) or {}
-    src_inputs = {v["sha256"] for v in src.get("inputs", {}).values()}
-    dst_inputs = {v["sha256"] for v in dst.get("inputs", {}).values()}
-    if not dst_inputs or not dst_inputs <= src_inputs:
-        sys.exit(f"--reuse: the input data of this run are not all among run {source_run}'s inputs (by sha256); "
-                 f"refusing to reuse {step.stage}")
+    src_inputs = {k: v["sha256"] for k, v in src.get("inputs", {}).items()}
+    dst_inputs = {k: v["sha256"] for k, v in dst.get("inputs", {}).items()}
+    differ = sorted(k for k in src_inputs if dst_inputs.get(k) != src_inputs[k])
+    if not src_inputs or differ:
+        sys.exit(f"--reuse: run {source_run} read input files that this run does not have with the same sha256 "
+                 f"({', '.join(differ[:5]) or 'no inputs recorded'}); refusing to reuse {step.stage}")
     outputs = rec.get("outputs", {})
     print(f"reuse {step.stage} from {source_run}: verifying {len(outputs)} files", flush=True)
     for rel, digest in outputs.items():

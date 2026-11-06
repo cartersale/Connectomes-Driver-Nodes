@@ -31,15 +31,15 @@ with the default `HOC_BLAS_THREADS=1`.
 
 ## Resuming, staleness and reuse
 
-The run directory holds `manifest.json`, which records for each step its status, the checksum of its script,
-the configuration digest, random seeds, arguments, git state and package versions of every start and resume,
+The run directory holds `manifest.json`, which records for each step its status, the checksums of its code (the script and every
+local module it imports from `src/hoc/` or from next to the script), the input files, the configuration digest, random seeds, arguments, git state and package versions of every start and resume,
 and the checksum of every output. The runner uses it to decide what to do:
 
 | Status (`--list`) | Meaning | What `reproduce.py` does |
 | --- | --- | --- |
-| `done` | finished with the current script and config, after everything it depends on | skips it |
+| `done` | finished with the current code and config, after everything it depends on | skips it |
 | `running` | interrupted | reruns it; long steps (null networks, lesions) resume from their saved per-subject chunks |
-| `stale` | finished, but its script or config changed since, or a step it depends on finished later | stops and names it |
+| `stale` | finished, but its code or config changed since (`--list` names the changed files), or a step it depends on finished later | stops and names it |
 | `pending` | not run yet | runs it |
 | `reused` | outputs taken from another run with `--reuse` | skips it |
 
@@ -54,8 +54,8 @@ uv run python scripts/reproduce.py --run paper --rerun-stale     # rerun every s
 ```
 
 `--reuse STAGE=RUN` copies a step's outputs from another run instead of computing them. Every file is checked
-against the sha256 recorded in that run's manifest, the input data of the two runs must have the same
-checksums, a config difference is recorded as a diff, and the reuse is listed in the validation report and
+against the sha256 recorded in that run's manifest, every input file the other run read must be present in
+this run with the same checksum, a config difference is recorded as a diff, and the reuse is listed in the validation report and
 `provenance.json`. It exists for the null-network step:
 
 ```bash
@@ -80,8 +80,9 @@ which is stored in the file together with the run and commit it came from.
 
 `--manuscript <folder>` (with `--main <file>`, default `main.tex`) compares the run with the main text and
 `supp_mat.tex` in that folder: tables the supplement inputs that
-the run does not generate, number macros the text uses that the registry does not define, and numbers whose
-computed text differs from what the documents print. `scripts/paper/sync.py --manuscript <folder>` lists (and
+the run does not generate, number macros the text uses that the registry does not define, numbers whose
+computed text differs from what the documents print, and printed numbers not found in the section or caption
+that their registry entry names. `scripts/paper/sync.py --manuscript <folder>` lists (and
 with `--apply` copies) the generated tables and `numbers.tex` into the manuscript folder, and the figures with
 `--figures`; see
 [paper_map.md](paper_map.md) for the table layout and `scripts/paper/publish_tables.py`.
