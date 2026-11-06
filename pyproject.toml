@@ -5,36 +5,30 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "higher-order-connectomes"
 version = "0.1.0"
-description = "Control-theoretic and topological analysis pipeline for structural connectomes."
+description = "Analysis code for: Hub Inputs Funnel Control into the Connectome's Dominant Mode."
 readme = "README.md"
 requires-python = ">=3.12,<3.13"
 dependencies = [
   "bctpy>=0.6.1,<0.7",
+  "gudhi==3.13.0",
   "joblib>=1.4",
   "threadpoolctl>=3",
   "matplotlib",
   "networkx>=3.4",
   "nibabel",
+  "netneurotools==0.3.0",
   "neuromaps==0.0.7",
   "nilearn>=0.13",
-  "notebook",
   "numpy>=2.1,<2.2",
   "pandas>=2.2,<2.3",
-  "persim>=0.3.8",
   "ripser==0.6.14",
   "scipy>=1.15,<1.16",
-  "seaborn",
   "statsmodels",
+  "tabulate==0.10.0",
   "tqdm",
 ]
 
 [project.optional-dependencies]
-# Second-library arm of scripts/representative_stability/
-gudhi = ["gudhi==3.13.0"]
-# Everything scripts/revision/ needs (network nulls use netneurotools)
-revision = ["gudhi==3.13.0", "netneurotools==0.3.0"]
-# Manim scenes under animations/ and scripts/09_reachable_state_cloud_scene.py
-animation = ["manim"]
 dev = ["pytest>=8", "ruff>=0.6"]
 
 [tool.setuptools]
@@ -45,9 +39,8 @@ where = ["src"]
 
 [tool.uv]
 python-preference = "only-managed"
-# Pin the lock to the versions that produced the published results
-# (baseline/environment-preprint.txt). Change these only on purpose, and
-# attach a compare_runs diff to the PR that does.
+# Pin the lock to the versions that produced the paper's results. Change these only together with a
+# full run validated against reference/ (scripts/paper/validate.py).
 constraint-dependencies = [
   "bctpy==0.6.1",
   "gudhi==3.13.0",
@@ -55,6 +48,7 @@ constraint-dependencies = [
   "matplotlib==3.10.0",
   "netneurotools==0.3.0",
   "networkx==3.4.2",
+  "netneurotools==0.3.0",
   "neuromaps==0.0.7",
   "nibabel==5.4.2",
   "nilearn==0.13.1",
@@ -64,16 +58,15 @@ constraint-dependencies = [
   "ripser==0.6.14",
   "scikit-learn==1.6.1",
   "scipy==1.15.2",
-  "seaborn==0.13.2",
   "statsmodels==0.14.4",
   "tqdm==4.67.1",
 ]
 
 [tool.pytest.ini_options]
-testpaths = ["tests", "scripts/representative_stability"]
-addopts = "-ra -m 'not data'"
+testpaths = ["tests"]
+addopts = "-ra -m 'not data and not slow'"
 markers = [
-  "slow: takes more than a few seconds",
+  "slow: runs the synthetic pipeline end to end (minutes; run with -m slow)",
   "data: needs the real connectome data and a finished run directory",
 ]
 filterwarnings = ["ignore::DeprecationWarning:nilearn.*", "ignore::DeprecationWarning:bct.*",
@@ -84,7 +77,6 @@ filterwarnings = ["ignore::DeprecationWarning:nilearn.*", "ignore::DeprecationWa
 [tool.ruff]
 line-length = 120
 target-version = "py312"
-extend-exclude = ["scripts/revision/paper/_rescued_2026-10-19", "animations"]
 
 [tool.ruff.lint]
 # Conservative: real errors only (pyflakes, syntax), plus import order.

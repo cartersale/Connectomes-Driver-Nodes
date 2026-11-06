@@ -1,0 +1,13 @@
+Curve,Axis,Grid range,Between-scale var.,Total var.,D
+Cycle - degree q_1,c (full),"[0.003, 3.162]",0.0009,0.0223,0.042
+Cycle - degree q_1,d (full),"[0.090, 0.786]",0.0002,0.0109,0.015
+Cycle - degree ER,c (full),"[0.003, 3.162]",0.0304,0.6736,0.045
+Cycle - degree ER,d (full),"[0.090, 0.786]",0.0091,0.3500,0.026
+Degree - random q_1,c (full),"[0.003, 3.162]",0.0004,0.0196,0.018
+Degree - random q_1,d (full),"[0.090, 0.786]",0.0002,0.0097,0.021
+Cycle - degree q_1,c (matched window),"[0.046, 1.723]",0.0002,0.0102,0.022
+Cycle - degree q_1,d (matched window),"[0.090, 0.786]",0.0002,0.0109,0.015
+Cycle - degree ER,c (matched window),"[0.046, 1.723]",0.0122,0.3290,0.037
+Cycle - degree ER,d (matched window),"[0.090, 0.786]",0.0091,0.3500,0.026
+Degree - random q_1,c (matched window),"[0.046, 1.723]",0.0003,0.0102,0.030
+Degree - random q_1,d (matched window),"[0.090, 0.786]",0.0002,0.0097,0.021

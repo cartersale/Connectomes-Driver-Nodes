@@ -44,7 +44,7 @@ def eigenvector_centrality_scores(adjacency: np.ndarray) -> np.ndarray:
 
 
 # Louvain is stochastic; a fixed seed makes the participation coefficient
-# reproducible. The preprint results used an unseeded call (baseline/PROVENANCE.md).
+# reproducible.
 LOUVAIN_SEED = 0
 
 

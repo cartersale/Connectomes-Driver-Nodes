@@ -1,0 +1,27 @@
+cff-version: 1.2.0
+message: "If you use this code, please cite the article."
+title: "Hub Inputs Funnel Control into the Connectome's Dominant Mode: analysis code"
+authors:
+  - family-names: Sale
+    given-names: Carter
+  - family-names: Coraggio
+    given-names: Marco
+  - family-names: Zhang
+    given-names: Mengsen
+  - family-names: Richardson
+    given-names: Michael J.
+license: MIT
+repository-code: "https://github.com/cartersale/Connectomes-Driver-Nodes"
+preferred-citation:
+  type: article
+  title: "Hub Inputs Funnel Control into the Connectome's Dominant Mode"
+  authors:
+    - family-names: Sale
+      given-names: Carter
+    - family-names: Coraggio
+      given-names: Marco
+    - family-names: Zhang
+      given-names: Mengsen
+    - family-names: Richardson
+      given-names: Michael J.
+  year: 2026

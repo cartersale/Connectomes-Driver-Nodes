@@ -1,0 +1,10 @@
+Scale,Set,q_1 (raw W) k-avg,k=5: lambda_max/tr computed on raw W,k=5: lambda_max/tr computed on W_1e-8,k=5: lambda_max/tr computed on W_1e-6,k=5: lambda_max/tr computed on W_1e-5,k=5: lambda_max/tr computed on W_1e-4,k=5: lambda_max/tr computed on W_1e-2
+68,Degree strength,0.77,0.66,0.66,0.66,0.66,0.66,0.58
+,Cycle participation,0.59,0.41,0.41,0.41,0.41,0.41,0.33
+,Random (set 0 only),0.53,0.28,0.28,0.28,0.28,0.28,0.22
+114,Degree strength,0.77,0.69,0.69,0.69,0.69,0.68,0.55
+,Cycle participation,0.56,0.34,0.34,0.34,0.34,0.34,0.23
+,Random (set 0 only),0.52,0.25,0.25,0.25,0.25,0.25,0.16
+219,Degree strength,0.72,0.61,0.61,0.61,0.60,0.60,0.39
+,Cycle participation,0.52,0.27,0.27,0.27,0.27,0.27,0.12
+,Random (set 0 only),0.51,0.23,0.23,0.23,0.23,0.22,0.09

@@ -1,0 +1,22 @@
+Group,Target,68 Median %,68 n_-/n_+,68 p_H,114 Median %,114 n_-/n_+,114 p_H,219 Median %,219 n_-/n_+,219 p_H
+Yeo-7 networks,Yeo Visual,-5.72,54/16,2.9e-5,-8.92,58/12,5.6e-8,-1.73,47/23,2.5e-4
+Yeo-7 networks,Yeo SomMot,+5.00,20/50,7.9e-5,+1.77,22/48,3.7e-3,+1.90,21/49,8.1e-3
+Yeo-7 networks,Yeo DorsAttn,-5.92,53/17,1.0e-5,-1.58,57/13,1.2e-7,-0.55,40/30,0.064
+Yeo-7 networks,Yeo VentAttn,+10.19,13/57,1.7e-7,+8.61,4/66,4.7e-11,+0.56,28/42,0.53
+Yeo-7 networks,Yeo Limbic,+0.89,29/41,0.048,-0.93,44/26,0.053,-1.20,52/18,1.4e-4
+Yeo-7 networks,Yeo FrontoParietal,+4.27,21/49,4.0e-3,+1.72,28/42,0.053,+3.48,16/54,6.1e-6
+Yeo-7 networks,Yeo Default,+3.87,21/49,8.8e-5,+5.54,9/61,6.2e-10,+2.31,14/56,3.7e-7
+Yeo-7 networks,Unimodal (Vis+SomMot),-1.90,46/24,4.0e-3,-6.23,56/14,5.6e-8,-0.57,42/28,0.034
+Yeo-7 networks,Transmodal (Def+FP),+5.59,19/51,1.0e-6,+6.92,11/59,5.8e-9,+5.15,9/61,1.5e-9
+Yeo-7 networks,Transmodal - unimodal,+1.13,26/44,8.0e-3,+1.12,22/48,0.015,+1.66,12/58,2.6e-7
+Anatomical modules,Occipital module,-6.05,54/16,2.5e-5,-8.46,55/15,9.9e-8,-1.22,48/22,1.2e-5
+Anatomical modules,Association module,+18.04,6/64,9.5e-11,+10.02,11/59,4.7e-10,+4.32,16/54,1.8e-6
+Anatomical modules,Association - occipital,+10.10,8/62,4.7e-10,+6.44,8/62,2.0e-10,+4.42,13/57,4.6e-9
+Landmarks,V1 (pericalcarine),-3.03,50/20,1.8e-4,-1.53,51/19,9.3e-7,-0.32,46/24,1.7e-5
+Landmarks,M1 (precentral),+6.45,30/40,0.16,+16.27,11/59,4.9e-9,+6.24,16/54,1.6e-6
+Landmarks,PCC/precuneus,+10.11,25/45,4.3e-3,+2.68,28/42,0.097,+5.12,19/51,4.8e-5
+Landmarks,lPFC,+8.65,20/50,2.0e-4,+5.21,25/45,9.6e-4,+3.12,27/43,6.4e-3
+Gradients / distributed,G1,+3.76,13/57,4.5e-7,+1.75,18/52,3.3e-4,+1.56,20/50,1.8e-6
+Gradients / distributed,G1 bipolar,+1.51,21/49,9.1e-3,+1.26,27/43,0.086,+1.86,17/53,1.3e-6
+Gradients / distributed,G2,-4.10,46/24,2.1e-3,-5.35,54/16,4.2e-8,-0.77,43/27,0.013
+Gradients / distributed,Uniform cortical,+6.51,25/45,8.3e-3,-1.48,40/30,0.16,-2.32,39/31,0.11

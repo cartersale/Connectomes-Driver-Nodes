@@ -99,6 +99,15 @@ def _positions(scale: int, rng: np.random.Generator) -> np.ndarray:
     return points
 
 
+def centroids(spec: str, scale: int) -> pd.DataFrame:
+    """Parcel centroids (mm-like coordinates) of the synthetic connectomes built from ``spec``, in node order."""
+    params = parse_spec(spec)
+    points = _positions(scale, np.random.default_rng([params["seed"], scale]))  # the first draw in connectomes()
+    labels = [row["region_label"] for row in label_rows(scale)]
+    return pd.DataFrame({"region_label": labels, "n_vertices": 1, "x": 70 * points[:, 0], "y": 70 * points[:, 1],
+                         "z": 70 * points[:, 2]})
+
+
 def connectomes(spec: str) -> dict[int, np.ndarray]:
     """Streamline-count-like matrices, shape (n, n, subjects) per scale."""
     params = parse_spec(spec)
