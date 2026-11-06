@@ -1,4 +1,4 @@
-# Hub Inputs Funnel Control into the Connectome's Dominant Mode
+# Connectome Driver Nodes
 
 Analysis code for:
 
