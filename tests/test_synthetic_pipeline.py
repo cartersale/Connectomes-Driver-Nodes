@@ -143,7 +143,7 @@ def test_synthetic_pipeline_matches_golden(tmp_path) -> None:
     statuses = {name: stage["status"] for name, stage in manifest["stages"].items()}
     assert set(statuses) == expected and set(statuses.values()) == {"complete"}
     problems = compare(fingerprint(run_dir), json.loads(GOLDEN.read_text()))
-    assert not problems, "\n".join(problems[:40])
+    assert not problems, "\n".join(problems)
 
 
 if __name__ == "__main__":
