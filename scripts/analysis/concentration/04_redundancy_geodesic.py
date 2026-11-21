@@ -28,10 +28,10 @@ from joblib import Parallel, delayed
 from scipy.sparse.csgraph import shortest_path
 from scipy.stats import wilcoxon
 
-from hoc import config as hoc_config  # noqa: E402
-from hoc.analysis.null_models import Spectral, load_stack  # noqa: E402
-from hoc.runs import stage_from_argv  # noqa: E402
-from hoc.utils import n_jobs  # noqa: E402
+from hoc import config as hoc_config
+from hoc.analysis.null_models import Spectral, load_stack
+from hoc.runs import stage_from_argv
+from hoc.utils import n_jobs
 
 ROOT: Path  # run directory (runs/<name>/), set in main()
 OUT: Path  # <run>/concentration, set in main()
@@ -73,10 +73,9 @@ def corr(a, b) -> float:
 
 def job(scale: int, si: int, A: np.ndarray, sets: pd.DataFrame) -> list[dict]:
     spec = Spectral(A)
-    w = A.copy()
     with np.errstate(divide="ignore"):
-        L_inv = np.where(w > 0, 1.0 / w, 0.0)
-        L_log = np.where(w > 0, np.maximum(-np.log(w), 1e-12), 0.0)
+        L_inv = np.where(A > 0, 1.0 / A, 0.0)
+        L_log = np.where(A > 0, np.maximum(-np.log(A), 1e-12), 0.0)
     D_inv = shortest_path(L_inv, method="D", directed=False)
     D_log = shortest_path(L_log, method="D", directed=False)
     rows = []
@@ -133,7 +132,6 @@ def main():
     res = pd.DataFrame(rows)
     res.to_csv(OUT / "redundancy_rho.csv", index=False)
 
-    # per subject: average over k, then summarize across subjects
     cols = [c for c in res.columns if c.startswith(("rho", "prho"))]
     per = res.groupby(["scale", "subject_id", "c"])[cols].mean().reset_index()
     summ = []

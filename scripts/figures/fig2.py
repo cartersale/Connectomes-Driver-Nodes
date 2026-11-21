@@ -27,8 +27,8 @@ import numpy as np
 import pandas as pd
 
 HERE = Path(__file__).resolve().parent
-from hoc import figstyle as fs  # noqa: E402
-from hoc.analysis.null_models import Spectral, load_stack  # noqa: E402
+from hoc import figstyle as fs
+from hoc.analysis.null_models import Spectral, load_stack
 
 SCALE, C, K_SHOW = 114, 0.1, 3
 KS = (1, 2, 3, 5)

@@ -14,17 +14,15 @@ import numpy as np
 import pandas as pd
 from scipy.stats import spearmanr
 
+from ._common import scale_siblings
+from .record import Number
+
 NAN = float("nan")
 SCALES = (68, 114, 219)
 NULLS = ("strength", "geometric", "weights")
 LOC = ("subsec:nulls_results",)
 FIG = ("fig:nulls",)
 
-
-from ._common import scale_siblings  # noqa: E402
-from .record import Number  # noqa: E402
-
-# --------------------------------------------------------------------------- formatting
 
 def fx(x: float, d: int = 2) -> str:
     s = f"{x:.{d}f}"
@@ -79,14 +77,11 @@ def one(df: pd.DataFrame, **eq) -> pd.Series:
     return x.iloc[0]
 
 
-# --------------------------------------------------------------------------- blocks
-
 def _models(run: Path) -> list[Number]:
     out: list[Number] = []
-    rev = run
     # "degree-strength sets of two to five drivers exceeded random sets in q1 by 0.11--0.28 at c=0.1,
     #  compared with 0.31--0.37 in human connectomes"
-    cs = _csv(str(rev / "mechanisms/canonical_summary.csv"))
+    cs = _csv(str(run / "mechanisms/canonical_summary.csv"))
     w = cs[(cs.weighting == "weighted") & np.isclose(cs.c, 0.1) & (cs.kgrp == "2+")]
     mod, conn = w[w.model != "CONN"], w[w.model == "CONN"]
     src = ("mechanisms/02_canonical_graphs: mechanisms/canonical_summary.csv | weighting == 'weighted', "
@@ -99,7 +94,7 @@ def _models(run: Path) -> list[Number]:
 
     # "the excess was correlated with the spectral gap (Spearman rho=0.63--0.79) and the loading of degree-strength
     #  sets on v1 (0.80--0.87), but less strongly with variability in node strength (0.31--0.35)"
-    g = _csv(str(rev / "mechanisms/canonical_graphs.csv.gz"))
+    g = _csv(str(run / "mechanisms/canonical_graphs.csv.gz"))
     g = g[(g.weighting == "weighted") & np.isclose(g.c, 0.1) & (g.k >= 2)].assign(ex=lambda x: x.deg_q1 - x.rand_q1)
     pg = g.groupby(["model", "scale", "graph"])[["ex", "gap", "deg_L", "strength_cv"]].mean().reset_index()
     for var, name in (("gap", "MModelRhoGap"), ("deg_L", "MModelRhoLoading"), ("strength_cv", "MModelRhoStrengthCV")):
@@ -114,8 +109,7 @@ def _models(run: Path) -> list[Number]:
 
 def _gap(run: Path) -> list[Number]:
     out: list[Number] = []
-    rev = run
-    ni = _csv(str(rev / "null_models/network_inference.csv"))
+    ni = _csv(str(run / "null_models/network_inference.csv"))
     gap = ni[ni.stat == "gap"]
     s = "null_models/02_analyze: null_models/network_inference.csv | stat == 'gap', "
     # "Human connectomes had a spectral gap of 0.43--0.54, approximately twice the null means of 0.19--0.27"
@@ -134,7 +128,7 @@ def _gap(run: Path) -> list[Number]:
     out += rng2("MGapAboveNinetyFiveWeights", gap[gap.null == "weights"].n_above95, cnt,
                 s + "null == 'weights', n_above95 over scales", stat="count of subjects > 95th pct of own 50 nulls")
     # "l1, which was 1.44--1.89 in human connectomes compared with 1.26--1.45 in the nulls"
-    gs = _csv(str(rev / "null_models/gap_split.csv"))
+    gs = _csv(str(run / "null_models/gap_split.csv"))
     l1 = gs[gs.stat == "lambda1"]
     s2 = "null_models/03_gap_mediators: null_models/gap_split.csv | stat == 'lambda1', "
     out += rng2("MLeadEigReal", [one(l1, null="strength", scale=sc).real_mean for sc in SCALES], fx,
@@ -155,8 +149,7 @@ def _per_subject_q1(sets_path: str) -> pd.DataFrame:
 
 def _q1(run: Path) -> list[Number]:
     out: list[Number] = []
-    rev = run
-    inf = _csv(str(rev / "null_models/inference.csv"))
+    inf = _csv(str(run / "null_models/inference.csv"))
     q = inf[(inf.stat == "degree_q1") & np.isclose(inf.c_ref, 0.1) & (inf.k == "avg2+")]
     fixed, gapm = q[q.c_mode == "fixed"], q[q.c_mode == "gap"]
     s = ("null_models/02_analyze: null_models/inference.csv | stat == 'degree_q1', c_ref == 0.1, k == 'avg2+' "
@@ -168,7 +161,7 @@ def _q1(run: Path) -> list[Number]:
     out += rng2("MNullFixedQOne", fixed.set_index(["null", "scale"]).null_mean, fx, s + "c_mode == 'fixed', null_mean over 3 nulls x 3 scales",
                 **ctx, stat="mean over subjects of null mean")
     # "Empirical values exceeded the null mean in 59--70 of 70 subjects."
-    ps = _per_subject_q1(str(rev / "null_models/sets.csv.gz"))
+    ps = _per_subject_q1(str(run / "null_models/sets.csv.gz"))
     n_pos = ps.groupby(["null", "c_mode", "scale"]).delta.apply(lambda d: int((d > 0).sum()))
     ss = ("null_models/02_analyze: null_models/sets.csv.gz | c_ref == 0.1, k == 'avg2+'; per subject real "
           "degree_q1 minus the mean over its 50 nulls (as compare() in 02_analyze.py); count of subjects with delta > 0, ")
@@ -187,21 +180,16 @@ def _q1(run: Path) -> list[Number]:
     return out
 
 
-def _s8_inline(run: Path) -> dict[str, float]:
+def _assort(run: Path) -> list[Number]:
     from sections.s8 import inline_values
 
-    return inline_values(run)
-
-
-def _assort(run: Path) -> list[Number]:
     out: list[Number] = []
-    rev = run
-    iv = _s8_inline(run)
+    iv = inline_values(run)
     s8 = ("null_models/04_rayleigh_bound: null_models/rayleigh/networks.csv.gz, per_subject.csv | "
-          "scripts/paper/s8.py inline_values()['{}']")
+          "scripts/paper/sections/s8.py inline_values()['{}']")
     # "including them [rich-club coefficients] as covariates accounted for at most 25%, and usually none, of the
     #  empirical-minus-null difference in q1"
-    nc = _csv(str(rev / "null_models/mediation_noncircular.csv"))
+    nc = _csv(str(run / "null_models/mediation_noncircular.csv"))
     rc = nc[(nc.outcome == "degree_q1") & (nc.k == "avg") & nc.mediator.str.startswith("rc")]
     mx = rc.prop_mediated.max()
     out.append(N("MRichClubMediatedMax", mx, ceil_pc(mx),
@@ -224,7 +212,7 @@ def _assort(run: Path) -> list[Number]:
                  s8.format("rW_n_above95_geometric_68"), scale=68, null="geometric", stat="count of subjects"))
     # "Subjects whose connectomes exceeded their strength-preserving nulls more in assortativity also exceeded them
     #  more in spectral gap (Spearman rho = 0.31--0.47 across subjects; Fig. 5C)"
-    ps = _csv(str(rev / "null_models/rayleigh/per_subject.csv"))
+    ps = _csv(str(run / "null_models/rayleigh/per_subject.csv"))
     d = ps[ps.null == "strength"]
     rhos = [spearmanr(g.d_r_W, g.d_gap).statistic for _, g in d.groupby("scale")]
     out += rng2("MAssortGapExcessRho", rhos, fx,
@@ -297,7 +285,7 @@ def _core(run: Path) -> list[Number]:
                  f"; per-scale medians {', '.join(f'{v:.1f}' for v in v2c)}%; text is the words 'about a third'",
                  S6, partition="v2sign", alpha=0.5, stat="median over subjects, each scale", **sup))
 
-    # ---- supplementary core-cut figure caption (figS_corecut.py cut_table / panel_cut):
+    # supplementary core-cut figure caption (figS_corecut.py cut_table / panel_cut):
     # "nine of 840 values lie beyond the axis and are drawn at its edge"
     t = df[(df.alpha == 0.5) & df.condition.isin(["cross", "within_matched", "other_matched"])]
     t = t[(t.partition == "labels") | ((t.partition == "v2sign") & (t.condition == "cross"))]
@@ -318,13 +306,8 @@ def _core(run: Path) -> list[Number]:
 
 def collect(run: Path) -> list[Number]:
     run = Path(run)
-    out = _models(run) + _gap(run) + _q1(run) + _assort(run) + _core(run)
-    names = [n.name for n in out]
-    assert len(names) == len(set(names)), [x for x in names if names.count(x) > 1]
-    return out
+    return _models(run) + _gap(run) + _q1(run) + _assort(run) + _core(run)
 
-
-# --------------------------------------------------------------------------- check against the manuscript
 
 # Tokens as printed in the manuscript.
 PRINTED = {

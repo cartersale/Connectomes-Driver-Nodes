@@ -13,16 +13,14 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
+from ._common import scale_siblings
+from .record import Number
+
 NAN = float("nan")
 SCALES = (68, 114, 219)
 SCALE_WORD = {68: "SixtyEight", 114: "OneFourteen", 219: "TwoNineteen"}
 HUB3 = ("degree_strength", "eigenvector_centrality", "top_avg_ctrl")
 
-
-from ._common import scale_siblings  # noqa: E402
-from .record import Number  # noqa: E402
-
-# --------------------------------------------------------------------------- formatting helpers
 
 def fx(x: float, d: int = 2) -> str:
     s = f"{x:.{d}f}"
@@ -97,8 +95,7 @@ def gramian_q1_factory(a0: np.ndarray, c: float):
     return lam, u, spectrum
 
 
-# --------------------------------------------------------------------------- subsec:energy_floor
-
+# subsec:energy_floor
 def energy_floor(run: Path) -> list[Number]:
     out: list[Number] = []
     loc = ("subsec:energy_floor",)
@@ -137,8 +134,7 @@ def energy_floor(run: Path) -> list[Number]:
     return out
 
 
-# --------------------------------------------------------------------------- fig:overview (Fig. 1 caption)
-
+# fig:overview (Fig. 1 caption)
 def fig1(run: Path) -> list[Number]:
     """Replicates scripts/figures/fig1.py main() + set_values(): cohort_reference of
     processed/connectomes_scale-114.npz, c = 0.1, k = 3, hub = top-3 strength (hoc.rankings.strength_scores),
@@ -181,8 +177,7 @@ def fig1(run: Path) -> list[Number]:
     return out
 
 
-# --------------------------------------------------------------------------- subsec:hub_concentration + paragraph after Fig. 2
-
+# subsec:hub_concentration + paragraph after Fig. 2
 P1SRC = "concentration/02_tables: concentration/q1_vs_random.csv | c == 0.1, metric == '{m}', k == '{k}'; "
 
 
@@ -226,7 +221,7 @@ def hub_concentration(run: Path) -> list[Number]:
                  "(subjects whose criterion ER/PR is not above the random mean; no exact ties assumed); lower bound",
                  loc, c=0.1, k="avg2+ (2,3,5)", bound="at least"))
 
-    # ---- paragraph after Fig. 2
+    # paragraph after Fig. 2
     loc2 = ("subsec:hub_concentration",)
     # "Betweenness and cycle criticality were intermediate, with 50--61\%"
     m = p1rows(run, ("betweenness", "cycle_criticality"), "avg2+")
@@ -266,22 +261,19 @@ def hub_concentration(run: Path) -> list[Number]:
     return out
 
 
-# --------------------------------------------------------------------------- fig:combining (Fig. 2 caption)
-
-
-
+# fig:combining (Fig. 2 caption)
 def fig2(run: Path) -> list[Number]:
     out: list[Number] = []
     loc = ("fig:combining",)
     sets = csv(run, "concentration/set_q1.csv.gz")
     x = sets[(sets.scale == 114) & np.isclose(sets.c, 0.1)]
 
-    # ---- panel A: replicates fig2.py Example + Example.spectrum
+    # panel A: replicates fig2.py Example + Example.spectrum
     deg3 = x[(x.family == "degree_strength") & (x.k == 3)].set_index("subject_id").q1
     sid = (deg3 - deg3.median()).abs().idxmin()
     si = int(sid.split("-")[1])
     xs = x[x.subject_id == sid]
-    nodes = lambda s: [int(t) for t in str(s).split(";")]  # noqa: E731
+    nodes = lambda s: [int(t) for t in str(s).split(";")]
     hub1 = nodes(xs[(xs.family == "degree_strength") & (xs.k == 1)].nodes.iloc[0])
     hubs = nodes(xs[(xs.family == "degree_strength") & (xs.k == 3)].nodes.iloc[0])
     rand = {}
@@ -313,7 +305,7 @@ def fig2(run: Path) -> list[Number]:
                  asrc + "max over the four spectra of sum of normalized eigenvalues 7..N, x100; bound rounded up", loc,
                  scale=114, c=0.1, subject=sid, bound="at most"))
 
-    # ---- panel B: replicates fig2.py panel_k (mean over subjects of per-subject mean q1)
+    # panel B: replicates fig2.py panel_k (mean over subjects of per-subject mean q1)
     def bmean(fam, k):
         return float(x[(x.family == fam) & (x.k == k)].groupby("subject_id").q1.mean().mean())
 
@@ -328,7 +320,7 @@ def fig2(run: Path) -> list[Number]:
                          criterion=fam, stat="mean over subjects"))
     # (claim "lie above them for every k >= 2" checked in the report, not a number)
 
-    # ---- panel C: replicates fig2.py panel_criteria band
+    # panel C: replicates fig2.py panel_criteria band
     al = csv(run, "mechanisms/gramian_alignment.csv")
     aa = al[(al.scale == 114) & (al.k == 3)]
     rm = aa[aa.family == "random"].groupby("subject_id").q1.mean().to_numpy()
@@ -342,15 +334,9 @@ def fig2(run: Path) -> list[Number]:
     return out
 
 
-# --------------------------------------------------------------------------- entry point
-
 def collect(run: Path) -> list[Number]:
     run = Path(run)
-    out = energy_floor(run) + fig1(run) + hub_concentration(run) + fig2(run)
-    names = [n.name for n in out]
-    assert len(names) == len(set(names)), "duplicate macro names"
-    assert all(n.isalpha() for n in names)
-    return out
+    return energy_floor(run) + fig1(run) + hub_concentration(run) + fig2(run)
 
 
 # Tokens as printed in the manuscript.

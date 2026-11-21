@@ -23,12 +23,11 @@ import pandas as pd
 from scipy.stats import wilcoxon
 from statsmodels.stats.multitest import multipletests
 
-from hoc import config as hoc_config  # noqa: E402
-from hoc.paths import REPO_ROOT as REPO_ROOT  # noqa: E402
-from hoc.rankings import random_top_k_nodes  # noqa: E402
-from hoc.runs import n_subjects  # noqa: E402,F401  (re-exported for the stage scripts)
-from hoc.utils import make_rng, subject_seed  # noqa: E402
-from hoc.utils import n_jobs as default_n_jobs  # noqa: E402
+from hoc import config as hoc_config
+from hoc.rankings import random_top_k_nodes
+from hoc.runs import n_subjects  # noqa: F401  (re-exported for the stage scripts)
+from hoc.utils import make_rng, subject_seed
+from hoc.utils import n_jobs as default_n_jobs
 
 BASE_SEED = hoc_config.random_seed()
 SCALES = hoc_config.scales()
@@ -57,9 +56,6 @@ def out_dir(root: Path) -> Path:
 
 def load_stack(scale: int, root: Path) -> np.ndarray:
     return np.load(Path(root) / "processed" / f"connectomes_scale-{scale}.npz")["adjacency"]
-
-
-_RANKS: dict[int, pd.DataFrame] = {}
 
 
 def load_ranks(scale: int, root: Path) -> dict[tuple[str, str], np.ndarray]:

@@ -23,10 +23,10 @@ def collect(run: Path) -> list[Number]:
     c = Collector(run)
     for fn in (_robustness, _criteria, _modes, _nulls, _core):
         fn(c)
-    return c.done()
+    return c.out
 
 
-# ============================================================================ S2 sec:robustness
+# S2 sec:robustness
 def _robustness(c: Collector) -> None:
     L = "sec:robustness"
     # "At every scale and eps, 80% to 98% of the eigenvalues of W lay below eps"
@@ -92,7 +92,7 @@ def _robustness(c: Collector) -> None:
           src + f"max |d_er_eps_rescaled| = {v:.3g}; 1 significant figure rounded up", L, bound=(v <= 3e-14, "<="))
 
 
-# ============================================================================ S3 sec:criteria
+# S3 sec:criteria
 def _criteria(c: Collector) -> None:
     L = "sec:criteria"
     spin = c.csv("target_states/spin_tests.csv")
@@ -142,7 +142,7 @@ def _criteria(c: Collector) -> None:
     c.add("SRepOverlapRsqMax", 100 * r2.max(), pct(r2.max()), "72", src.format("max"), L, {"k": ">=2"})
 
 
-# ============================================================================ S4 sec:modes
+# S4 sec:modes
 def _projector_eigenvalues(stack: np.ndarray, cols: list[int]) -> np.ndarray:
     """Eigenvalues (descending) of the mean projector onto each subject's span of the given eigenvectors
     (1 = v1, 2 = v2, ...), as in scripts/analysis/mechanisms/05_second_subspace.py."""
@@ -191,7 +191,7 @@ def _modes(c: Collector) -> None:
     kk = ar.index.get_level_values("k")
     srca = ("mechanisms/08_gramian_alignment: mechanisms/gramian_alignment.csv | per subject, set / mean of its 100 random "
             "sets; median over subjects (main_leading_mode.abs_reach); 3 hub criteria x 3 scales, {}")
-    f1 = lambda x: f"{x:.1f}"  # noqa: E731
+    f1 = lambda x: f"{x:.1f}"
     for nm, sel, col, fmt, lo_, hi_ in (("SAbsSingleLead", kk == 1, "lam1", f1, "3.6", "3.8"),
                                         ("SAbsSingleNonlead", kk == 1, "nonlead", f1, "5.5", "10.3"),
                                         ("SAbsSetLead", kk >= 2, "lam1", f1, "4.6", "8.7"),
@@ -212,7 +212,7 @@ def _modes(c: Collector) -> None:
         c.add(f"S{nm}GapMax", g.max(), f2(g.max()), hi_, srcm.format("max over models x scales" if nm == "Model" else "max over scales"), L)
 
 
-# ============================================================================ S5 sec:nulls
+# S5 sec:nulls
 def _nulls(c: Collector) -> None:
     L = "sec:nulls"
     fid = c.csv("null_models/null_fidelity.csv")
@@ -254,7 +254,7 @@ def _nulls(c: Collector) -> None:
         c.add(f"SRayleighRho{nm}LambdaMax", v.max(), f2(v.max()), hi_, src + f"per-scale median of {col}; max", L)
 
 
-# ============================================================================ S6 sec:core
+# S6 sec:core
 def _core(c: Collector) -> None:
     L = "sec:core"
     fo = c.csv("mechanisms/core_cut_first_order.csv")

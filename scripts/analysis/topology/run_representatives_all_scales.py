@@ -51,8 +51,8 @@ from hoc.analysis.topology import (
     uniform_random_sets,
     variant_scores,
 )
-from hoc.runs import RunContext, add_run_arguments, partial_stage  # noqa: E402
-from hoc.utils import n_jobs  # noqa: E402
+from hoc.runs import RunContext, add_run_arguments, partial_stage
+from hoc.utils import n_jobs
 
 K_VALUES = (1, 2, 3, 5, 15)
 

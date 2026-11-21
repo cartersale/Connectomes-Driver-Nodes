@@ -31,15 +31,20 @@ from pathlib import Path
 
 os.environ.setdefault("OMP_NUM_THREADS", "1")
 
+import matplotlib
+
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from joblib import Parallel, delayed
-from scipy.stats import kruskal
+from scipy.stats import kruskal, spearmanr
+from scipy.stats import t as t_dist
 
-from hoc import config as hoc_config  # noqa: E402
-from hoc.analysis.null_models import Spectral, load_stack, random_driver_sets, spectrum_metrics  # noqa: E402
-from hoc.runs import stage_from_argv  # noqa: E402
-from hoc.utils import n_jobs  # noqa: E402
+from hoc import config as hoc_config
+from hoc.analysis.null_models import Spectral, load_stack, random_driver_sets, spectrum_metrics
+from hoc.runs import stage_from_argv
+from hoc.utils import n_jobs
 
 ROOT: Path  # run directory (runs/<name>/), set in main()
 OUT: Path  # <run>/concentration, set in main()
@@ -163,8 +168,6 @@ def main():
     fsum.to_csv(OUT / "decay_flip_summary.csv", index=False)
     print(fsum.round(3).to_string(index=False))
 
-    from scipy.stats import spearmanr
-
     corr = []
     for (s, c), g in df.groupby(["scale", "c"]):
         for cv in CURVES:
@@ -174,8 +177,6 @@ def main():
     corr.to_csv(OUT / "decay_gap_correlations.csv", index=False)
 
     # 5. partial Spearman rho(gap, curve | controls): ranks residualized on the controls' ranks (OLS)
-    from scipy.stats import t as t_dist
-
     net = []
     for s in SCALES:
         stack = load_stack(s, ROOT)
@@ -204,10 +205,6 @@ def main():
     print("Spearman rho of gap with controls:\n", ctrl_corr.round(2).to_string())
     print(part[np.isclose(part["c"], 0.1, rtol=0.05)].round(3).to_string(index=False))
 
-    import matplotlib
-    matplotlib.use("Agg")
-    import matplotlib.pyplot as plt
-
     colors = {68: "#1b6ca8", 114: "#d1495b", 219: "#2e933c"}
     fig, axes = plt.subplots(len(CURVES), 2, figsize=(9, 9), sharey="row")
     labels = {"cd_q1": "q1(cycle) − q1(degree)", "cd_er": "ER(cycle) − ER(degree)", "dr_q1": "q1(degree) − q1(random)"}
@@ -216,7 +213,7 @@ def main():
             ax = axes[i, j]
             for s in SCALES:
                 g = df[df["scale"] == s]
-                m = g.groupby("c")[[ax_name, cv]].mean() if ax_name == "c" else g.groupby("c")[[ax_name, cv]].mean()
+                m = g.groupby("c")[[ax_name, cv]].mean()
                 ax.plot(m[ax_name], m[cv], color=colors[s], lw=2, label=f"{s} regions")
             ax.axhline(0, color="0.5", lw=0.8)
             ax.set_xscale("log")

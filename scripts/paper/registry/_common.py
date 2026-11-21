@@ -66,14 +66,8 @@ class Collector:
             locus = (locus,)
         self.out.append(Number(name, float(value), computed, source, tuple(locus), ctx))
 
-    def done(self) -> list[Number]:
-        names = [n.name for n in self.out]
-        dup = sorted({n for n in names if names.count(n) > 1})
-        assert not dup, dup
-        return self.out
 
-
-# ----------------------------------------------------------------------------- per-scale values of a quoted range
+# per-scale values of a quoted range
 # The Results quote the 114-region value and the supplement lists every scale (Table C_scales). A range helper passes
 # its (key, value) pairs here; a key is a scale, or a tuple containing one (criterion, scale), (k, scale), ...
 

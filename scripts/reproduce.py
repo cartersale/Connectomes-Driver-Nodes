@@ -189,9 +189,6 @@ STEPS += [
 BY_STAGE = {s.stage: s for s in STEPS}
 
 
-# --------------------------------------------------------------------------- graph
-
-
 def check_graph() -> list[Step]:
     """Steps in run order; fails on missing scripts, unknown stages, or a step listed before what it needs."""
     problems, seen = [], set()
@@ -233,9 +230,6 @@ def downstream(name: str) -> set[str]:
     return out
 
 
-# --------------------------------------------------------------------------- status
-
-
 def stage_record(manifest: dict, step: Step) -> dict:
     return manifest.get("stages", {}).get(step.stage, {})
 
@@ -264,9 +258,6 @@ def status(manifest: dict, step: Step, config_sha: str) -> tuple[str, str]:
     return ("reused" if rec.get("reused_from") else "done"), ""
 
 
-# --------------------------------------------------------------------------- checks
-
-
 def check_outputs(run_dir: Path, step: Step) -> list[str]:
     problems = []
     rec = stage_record(read_manifest(run_dir) or {}, step)
@@ -285,7 +276,7 @@ def check_outputs(run_dir: Path, step: Step) -> list[str]:
                     import pandas as pd
 
                     pd.read_csv(path, nrows=5)
-                except Exception as exc:  # noqa: BLE001
+                except Exception as exc:
                     problems.append(f"unreadable CSV {path.relative_to(run_dir)}: {exc}")
     return problems
 
@@ -312,9 +303,6 @@ def check_inputs() -> int:
             bad += 1
     print(f"{total - bad}/{total} input files match {INPUTS_REFERENCE.relative_to(REPO_ROOT)}")
     return bad
-
-
-# --------------------------------------------------------------------------- reuse
 
 
 def reuse(step: Step, source_run: str, run_dir: Path, config_path: Path) -> None:
@@ -360,9 +348,6 @@ def reuse(step: Step, source_run: str, run_dir: Path, config_path: Path) -> None
     tmp = run_dir / (MANIFEST_NAME + ".tmp")
     tmp.write_text(json.dumps(manifest, indent=2, sort_keys=True))
     tmp.replace(run_dir / MANIFEST_NAME)
-
-
-# --------------------------------------------------------------------------- main
 
 
 def parse_args() -> argparse.Namespace:

@@ -7,7 +7,9 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from common import Table, np, pd
+import numpy as np
+import pandas as pd
+from common import Table
 
 NULLS = ["strength", "geometric", "weights"]
 NL = {"strength": "Strength", "geometric": "Geometric", "weights": "Weight shuffle"}
@@ -26,15 +28,11 @@ Rounding: 2 decimals; counts n/N (N = subjects, read from the data); p shown 2 d
 else a x 10^b."""
 
 
-# ---------------------------------------------------------------- formatting
 def f2(v):
     if pd.isna(v):
         return "--"
     s = f"{v:.2f}"
     return "0.00" if s == "-0.00" else s
-
-
-fz = f2
 
 
 def fp(p):
@@ -66,7 +64,6 @@ def note(header: str, body: str) -> str:
     return f"{header}\n\n{body.strip()}\n\n{COMMON_NOTE}"
 
 
-# ---------------------------------------------------------------- shared computations
 def _rayleigh(nulls: Path):
     """Per-(null, scale) medians over subjects of the per-subject Rayleigh quantities, with the R_m shares of
     delta-lambda1 and delta-gap (sl_R*, sg_R*) that summary.csv does not store."""
@@ -100,7 +97,6 @@ def _assortativity(net: pd.DataFrame) -> dict:
     return out
 
 
-# ---------------------------------------------------------------- tables
 def _s8_1(nulls: Path) -> Table:
     fid = pd.read_csv(nulls / "null_fidelity.csv")
     L = ["\\begin{tabular}{llrrrrrrr}", "\\toprule",
@@ -140,7 +136,7 @@ def _s8_2(nulls: Path) -> Table:
             cells = []
             for sc in SC:
                 r = one(src, null=nl, scale=sc, stat=stat)
-                cells += [f2(r.real_mean), f2(r.null_mean), fz(r.z_median),
+                cells += [f2(r.real_mean), f2(r.null_mean), f2(r.z_median),
                           f"{nof(r.n_above95, r.n)} / {nof(r.n_below5, r.n)}"]
             L.append(f"{lab if nl == 'strength' else ''} & {NL[nl]} & " + " & ".join(cells) + " \\\\")
         L.append("\\midrule")
@@ -185,7 +181,7 @@ def _inf_table(inf: pd.DataFrame, stat: str, k: str = "avg") -> str:
                 cells = []
                 for sc in SC:
                     r = one(sub, c_ref=c, scale=sc, null=nl, c_mode=mode)
-                    cells += [f2(r.null_mean), fz(r.z_median), nof(r.n_above95, r.n_subjects), fp(r.p_holm)]
+                    cells += [f2(r.null_mean), f2(r.z_median), nof(r.n_above95, r.n_subjects), fp(r.p_holm)]
                 L.append(f" & {MODE_LABEL[mode] if nl == 'strength' else ''} & {NL[nl]} & " + " & ".join(cells) + " \\\\")
         if c != CS[-1]:
             L.append("\\midrule")
@@ -271,7 +267,7 @@ def _s8_7(assort: dict) -> Table:
             cells = []
             for sc in SC:
                 a = assort[(stat, nl, sc)]
-                cells += [f2(a["real_mean"]), f2(a["null_mean"]), fz(a["z_median"]), nof(a["n_above95"], a["n"])]
+                cells += [f2(a["real_mean"]), f2(a["null_mean"]), f2(a["z_median"]), nof(a["n_above95"], a["n"])]
             L.append(f"{lab if nl == 'strength' else ''} & {NL[nl]} & " + " & ".join(cells) + " \\\\")
         if stat == "r_W":
             L.append("\\midrule")
@@ -362,7 +358,7 @@ def _s8_9(nulls: Path) -> Table:
             cells = []
             for sc in SC:
                 r = one(mc, stat=med_, null=nl, scale=sc)
-                cells += [f2(r.real_mean), f2(r.null_mean), fz(r.z_median), nof(r.n_above95, r.n)]
+                cells += [f2(r.real_mean), f2(r.null_mean), f2(r.z_median), nof(r.n_above95, r.n)]
             L.append(f"{lab if nl == 'strength' else ''} & {NL[nl]} & " + " & ".join(cells) + " \\\\")
         if med_ != MED[-1][0]:
             L.append("\\addlinespace")
@@ -393,7 +389,7 @@ def _s8_10(inf: pd.DataFrame) -> Table:
                 cells = []
                 for st in stats:
                     r = one(sub, stat=st, c_ref=c, null=nl, c_mode=mode)
-                    cells += [f2(r.null_mean), fz(r.z_median), nof(r.n_above95, r.n_subjects), fp(r.p_holm)]
+                    cells += [f2(r.null_mean), f2(r.z_median), nof(r.n_above95, r.n_subjects), fp(r.p_holm)]
                 L.append(f" & {MODE_LABEL[mode] if nl == 'strength' else ''} & {NL[nl]} & " + " & ".join(cells) + " \\\\")
         if c != CS[-1]:
             L.append("\\midrule")

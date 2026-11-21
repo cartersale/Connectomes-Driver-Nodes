@@ -35,13 +35,13 @@ import numpy as np
 import pandas as pd
 from joblib import Parallel, delayed
 
-from hoc import config as hoc_config  # noqa: E402
-from hoc.analysis import concentration as q1mod  # noqa: E402
-from hoc.analysis.null_models import Spectral, load_stack, random_driver_sets  # noqa: E402
-from hoc.control import gramian_metrics  # noqa: E402
-from hoc.preprocessing import stabilize_adjacency  # noqa: E402
-from hoc.runs import stage_from_argv  # noqa: E402
-from hoc.utils import n_jobs  # noqa: E402
+from hoc import config as hoc_config
+from hoc.analysis import concentration as q1mod
+from hoc.analysis.null_models import Spectral, load_stack, random_driver_sets
+from hoc.control import gramian_metrics
+from hoc.preprocessing import stabilize_adjacency
+from hoc.runs import stage_from_argv
+from hoc.utils import n_jobs
 
 SCALES = hoc_config.scales()
 C = 0.1
@@ -60,15 +60,14 @@ def sets_for(spec: Spectral, A: np.ndarray, sid: str, si: int, scale: int, k: in
     mu = lam - spec.lam_max - C
     avg = (U**2) @ (1.0 / (-2.0 * mu))
     modal_ct = (U**2) @ (1.0 - np.exp(2.0 * mu * q1mod.TAU))
-    top = q1mod.top
     methods = sorted(m for (s, m) in orders if s == sid)
     out = [(m, -1, orders[(sid, m)][:k]) for m in methods]
     out += [
-        ("cycle_resid", -1, top(resid, k)),
-        ("top_avg_ctrl", -1, top(avg, k)),
-        ("top_modal_gu", -1, top(modal_gu, k)),
-        ("top_modal_ct", -1, top(modal_ct, k)),
-        ("low_perron", -1, top(spec.perron_sq, k, ascending=True)),
+        ("cycle_resid", -1, q1mod.top(resid, k)),
+        ("top_avg_ctrl", -1, q1mod.top(avg, k)),
+        ("top_modal_gu", -1, q1mod.top(modal_gu, k)),
+        ("top_modal_ct", -1, q1mod.top(modal_ct, k)),
+        ("low_perron", -1, q1mod.top(spec.perron_sq, k, ascending=True)),
     ]
     out += [("random", r, s) for r, s in enumerate(random_driver_sets("real", -1, scale, si, k))]
     return out

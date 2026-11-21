@@ -13,9 +13,6 @@ from __future__ import annotations
 import math
 from dataclasses import dataclass
 
-import numpy as np  # noqa: F401 - re-exported for builders
-import pandas as pd  # noqa: F401 - re-exported for builders
-
 SCALES = (68, 114, 219)
 
 LABEL = {

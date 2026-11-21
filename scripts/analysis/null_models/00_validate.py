@@ -35,11 +35,11 @@ from hoc.analysis.null_models import (
 )
 from hoc.control import assemble_gramian, gramian_metrics, single_node_gramians
 from hoc.preprocessing import stabilize_adjacency
+from hoc.rankings import top_k_nodes
 from hoc.runs import stage_from_argv
 
 ROOT: Path  # run directory (runs/<name>/), set in main()
 OUT_DIR: Path  # <run>/null_models, set in main()
-from hoc.rankings import top_k_nodes
 
 
 def check_fast_gramian(adjacency: np.ndarray, c: float = 0.1) -> dict:
@@ -87,7 +87,7 @@ def check_primary(scale: int, n_subjects: int = 3) -> dict:
             # saved top1_share uses the eps-regularized spectrum; q1 uses raw W, so allow ~N*eps/trW
             worst["degree_top1"] = max(worst["degree_top1"], abs(deg["top1_share"] - row["degree_q1"]))
             worst["random_er_mean"] = max(worst["random_er_mean"], abs(r[r["family"] == "random"]["effective_rank"].mean() - row["rand_er_mean"]))
-        # random sets must be the primary ones
+        # the real-network pass draws N_RANDOM random sets per subject
         assert len(random_driver_sets("real", -1, scale, subj, 3)) == N_RANDOM
     return worst
 

@@ -7,7 +7,9 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from common import LABEL, SCALES, Table, np, npos, num, pd, ptex, tabular
+import numpy as np
+import pandas as pd
+from common import LABEL, SCALES, Table, npos, num, ptex, tabular
 
 
 def eps_tex(e):
@@ -18,7 +20,7 @@ def build(res: Path) -> list[Table]:
     REG = res / "sensitivity"
     parts = []
 
-    # ---------------- S4a: full eps sweep, c=0.1, T=inf, degree & cycle ----------------
+    # S4a: full eps sweep, c=0.1, T=inf, degree & cycle
     tidy = pd.read_csv(REG / "horizon_eps_largek_tidy.csv.gz")
     t = tidy[(tidy.c == 0.1) & np.isinf(tidy["T"]) & tidy.k.isin([1, 2, 3, 5])]
     # per subject k-average, then mean over subjects
@@ -59,7 +61,7 @@ p_Holm: Holm over 7 eps x 3 scales within c = 0.1 (the epsilon-sweep family of 0
 (3 eps x 3 scales, the energy-floor family of 04_energy_floor.py) — at 68 regions / eps = 1e-5 this gives p_Holm {p_t6:.3f} instead of {p_s1:.3f} here."""
     parts.append(Table("S4_1", tab, note))
 
-    # ---------------- S4b: three eps, all methods, eig<eps, landscape ----------------
+    # S4b: three eps, all methods, eig<eps, landscape
     a = pd.read_csv(REG / "energy_floor_driver_sets.csv")
     asub = a.groupby(["scale", "eps", "method", "subject_id"])[["fraction_at_floor", "fraction_below_eps", "log10_average_energy",
                                                                   "log10_lambda_max"]].mean().reset_index()
@@ -98,7 +100,7 @@ k-sets, or exhaustive when C(N,k) <= 5000); IQR across sets, then mean over 70 s
 'Above-eps part' = IQR of log10 sum over eig(W) > eps of 1/(lambda + eps), i.e. energy carried by non-floored directions."""
     parts.append(Table("S4_2", tab, note))
 
-    # ---------------- S4c: ER / PR cycle-degree across eps ----------------
+    # S4c: ER / PR cycle-degree across eps
     rows = []
     for c in (0.1, 0.01):
         rows.append(("MULTI", f"c = {c}", 7))
@@ -121,7 +123,7 @@ Source: <run>/sensitivity/epsilon_summary.csv (metric in {{effective_rank, parti
 (the eps*I term), so the large values at eps >= 1e-3 reflect regularization, not network structure."""
     parts.append(Table("S4_3", tab, note))
 
-    # ---------------- S4d: q1 across eps ----------------
+    # S4d: q1 across eps
     q = pd.read_csv(res / "concentration" / "set_q1.csv.gz", usecols=["subject_id", "scale", "c", "k", "family", "q1"])
     q = q[(q.c == 0.1) & q.family.isin(["degree_strength", "cycle_participation", "random"])]
     qs = q.groupby(["scale", "family", "subject_id"]).q1.mean().reset_index().groupby(["scale", "family"]).q1.mean()
@@ -153,7 +155,7 @@ after the pipeline floor W_eps = clip(W + eps I, eps). This shows how much a flo
 CAVEAT: k = 5 only, and the random row is a single random set per subject, not the 100-set mean, so it is not comparable to column 3."""
     parts.append(Table("S4_4", tab, note))
 
-    # ---------------- S4e: lambda_min / lambda_max by criterion ----------------
+    # S4e: lambda_min / lambda_max by criterion
     t2 = pd.read_csv(res / "spectra" / "tables" / "t2_eigenvalue_extremes.csv")
     rows = []
     for scale in SCALES:

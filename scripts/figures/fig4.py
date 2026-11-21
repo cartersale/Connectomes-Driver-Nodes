@@ -25,7 +25,7 @@ import pandas as pd
 from matplotlib.colors import TwoSlopeNorm
 from scipy import stats
 
-from hoc import figstyle as fs  # noqa: E402
+from hoc import figstyle as fs
 
 SCALE = 114
 SLOT = ("#4a4945", "#eb6834", "#cfcec9")  # v2, v3, later (direct-labelled); v2 not blue, which is the brains' back pole

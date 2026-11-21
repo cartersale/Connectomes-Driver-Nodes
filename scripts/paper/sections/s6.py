@@ -7,7 +7,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from common import LABEL, SCALES, Table, npos, pd, ptex, tabular
+import pandas as pd
+from common import LABEL, SCALES, Table, npos, ptex, tabular
 
 
 def build(res: Path) -> list[Table]:

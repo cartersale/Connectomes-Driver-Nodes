@@ -26,7 +26,6 @@ from __future__ import annotations
 
 import argparse
 import datetime as dt
-import hashlib
 import json
 import math
 import re
@@ -34,20 +33,16 @@ import sys
 from pathlib import Path
 
 from hoc.paths import REPO_ROOT
-from hoc.runs import git_state, read_manifest, resolve_run_dir, stage_from_argv
+from hoc.runs import git_state, read_manifest, resolve_run_dir, sha256_file, stage_from_argv
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from table_catalog import GROUPS  # noqa: E402
+from table_catalog import GROUPS
 
 REFERENCE = REPO_ROOT / "reference"
 NUMBERS_REF = REFERENCE / "paper_numbers.json"
 TABLES_REF = REFERENCE / "tables.sha256"
 RTOL = 1e-9
 STAGE = "paper/validate"
-
-
-def sha256(path: Path) -> str:
-    return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
 def same_value(a, b) -> bool:
@@ -84,7 +79,7 @@ def compare_reference(numbers: dict, tables: dict[str, Path]) -> list[str]:
     for name in sorted(set(tables) - set(ref_tables)):
         failures.append(f"- **FAIL** table `{name}` was generated but is not in the reference")
     for name in sorted(set(ref_tables) & set(tables)):
-        if sha256(tables[name]) != ref_tables[name]:
+        if sha256_file(tables[name]) != ref_tables[name]:
             failures.append(f"- **FAIL** table `{name}` differs from the reference")
     meta = json.loads(NUMBERS_REF.read_text()).get("meta", {})
     lines.append(f"Reference: {len(ref)} numbers, {len(ref_tables)} tables (created {meta.get('created')} from run "
@@ -160,7 +155,7 @@ def write_reference(run_dir: Path, numbers: dict, tables: dict[str, Path], reaso
     payload = {"meta": meta, "numbers": {k: {"value": v["value"], "text": v["text"], "source": v["source"],
                                              "locus": v["locus"]} for k, v in numbers.items()}}
     NUMBERS_REF.write_text(json.dumps(payload, indent=1, sort_keys=False) + "\n")
-    TABLES_REF.write_text("".join(f"{sha256(p)}  {name}\n" for name, p in sorted(tables.items())))
+    TABLES_REF.write_text("".join(f"{sha256_file(p)}  {name}\n" for name, p in sorted(tables.items())))
     print(f"wrote {NUMBERS_REF.relative_to(REPO_ROOT)} ({len(numbers)} numbers) and "
           f"{TABLES_REF.relative_to(REPO_ROOT)} ({len(tables)} tables)")
 

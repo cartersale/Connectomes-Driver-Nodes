@@ -20,9 +20,9 @@ import pandas as pd
 from matplotlib.collections import LineCollection, PolyCollection
 from matplotlib.lines import Line2D
 
-from hoc import figstyle as fs  # noqa: E402
-from hoc.rankings import strength_scores  # noqa: E402
-from hoc.runs import stage_from_argv  # noqa: E402
+from hoc import figstyle as fs
+from hoc.rankings import strength_scores
+from hoc.runs import stage_from_argv
 
 SCALE, C, K = 114, 0.1, 3
 N_RANDOM = 1000

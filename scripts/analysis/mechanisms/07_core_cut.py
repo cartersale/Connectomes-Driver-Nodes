@@ -1,10 +1,9 @@
 #!/usr/bin/env python
 """Does cutting the anterior-posterior links of the medial core close the spectral gap of A0?
 
-04_leading_eigenvectors found that v1 lives on a medial core and v2 splits that core front from back.
-This stage tests the causal version of that reading without using v2 to choose anything: define the
-core and its two halves from anatomical labels, weaken only the connections between the halves, and
-see whether l1 - l2 shrinks more than when the same weight is taken from other connections.
+Tests whether weakening the connections between the anterior and posterior halves of a medial core
+shrinks l1 - l2 more than taking the same weight from other connections. The core and its two halves
+are defined from anatomical labels; v2 is not used to choose anything.
 
 Core (CORE, by Desikan-Killiany base label, both hemispheres, every sub-parcel at 114/219):
   anterior   superiorfrontal, rostralanteriorcingulate, caudalanteriorcingulate
@@ -49,8 +48,8 @@ Outputs (runs/<name>/mechanisms/; choose the run with ``--run`` <name>):
   core_cut_first_order.csv per scale x partition x alpha x condition: observed vs predicted changes
                            (medians over subjects), Spearman rho over subjects, share of subjects whose v2 swaps
   core_cut_summary.md
-At alpha = 1 the strength-matched controls often cannot remove the full cross weight (the cross edges are
-among the heaviest in the graph), so alpha = 0.5 is the cleaner matched comparison; see removed_ratio.
+At large alpha the strength-matched controls may not reach the target weight W (the cross edges are among
+the heaviest in the graph), so alpha = 0.5 is the matched comparison; see removed_ratio.
 """
 
 from __future__ import annotations
@@ -64,9 +63,9 @@ import numpy as np
 import pandas as pd
 from scipy import linalg, stats
 
-from hoc import config as hoc_config  # noqa: E402
-from hoc.analysis.null_models import SCALES, load_stack  # noqa: E402
-from hoc.runs import stage_from_argv  # noqa: E402
+from hoc import config as hoc_config
+from hoc.analysis.null_models import SCALES, load_stack
+from hoc.runs import stage_from_argv
 
 CORE = {
     "anterior": ("superiorfrontal", "rostralanteriorcingulate", "caudalanteriorcingulate"),
@@ -78,7 +77,7 @@ ALPHAS = (0.25, 0.5, 0.75, 1.0)
 N_DRAWS = hoc_config.sampling("core_cut_draws")
 K_NEAR = 5
 SEED = hoc_config.stage_seed("core_cut")
-HEADLINE_ALPHAS = (0.5, 1.0)  # 0.5: matched controls reach the target weight; at 1.0 they often fall short
+HEADLINE_ALPHAS = (0.5, 1.0)  # 0.5: the matched comparison; at 1.0 controls may fall short of W
 CONTROLS = ("within_uniform", "other_uniform", "within_matched", "other_matched")
 
 
@@ -293,8 +292,8 @@ def summary(base: pd.DataFrame, df: pd.DataFrame, comp: pd.DataFrame, reg: pd.Da
         L.append(f"| {scale} | {part} | {m.n_anterior:.0f} | {m.n_posterior:.0f} | {m.w_cross_share:.3f} | {m.v1_mass_core:.2f} | "
                  f"{m.v2_mass_core:.2f} | {m.v2_split_corr:.2f} | {m.gap:.3f} | {m.first_order_dgap_cross:+.3f} |")
     L += ["", "## Which eigenvalue each edge class moves (first order, per unit weight removed; median)", "",
-          "Cross edges close the gap by lowering l1 while leaving l2 alone (or raising it: their ends sit on opposite",
-          "signs of v2). Where the split does not follow v2, cross edges lower l2 too and close the gap less.", "",
+          "First-order dl1, dl2 and dgap = dl1 - dl2 per unit weight removed from the cross and the within edges.",
+          "cross > within: share of subjects in which the cross edges lower the gap more than the within edges.", "",
           "| scale | partition | cross dl1 | cross dl2 | cross dgap | within dl1 | within dl2 | within dgap | cross > within |",
           "|---|---|---|---|---|---|---|---|---|"]
     fo = base.assign(fo_dgap_cross=base.fo_dl1_cross - base.fo_dl2_cross, fo_dgap_within=base.fo_dl1_within - base.fo_dl2_within)

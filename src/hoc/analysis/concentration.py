@@ -15,7 +15,7 @@ def top(score: np.ndarray, k: int, ascending: bool = False) -> np.ndarray:
     return np.argsort(score if ascending else -score, kind="stable")[:k]
 
 
-def load_orders(scale: int, root: Path) -> dict:
+def load_orders(scale: int, root: Path) -> tuple[dict, dict]:
     t = pd.read_csv(root / "primary" / "node_scores.csv", usecols=["subject_id", "scale", "node_index", "method", "rank", "score"])
     t = t[t["scale"] == scale]
     orders, scores = {}, {}

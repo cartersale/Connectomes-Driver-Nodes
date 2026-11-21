@@ -14,16 +14,14 @@ import numpy as np
 import pandas as pd
 from scipy import stats
 
+from ._common import scale_siblings
+from .record import Number
+
 SCALES = (68, 114, 219)
 NAN = float("nan")
 HUB3 = ("degree_strength", "eigenvector_centrality", "top_avg_ctrl")
 _WORDS = {0: "zero", 1: "one", 2: "two", 3: "three", 4: "four", 5: "five"}
 
-
-from ._common import scale_siblings  # noqa: E402
-from .record import Number  # noqa: E402
-
-# --------------------------------------------------------------------------- helpers
 
 def fx(x: float, d: int = 2) -> str:
     s = f"{x:.{d}f}"
@@ -98,12 +96,11 @@ F3 = ("fig:midline_core",)
 
 def collect(run: Path) -> list[Number]:
     run = Path(run)
-    rev = run
     out: list[Number] = []
 
-    # ================================================================ subsec:hub_concentration, last two paragraphs
-    p1 = _read(str(rev / "concentration" / "q1_vs_random.csv"))
-    p2 = _read(str(rev / "concentration" / "q1_matched.csv"))
+    # subsec:hub_concentration, last two paragraphs
+    p1 = _read(str(run / "concentration" / "q1_vs_random.csv"))
+    p2 = _read(str(run / "concentration" / "q1_matched.csv"))
     P1 = "concentration/02_tables: concentration/q1_vs_random.csv | c == 0.1, metric == 'q1', family == '{f}', k == '{k}', column {col}"
     P2 = "concentration/02_tables: concentration/q1_matched.csv | comparison == '{cmp}', c == 0.1, k == '{k}', metric == '{m}', column {col}"
 
@@ -182,8 +179,8 @@ def collect(run: Path) -> list[Number]:
                       HC, {"k": "avg (1,2,3,5)", "c": 0.1, "criterion": "cycle_resid", "comparison": "vs random mean",
                            "stat": "mean over subjects"}))
 
-    # ================================================================ v1 consistency (Fig 3A + subsec:leading_mode)
-    sj = _read(str(rev / "mechanisms" / "eigvec_subjects.csv"))
+    # v1 consistency (Fig 3A + subsec:leading_mode)
+    sj = _read(str(run / "mechanisms" / "eigvec_subjects.csv"))
     SJ = "mechanisms/04_leading_eigenvectors: mechanisms/eigvec_subjects.csv | column v1_consistency (Pearson r of subject v1 with group-mean v1)"
     # caption: "(black lines, medians of 0.89--0.92)"; text: "median correlations of 0.89--0.92 between each subject's v1 and the group mean"
     med = sj.groupby("scale").v1_consistency.median()
@@ -196,8 +193,8 @@ def collect(run: Path) -> list[Number]:
                           SJ + f" < 0.5, count per scale ({', '.join(f'{s}: {int(c)}' for s, c in nlow.items())}); {nm.lower()} over scales; printed as a word",
                           F3 + LM, {"stat": "count of subjects", "threshold": 0.5}))
 
-    # ================================================================ strength vs neighbours' loading (Fig 3B + text)
-    nd = _read(str(rev / "mechanisms" / "node_v1_strength.csv"))
+    # strength vs neighbours' loading (Fig 3B + text)
+    nd = _read(str(run / "mechanisms" / "node_v1_strength.csv"))
     ND = "mechanisms/08_gramian_alignment: mechanisms/node_v1_strength.csv"
     # caption: "one disconnected region omitted" (114 regions)
     keep = (nd.strength > 0) & (nd.m > 0)
@@ -221,7 +218,7 @@ def collect(run: Path) -> list[Number]:
                       LM, {"stat": "count of subjects"}))
 
     # text: "Strength alone approximated v1 (cosine similarity 0.69--0.82 across scales)"
-    hl = _read(str(rev / "mechanisms" / "hub_loading.csv.gz"), ("null", "scale", "subject_id", "cos_s_v1"))
+    hl = _read(str(run / "mechanisms" / "hub_loading.csv.gz"), ("null", "scale", "subject_id", "cos_s_v1"))
     cos = hl[hl.null == "real"].groupby("scale").cos_s_v1.mean()
     out += rng("MCosStrengthVOne", cos.to_dict(), fx,
                "mechanisms/01_hub_loading: mechanisms/hub_loading.csv.gz | null == 'real', column cos_s_v1, "
@@ -245,7 +242,7 @@ def collect(run: Path) -> list[Number]:
                LM, {"stat": "mean over subjects", "k": 5, "c": 0.1, "scales": "all"})
 
     # text: "The 20% of regions with the highest loadings accounted for 93--98% of the squared weight of v1."
-    rg = _read(str(rev / "mechanisms" / "eigvec_regions.csv"))
+    rg = _read(str(run / "mechanisms" / "eigvec_regions.csv"))
 
     def top_share(v: np.ndarray) -> float:
         n = int(np.ceil(0.20 * len(v)))  # CORE_FRAC of 04_leading_eigenvectors.py
@@ -259,8 +256,8 @@ def collect(run: Path) -> list[Number]:
                "median 95/98/99%, i.e. 95--99",
                LM, {"stat": "group-mean v1", "fraction": 0.2})
 
-    # ================================================================ L_S and Gramian alignment
-    ga = _read(str(rev / "mechanisms" / "gramian_alignment.csv"))
+    # L_S and Gramian alignment
+    ga = _read(str(run / "mechanisms" / "gramian_alignment.csv"))
     GA = "mechanisms/08_gramian_alignment: mechanisms/gramian_alignment.csv"
 
     # caption C: "the shaded band spans the 5th to 95th percentile of these per-subject averages (here 0.02--0.04, too narrow to see)"
@@ -346,8 +343,6 @@ def collect(run: Path) -> list[Number]:
                {"scale": 114, "k": "2,3,5", "c": 0.1, "stat": "median ratio over subjects"})
     return out
 
-
-# --------------------------------------------------------------------------- check against the manuscript
 
 # Tokens as printed in the manuscript.
 PRINTED = {

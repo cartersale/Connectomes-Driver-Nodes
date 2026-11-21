@@ -52,8 +52,6 @@ def test_variant_from_config(runs_tmp):
     assert _ctx(config, run="canon").root.name == "fraction_5pct"
 
 
-
-
 def test_manifest_records_stage(runs_tmp):
     _, config = runs_tmp
     ctx = _ctx(config, run="canon").begin(["sub-000", "sub-001"], hash_inputs=False)

@@ -27,12 +27,12 @@ import pandas as pd
 from scipy.stats import rankdata, wilcoxon
 from statsmodels.stats.multitest import multipletests
 
-from hoc import config as hoc_config  # noqa: E402
-from hoc.atlas import EXCLUDED_LABELS, SCALE_TO_RESOLUTION  # noqa: E402
-from hoc.paths import REPO_ROOT as REPO  # noqa: E402
-from hoc.preprocessing import stabilize_adjacency  # noqa: E402
-from hoc.runs import RunContext, stage_from_argv  # noqa: E402
-from hoc.targets import registered_nn  # noqa: E402
+from hoc import config as hoc_config
+from hoc.atlas import EXCLUDED_LABELS, SCALE_TO_RESOLUTION
+from hoc.paths import REPO_ROOT as REPO
+from hoc.preprocessing import stabilize_adjacency
+from hoc.runs import RunContext, stage_from_argv
+from hoc.targets import registered_nn
 
 # Run-directory paths; set by start_stage() / set_root() before any data access.
 ROOT: Path | None = None  # runs/<name>/
@@ -91,7 +91,6 @@ LANDMARKS = {
 }
 
 
-# ----------------------------------------------------------------------------- data
 def labels(scale: int) -> pd.DataFrame:
     return pd.read_csv(PROCESSED / f"atlas_labels_scale-{scale}.csv")
 
@@ -113,7 +112,6 @@ def driver_lookup() -> dict:
     return {(r.subject_id, int(r.scale), int(r.k), r.method): r.nodes for r in d.itertuples()}
 
 
-# ----------------------------------------------------------------------------- control
 def system_eig(adjacency: np.ndarray, c: float):
     A, _ = stabilize_adjacency(adjacency, c)
     A = 0.5 * (A + A.T)
@@ -150,7 +148,6 @@ def floor_fraction(ev: np.ndarray, U: np.ndarray, T: np.ndarray, eps: float) -> 
     return np.sum(coef2[at] / ev[at, None], axis=0) / tot
 
 
-# ----------------------------------------------------------------------------- atlas geometry
 def _annot(scale: int, hemi: str):
     res = SCALE_TO_RESOLUTION[scale]
     return nib.freesurfer.read_annot(str(ATLAS_DIR / f"atl-Cammoun2012_space-fsaverage5_res-{res}_hemi-{hemi}_deterministic.annot"))
@@ -240,7 +237,6 @@ def margulies_parcel(scale: int, gradient: int) -> np.ndarray:
     return np.array([vg[h][v].mean() if v.size else 0.0 for h, v in parcel_vertices(scale)])
 
 
-# ----------------------------------------------------------------------------- stats
 def unit(x: np.ndarray) -> np.ndarray:
     x = np.asarray(x, dtype=float)
     return x / np.linalg.norm(x)

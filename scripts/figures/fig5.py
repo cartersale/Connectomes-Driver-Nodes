@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """Figure 5: spectral gap, q1 and strength assortativity in connectomes and null networks.
 
-Weakening links within the core (formerly panel D) is in figS_corecut.py.
+Weakening links within the core is in figS_corecut.py.
 
 A  Spectral gap l1 - l2 by scale: human connectomes and the three null models (strength-preserving,
    geometry-preserving, weight-shuffled). Small dots: subjects (nulls: mean of each subject's 50 nulls). Large dots:
@@ -21,7 +21,7 @@ import numpy as np
 import pandas as pd
 from scipy import stats
 
-from hoc import figstyle as fs  # noqa: E402
+from hoc import figstyle as fs
 
 HUMAN = fs.SCALE_COLORS[114]  # one purple for human data in A and B (the x-axis already gives the scale)
 NETS = {  # network: (label, colour, marker)

@@ -13,8 +13,8 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-from ._common import scale_siblings  # noqa: E402
-from .record import Number  # noqa: E402
+from ._common import scale_siblings
+from .record import Number
 
 SCALES = (68, 114, 219)
 SW = {68: "SixtyEight", 114: "OneFourteen", 219: "TwoNineteen"}
@@ -74,7 +74,7 @@ def collect(run: Path) -> list[Number]:
     run = Path(run)
     out: list[Number] = []
 
-    # ------------------------------------------------------------------ paragraph 1: v2 and the v2-v3 subspace
+    # paragraph 1: v2 and the v2-v3 subspace
     # "The second eigenvector, v2, placed a median of 83--95% of its squared weight on the 20% of regions with the
     #  highest v1 loadings."
     ev = csv(run, "mechanisms/eigvec_subjects.csv")
@@ -95,7 +95,7 @@ def collect(run: Path) -> list[Number]:
     out += rng_pair("MFrontBackOnVThreeCount", (ss.a_best == 3).groupby(ss.scale).sum().to_dict(), cnt, src_ab.format(3),
                     LOC_FIG, {"stat": "count of 70", "set": "3 scales", "eigenvector": "v3"})
 
-    # ------------------------------------------------------------------ paragraph 2: projecting v1 out (Fig. 4B)
+    # paragraph 2: projecting v1 out (Fig. 4B)
     # "Removing v1 from each controllability Gramian reduced the difference in q1 between degree-strength and
     #  cycle-participation sets by 52--69% for two to five drivers."
     p3 = csv(run, "concentration/q1_perp.csv")
@@ -120,7 +120,7 @@ def collect(run: Path) -> list[Number]:
                                  + "); text 'in all 70 subjects'"),
                       LOC, {"c": 0.1, "k": "2,3,5", "stat": "count of 70"}))
 
-    # ------------------------------------------------------------------ paragraph 3: decay rates and the gap
+    # paragraph 3: decay rates and the gap
     # "At the median gap (0.43--0.53 across scales), v1 decayed approximately five to six times more slowly than v2
     #  at c=0.1, compared with approximately 1.5 times at c=1."
     gap = ss.groupby("scale").gap.median().to_dict()
@@ -144,7 +144,7 @@ def collect(run: Path) -> list[Number]:
                       + "; text gives one approximate value: mean over scales, 1 decimal (per-scale 1.43-1.53)",
                       LOC, {"c": 1.0, "stat": "mean over scales"}))
 
-    # ------------------------------------------------------------------ paragraph 4: damping sweep (Fig. 4C)
+    # paragraph 4: damping sweep (Fig. 4C)
     # "the excess q1 of degree-strength sets over random sets decreased from 0.34--0.39 at c=0.01 to 0.21--0.25 at
     #  c=0.1 and 0.03--0.06 at c=1."
     def dr(s, c):
@@ -195,7 +195,7 @@ def collect(run: Path) -> list[Number]:
     out.append(Number("MDampingShrinkMax", ratios[hi_k], WORD[round(ratios[hi_k])], src_ratio + f" | max ({hi_k})" + det,
                       LOC, {"end": "max"}))
 
-    # ------------------------------------------------------------------ paragraph 5: gap vs excess across subjects (Fig. 4D)
+    # paragraph 5: gap vs excess across subjects (Fig. 4D)
     # "subjects with larger gaps showed greater excess q1 ... (Spearman rho=0.53--0.67 across scales; Fig. 4D)."
     gc = csv(run, "concentration/decay_gap_correlations.csv")
     out += rng_pair("MGapRhoDegExcess", {s: one(gc, scale=s, c=0.1, curve="dr_q1").rho_gap for s in SCALES}, fx,
@@ -228,7 +228,7 @@ def collect(run: Path) -> list[Number]:
                       src_rr.format(f"max p = {pmax:.4g}; text states the bound 'all p <= 0.002' -> max p rounded up to 3 decimals"),
                       LOC, {"stat": "bound", "c": "0.03-1"}))
 
-    # ------------------------------------------------------------------ paragraph 6: effective rank vs damping
+    # paragraph 6: effective rank vs damping
     # "Cycle-participation sets had higher effective rank than degree-strength sets at c=0.01 and c=0.1 (differences
     #  of 0.80--1.73)"
     src_er = ("concentration/02_tables: concentration/q1_matched.csv | comparison == 'cycle - degree', metric == 'er', k == 'avg2+' "

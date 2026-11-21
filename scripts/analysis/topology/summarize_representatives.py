@@ -12,9 +12,9 @@ import pandas as pd
 import statsmodels.formula.api as smf
 from scipy.stats import spearmanr
 
-from hoc import config as hoc_config  # noqa: E402
+from hoc import config as hoc_config
 from hoc.analysis.topology import STAGE_PREFIX, VARIANTS, make_rng, output_dir, paired_summary
-from hoc.runs import stage_from_argv  # noqa: E402
+from hoc.runs import stage_from_argv
 
 SCALES = hoc_config.scales()
 K_MAIN = (1, 2, 3, 5)
@@ -22,15 +22,6 @@ SHORT = {"ripser": "Ripser cocycle", "gudhi": "GUDHI pairing", "geodesic": "Leng
 # Set from the run directory in main().
 IN = None  # <run>/topology/representatives
 OUT = None  # <run>/topology/tables
-
-
-def pfmt(p: float) -> str:
-    if not np.isfinite(p):
-        return "--"
-    if p >= 0.001:
-        return f"{p:.3f}"
-    mant, exp = f"{p:.1e}".split("e")
-    return f"{mant}e{int(exp)}"
 
 
 def ptex(p: float) -> str:
@@ -139,7 +130,6 @@ def agreement_table(per, agr) -> pd.DataFrame:
     return a.merge(ov.reset_index()).merge(jr.reset_index())
 
 
-# ----------------------------------------------------------------------------- tables
 def tex_agreement(t: pd.DataFrame) -> str:
     lines = [r"\begin{table}[h]", r"\centering",
              r"\caption{\textbf{Agreement of cycle-participation variants with degree strength and with the Ripser ranking.} "
@@ -199,8 +189,6 @@ def tex_nulls(rl: pd.DataFrame) -> str:
                 cells = [f"{r[f'{t}_mean']:+.2f} / {r[f'mean_pct_{c}']:.0f} / {int(r[f'{t}_n_positive'])}"
                          for t, c in (("random", "random"), ("overlap", "overlap_null"), ("strength", "strength_null"))]
                 lines.append(f" & {SHORT[v]} & " + " & ".join(cells) + r" \\")
-        if scale != SCALES[-1]:
-            pass
     lines += [r"\bottomrule", r"\end{tabular}", r"\end{table}"]
     return "\n".join(lines)
 

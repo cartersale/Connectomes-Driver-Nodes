@@ -33,7 +33,7 @@ import pytest
 from hoc.paths import REPO_ROOT
 
 sys.path.insert(0, str(REPO_ROOT / "scripts"))
-import reproduce  # noqa: E402
+import reproduce
 
 GOLDEN = REPO_ROOT / "tests" / "golden" / "synthetic.json"
 RUN = "golden"

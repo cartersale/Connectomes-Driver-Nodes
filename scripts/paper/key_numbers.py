@@ -21,9 +21,9 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))  # registry/ and sections/
 
-import registry  # noqa: E402
+import registry
 
-from hoc.runs import stage_from_argv  # noqa: E402
+from hoc.runs import stage_from_argv
 
 STAGE = "paper/numbers"
 # paper/tables already requires most analysis stages; these are read only by the number registry.

@@ -10,14 +10,14 @@ import pandas as pd
 from tqdm.auto import tqdm
 
 from hoc.config import (
-    active_config_path,  # noqa: E402
+    active_config_path,
     load_config,
 )
 from hoc.control import assemble_gramian, gramian_metrics, single_node_gramians
 from hoc.dataset import build_subject_table, load_raw_connectomes
 from hoc.io import prepare_results_tree, write_csv
 from hoc.landscape import generate_driver_sets, summarize_landscape
-from hoc.paths import REPO_ROOT as REPO_ROOT  # noqa: E402
+from hoc.paths import REPO_ROOT
 from hoc.preprocessing import (
     dropout_perturbation,
     multiplicative_noise_perturbation,
@@ -48,7 +48,6 @@ def parse_args() -> argparse.Namespace:
 
 
 def load_processed_stack(raw_connectomes: dict[int, np.ndarray], scale: int, n_subjects: int) -> np.ndarray:
-    """Preprocess one scale into a subject-major stack."""
     raw_stack = raw_connectomes[scale][:, :, :n_subjects]
     return np.stack(
         [preprocess_structural_adjacency(raw_stack[:, :, subject_index]) for subject_index in range(n_subjects)],
@@ -57,7 +56,6 @@ def load_processed_stack(raw_connectomes: dict[int, np.ndarray], scale: int, n_s
 
 
 def summarize_degradation(degradation: np.ndarray) -> dict[str, float]:
-    """Summaries for perturbation-induced degradation."""
     return {
         "mean_degradation": float(np.mean(degradation)),
         "variance_degradation": float(np.var(degradation, ddof=1)),
@@ -66,7 +64,6 @@ def summarize_degradation(degradation: np.ndarray) -> dict[str, float]:
 
 
 def robustness_k_values(n_nodes: int, base_k_values: list[int], fractions: list[float]) -> list[int]:
-    """Build the requested native and fractional-k robustness grid."""
     values = set(base_k_values)
     values.add(10)
     values.update(max(1, int(round(n_nodes * fraction))) for fraction in fractions)
@@ -74,7 +71,6 @@ def robustness_k_values(n_nodes: int, base_k_values: list[int], fractions: list[
 
 
 def metric_row(metrics: dict) -> dict[str, float]:
-    """Return the scalar Gramian metrics written to robustness CSVs."""
     return {
         "average_energy": metrics["average_energy"],
         "log10_average_energy": metrics["log10_average_energy"],
@@ -91,7 +87,6 @@ def metric_row(metrics: dict) -> dict[str, float]:
 
 
 def empty_landscape_summary(thresholds: list[float]) -> dict[str, float]:
-    """Return placeholder columns when landscape summaries are not requested."""
     summary = {
         "variance_log10_energy": np.nan,
         "best_energy": np.nan,
@@ -118,7 +113,6 @@ def landscape_summary_for(
     apply_floor: bool,
     include_landscape_summary: bool,
 ) -> tuple[bool | float, dict[str, float]]:
-    """Compute optional landscape summaries for a sensitivity cell."""
     if not include_landscape_summary:
         return np.nan, empty_landscape_summary(thresholds)
 
