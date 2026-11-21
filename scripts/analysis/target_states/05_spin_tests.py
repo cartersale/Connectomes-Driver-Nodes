@@ -20,7 +20,7 @@ import pandas as pd
 from neuromaps.nulls.spins import gen_spinsamples
 from scipy.stats import rankdata, spearmanr
 
-from hoc import config as hoc_config  # noqa: E402
+from hoc import config as hoc_config
 from hoc.analysis import target_states as C
 
 ctx = C.start_stage(__file__, ["primary/00_prepare_data", "primary/01_primary_analysis"])

@@ -51,7 +51,7 @@ def full_rows(t, keys, nd=3):
     return t[keys + ["mean [95% CI]", "median [95% CI]", "n+/70", "p", "p_Holm", "r_rb"]]
 
 
-# ---- c sweep ----
+# c sweep
 t1 = pd.read_csv(OUT_DIR / "csweep_cycle_minus_degree.csv")
 for metric in ("effective_rank", "participation_ratio"):
     x = t1[t1.metric == metric].copy()
@@ -106,7 +106,7 @@ for metric in ("er_minus_random", "pr_minus_random"):
     tab.columns = [f"{mm.split('_')[0]} {s}" for mm, s in tab.columns]
     out.append(f"### T1-random-npos-{metric}\n\n" + md(tab.reset_index()))
 
-# ---- Perron loading ----
+# Perron loading
 t3m = pd.read_csv(OUT_DIR / "perron_by_method.csv")
 pl = t3m[t3m.c == 0.1].pivot_table(index="method", columns="scale", values="perron_loading").round(3)
 out.append("### T3-loading\n\n" + md(pl.reset_index()))
@@ -129,11 +129,11 @@ dg = pd.read_csv(OUT_DIR / "perron_diagnostic.csv")
 tab = dg.groupby(["scale", "c", "k"])[["rho_er_strength", "rho_er_perron", "partial_rho_er_perron_given_strength"]].median().round(2).reset_index()
 out.append("### T3-diagnostic\n\n" + md(tab))
 
-# ---- nctpy normalization ----
+# nctpy normalization
 n = pd.read_csv(OUT_DIR / "nctpy_cohort_summary.csv")
 out.append("### T2-cohort\n\n" + md(full_rows(n.sort_values(["metric", "normalization", "scale"]), ["normalization", "metric", "scale"])))
 
-# ---- finite horizon ----
+# finite horizon
 t4 = pd.read_csv(OUT_DIR / "finite_horizon_summary.csv")
 t4["T"] = t4["T"].map(lambda v: "∞" if not np.isfinite(v) else f"{v:g}")
 for metric in ("effective_rank", "participation_ratio"):
@@ -145,7 +145,7 @@ for metric in ("effective_rank", "participation_ratio"):
 x = t4[(t4.metric == "effective_rank") & (t4.eps == 1e-5)]
 out.append("### T4-full-eps1e-5\n\n" + md(full_rows(x.sort_values(["c", "T", "scale"]), ["c", "T", "scale"])))
 
-# ---- epsilon sweep and larger k ----
+# epsilon sweep and larger k
 s1 = pd.read_csv(OUT_DIR / "epsilon_summary.csv")
 for c in (0.1, 0.01):
     for metric in ("effective_rank", "participation_ratio"):
@@ -171,7 +171,7 @@ for c in (0.1, 0.01):
             lines.append("| " + " | ".join(cells) + " |")
         out.append(f"### S3-c{c}-{metric}\n\n" + "\n".join(lines))
 
-# ---- energy floor ----
+# energy floor
 a = pd.read_csv(OUT_DIR / "energy_floor_driver_sets.csv")
 g = a.groupby(["scale", "eps", "method"])[["fraction_at_floor", "fraction_below_eps", "log10_average_energy", "log10_energy_above_eps", "log10_lambda_max"]].mean().reset_index()
 g["log10(N/eps)"] = np.log10(g.scale / g.eps).round(3)

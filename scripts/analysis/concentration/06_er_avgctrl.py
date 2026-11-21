@@ -4,8 +4,7 @@
 At c = 1, for each subject, scale and k in {1, 2, 3, 5}: the Spearman correlation, across that subject's 100 random
 sets, between each set's effective rank (from set_q1.csv.gz) and the mean average controllability of its drivers,
 AC_i = sum_a v_a(i)^2 / (-2 mu_a) with mu_a = l_a - l_1 - c. Random sets only, so the correlation is not driven by
-the named criteria. The paper reports the median over subjects (Results, effective-rank paragraph; Methods,
-"Spectral gap and individual differences").
+the named criteria.
 
 Reads <run>/concentration/set_q1.csv.gz and the processed connectomes. Outputs in <run>/concentration/:
   er_avgctrl.csv          subject_id, scale, k, rho
@@ -19,9 +18,9 @@ import numpy as np
 import pandas as pd
 from scipy.stats import spearmanr
 
-from hoc import config as hoc_config  # noqa: E402
-from hoc.analysis.null_models import Spectral, load_stack  # noqa: E402
-from hoc.runs import stage_from_argv  # noqa: E402
+from hoc import config as hoc_config
+from hoc.analysis.null_models import Spectral, load_stack
+from hoc.runs import stage_from_argv
 
 C = 1.0
 SCALES = hoc_config.scales()

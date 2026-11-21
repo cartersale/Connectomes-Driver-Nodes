@@ -21,9 +21,8 @@ import pandas as pd
 from scipy.stats import rankdata, spearmanr, wilcoxon
 from statsmodels.stats.multitest import multipletests
 
-from hoc import config as hoc_config  # noqa: E402
-from hoc.paths import REPO_ROOT as REPO_ROOT  # noqa: E402
-from hoc.runs import stage_from_argv  # noqa: E402
+from hoc import config as hoc_config
+from hoc.runs import stage_from_argv
 
 STAGE = "spectra/02_analyze"
 OUT: Path  # set in main(): <run>/spectra
@@ -133,7 +132,7 @@ def main() -> None:
     rnd = df[df.family == "random"]
     key = ["subject_id", "scale", "k"]
 
-    # ---------------- cycle - degree differences in ER / PR (check against the primary run) ----------------
+    # cycle - degree differences in ER / PR (check against the primary run)
     rows = []
     for metric in ("effective_rank", "participation_ratio"):
         p2 = det.pivot_table(index=key, columns="family", values=metric)
@@ -145,7 +144,7 @@ def main() -> None:
     md.append("## T0 cycle - degree (reproduction)\n")
     md.append(md_table(pd.DataFrame([{"metric": r.metric, "scale": r.scale, **stat_cells(r._asdict())} for r in t0.itertuples()])))
 
-    # ---------------- rankings vs random ----------------
+    # rankings vs random
     rstats = rnd.groupby(key).agg(
         er_rand_mean=("effective_rank", "mean"), pr_rand_mean=("participation_ratio", "mean")
     )
@@ -210,7 +209,7 @@ def main() -> None:
             )
         md.append(md_table(pd.DataFrame(out)))
 
-    # ---------------- eigenvalue extremes and condition number ----------------
+    # eigenvalue extremes and condition number
     fam_order = RANKINGS + ["random", "degree_matched", "spatial_matched", "degree_spatial_matched"]
     rows = []
     for (sc, fam), g in df.groupby(["scale", "family"]):
@@ -289,7 +288,7 @@ def main() -> None:
     md.append("\n## T6 condition number\n")
     md.append("\n".join(f"- {k}: {v}" for k, v in t6.items()))
 
-    # ---------------- Perron loading ----------------
+    # Perron loading
     rows = []
     pool = df[df.family.isin(RANKINGS[:-1] + ["random"])]
     for (sc, fam), g in df[df.family.isin(fam_order)].groupby(["scale", "family"]):
@@ -352,7 +351,7 @@ def main() -> None:
     md.append("\n### Perron loading, degree - cycle (k-averaged), Holm over 3 scales\n")
     md.append(md_table(pd.DataFrame([{"scale": r.scale, **stat_cells(r._asdict())} for r in t4c.itertuples()])))
 
-    # ---------------- matched controls ----------------
+    # matched controls
     rows = []
     quality = []
     for metric in ("effective_rank", "participation_ratio"):

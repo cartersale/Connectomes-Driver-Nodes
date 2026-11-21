@@ -14,7 +14,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-from hoc import figstyle as fs  # noqa: E402
+from hoc import figstyle as fs
 
 SCALE = 114
 AX_W, AX_H = 1.67, 1.65  # inches: the size of panel B's axes in the full Figure 3

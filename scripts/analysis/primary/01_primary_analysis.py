@@ -14,14 +14,14 @@ from tqdm.auto import tqdm
 
 from hoc.atlas import build_label_table
 from hoc.config import (
-    active_config_path,  # noqa: E402
+    active_config_path,
     load_config,
 )
 from hoc.control import assemble_gramian, gramian_metrics, single_node_gramians, subspace_overlap, target_energy
 from hoc.dataset import build_subject_table, load_raw_connectomes
 from hoc.io import prepare_results_tree, write_csv, write_npz
 from hoc.landscape import generate_driver_sets, greedy_extension, summarize_landscape
-from hoc.paths import REPO_ROOT as REPO_ROOT  # noqa: E402
+from hoc.paths import REPO_ROOT
 from hoc.preprocessing import preprocess_structural_adjacency, stabilize_adjacency
 from hoc.rankings import compute_node_scores, random_top_k_nodes, scores_to_table, top_k_nodes
 from hoc.runs import RunContext, add_run_arguments
@@ -46,13 +46,7 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def append_row(frame_rows: list[dict], **kwargs: object) -> None:
-    """Append a row dictionary in a compact way."""
-    frame_rows.append(dict(kwargs))
-
-
 def load_processed_stack(scale: int, raw_connectomes: dict[int, np.ndarray], n_subjects: int) -> np.ndarray:
-    """Preprocess one scale into a subject-by-node-by-node stack."""
     raw_stack = raw_connectomes[scale][:, :, :n_subjects]
     return np.stack(
         [preprocess_structural_adjacency(raw_stack[:, :, subject_index]) for subject_index in range(n_subjects)],
@@ -73,7 +67,6 @@ def append_target_rows(
     target_names: list[str],
     target_matrix: np.ndarray,
 ) -> None:
-    """Append vectorized target-energy and target-geometry rows."""
     eigenvalues = metrics["eigenvalues"]
     eigenvectors = metrics["eigenvectors"]
     bottom_basis = metrics["bottom_basis"]
@@ -99,8 +92,7 @@ def append_target_rows(
 
     for target_index, target_name in enumerate(target_names):
         target_energy_value = float(directional_energies[target_index])
-        append_row(
-            target_rows,
+        target_rows.append(dict(
             subject_id=subject_id,
             scale=scale,
             k=k,
@@ -108,9 +100,8 @@ def append_target_rows(
             selection_strategy=selection_strategy,
             target_name=target_name,
             target_energy=target_energy_value,
-        )
-        append_row(
-            target_geometry_rows,
+        ))
+        target_geometry_rows.append(dict(
             subject_id=subject_id,
             scale=scale,
             k=k,
@@ -123,7 +114,7 @@ def append_target_rows(
             spectral_spread_effective_modes=float(spectral_spreads[target_index]),
             spectral_entropy_effective_modes=float(spectral_entropy_spreads[target_index]),
             bottom_dim=int(bottom_basis.shape[1]),
-        )
+        ))
 
 
 def bootstrap_ci(values: pd.Series | np.ndarray, rng: np.random.Generator, n_boot: int = 2000) -> tuple[float, float]:
@@ -140,7 +131,7 @@ def bootstrap_ci(values: pd.Series | np.ndarray, rng: np.random.Generator, n_boo
 
 
 def signed_rank_test(values: pd.Series | np.ndarray) -> tuple[float, float]:
-    """Run a robust two-sided Wilcoxon signed-rank test against zero."""
+    """Two-sided Wilcoxon signed-rank test against zero on finite values; (nan, 1.0) if none remain or all are ~0."""
     array = np.asarray(values, dtype=float)
     array = array[np.isfinite(array)]
     if array.size == 0 or np.allclose(array, 0.0):
@@ -154,7 +145,6 @@ def target_difference_tables(
     target_metadata_rows: list[pd.DataFrame],
     rng: np.random.Generator,
 ) -> dict[str, pd.DataFrame]:
-    """Build paired target-energy differences and statistical summaries."""
     targets = pd.DataFrame(target_rows)
     metadata = pd.concat(target_metadata_rows, ignore_index=True)
     paired = (
@@ -413,8 +403,7 @@ def main() -> None:
                     metrics = gramian_metrics(gramian, epsilon=epsilon, bottom_dim=bottom_dim)
                     deterministic_metrics[(method_name, "static", k)] = metrics
 
-                    append_row(
-                        driver_set_rows,
+                    driver_set_rows.append(dict(
                         subject_id=subject_id,
                         scale=scale,
                         k=k,
@@ -422,9 +411,8 @@ def main() -> None:
                         selection_strategy="static",
                         node_indices=";".join(str(int(index)) for index in selected),
                         region_labels=";".join(labels.loc[selected, "region_label"].tolist()),
-                    )
-                    append_row(
-                        node_energy_rows,
+                    ))
+                    node_energy_rows.append(dict(
                         subject_id=subject_id,
                         scale=scale,
                         k=k,
@@ -433,9 +421,8 @@ def main() -> None:
                         random_sample=np.nan,
                         log10_average_energy=metrics["log10_average_energy"],
                         average_energy=metrics["average_energy"],
-                    )
-                    append_row(
-                        geometry_rows,
+                    ))
+                    geometry_rows.append(dict(
                         subject_id=subject_id,
                         scale=scale,
                         k=k,
@@ -446,7 +433,7 @@ def main() -> None:
                         participation_ratio=metrics["participation_ratio"],
                         log10_condition_number=metrics["log10_condition_number"],
                         log_min_eigenvalue=metrics["log_min_eigenvalue"],
-                    )
+                    ))
 
                 for random_sample in range(int(ranking_config["n_random_rankings"])):
                     random_rng = make_rng(subject_seed(int(analysis_config["random_seed"]), scale, subject_index, k, random_sample))
@@ -456,8 +443,7 @@ def main() -> None:
                         epsilon=epsilon,
                         bottom_dim=bottom_dim,
                     )
-                    append_row(
-                        driver_set_rows,
+                    driver_set_rows.append(dict(
                         subject_id=subject_id,
                         scale=scale,
                         k=k,
@@ -465,9 +451,8 @@ def main() -> None:
                         selection_strategy="static",
                         node_indices=";".join(str(int(index)) for index in selected),
                         region_labels=";".join(labels.loc[selected, "region_label"].tolist()),
-                    )
-                    append_row(
-                        node_energy_rows,
+                    ))
+                    node_energy_rows.append(dict(
                         subject_id=subject_id,
                         scale=scale,
                         k=k,
@@ -476,9 +461,8 @@ def main() -> None:
                         random_sample=random_sample,
                         log10_average_energy=metrics["log10_average_energy"],
                         average_energy=metrics["average_energy"],
-                    )
-                    append_row(
-                        geometry_rows,
+                    ))
+                    geometry_rows.append(dict(
                         subject_id=subject_id,
                         scale=scale,
                         k=k,
@@ -489,7 +473,7 @@ def main() -> None:
                         participation_ratio=metrics["participation_ratio"],
                         log10_condition_number=metrics["log10_condition_number"],
                         log_min_eigenvalue=metrics["log_min_eigenvalue"],
-                    )
+                    ))
 
                 greedy_methods = [name for name in primary_methods if name in node_scores]
                 for method_name in greedy_methods:
@@ -509,8 +493,7 @@ def main() -> None:
                     deterministic_sets[(method_name, "greedy", k)] = greedy_set
                     deterministic_metrics[(method_name, "greedy", k)] = greedy_metrics
 
-                    append_row(
-                        driver_set_rows,
+                    driver_set_rows.append(dict(
                         subject_id=subject_id,
                         scale=scale,
                         k=k,
@@ -518,9 +501,8 @@ def main() -> None:
                         selection_strategy="greedy",
                         node_indices=";".join(str(int(index)) for index in greedy_set),
                         region_labels=";".join(labels.loc[greedy_set, "region_label"].tolist()),
-                    )
-                    append_row(
-                        node_energy_rows,
+                    ))
+                    node_energy_rows.append(dict(
                         subject_id=subject_id,
                         scale=scale,
                         k=k,
@@ -529,9 +511,8 @@ def main() -> None:
                         random_sample=np.nan,
                         log10_average_energy=greedy_metrics["log10_average_energy"],
                         average_energy=greedy_metrics["average_energy"],
-                    )
-                    append_row(
-                        geometry_rows,
+                    ))
+                    geometry_rows.append(dict(
                         subject_id=subject_id,
                         scale=scale,
                         k=k,
@@ -542,9 +523,8 @@ def main() -> None:
                         participation_ratio=greedy_metrics["participation_ratio"],
                         log10_condition_number=greedy_metrics["log10_condition_number"],
                         log_min_eigenvalue=greedy_metrics["log_min_eigenvalue"],
-                    )
-                    append_row(
-                        greedy_comparison_rows,
+                    ))
+                    greedy_comparison_rows.append(dict(
                         subject_id=subject_id,
                         scale=scale,
                         k=k,
@@ -552,16 +532,15 @@ def main() -> None:
                         static_log10_average_energy=comparison["static_log10_average_energy"],
                         greedy_log10_average_energy=comparison["greedy_log10_average_energy"],
                         greedy_minus_static_log10=comparison["greedy_minus_static_log10"],
-                    )
+                    ))
                     for row in step_rows:
-                        append_row(
-                            greedy_step_rows,
+                        greedy_step_rows.append(dict(
                             subject_id=subject_id,
                             scale=scale,
                             k=k,
                             method=method_name,
                             **row,
-                        )
+                        ))
 
                 if (
                     ("cycle_participation", "static", k) in deterministic_metrics
@@ -593,15 +572,14 @@ def main() -> None:
                         energies_linear=landscape_energies,
                         thresholds=[float(value) for value in landscape_config["near_optimal_thresholds"]],
                     )
-                    append_row(
-                        landscape_rows,
+                    landscape_rows.append(dict(
                         subject_id=subject_id,
                         scale=scale,
                         k=k,
                         n_candidate_sets=int(candidate_sets.shape[0]),
                         enumerated_exactly=bool(enumerated_exactly),
                         **summary,
-                    )
+                    ))
                     if bool(analysis_config["save_landscape_samples"]):
                         write_npz(
                             results["samples"] / f"{subject_id}_scale-{scale}_k-{k}.npz",
@@ -638,8 +616,7 @@ def main() -> None:
                         weights = np.full(selected.shape[0], weight, dtype=float)
                         gramian = assemble_gramian(node_gramians, selected, node_weights=weights)
                         metrics = gramian_metrics(gramian, epsilon=epsilon, bottom_dim=bottom_dim)
-                        append_row(
-                            weighted_rows,
+                        weighted_rows.append(dict(
                             subject_id=subject_id,
                             scale=scale,
                             support_size=support_size,
@@ -647,10 +624,9 @@ def main() -> None:
                             metric="log10_average_energy",
                             target_name="average",
                             value=metrics["log10_average_energy"],
-                        )
+                        ))
                         for target_name, target_vector in targets.items():
-                            append_row(
-                                weighted_rows,
+                            weighted_rows.append(dict(
                                 subject_id=subject_id,
                                 scale=scale,
                                 support_size=support_size,
@@ -658,7 +634,7 @@ def main() -> None:
                                 metric="target_energy",
                                 target_name=target_name,
                                 value=target_energy(gramian=gramian, target=target_vector, epsilon=epsilon),
-                            )
+                            ))
 
                 overlap_keys = [
                     key
@@ -668,8 +644,7 @@ def main() -> None:
                 for (method_a, strategy_a, _), (method_b, strategy_b, _) in combinations(overlap_keys, 2):
                     basis_a = deterministic_metrics[(method_a, strategy_a, k)]["bottom_basis"]
                     basis_b = deterministic_metrics[(method_b, strategy_b, k)]["bottom_basis"]
-                    append_row(
-                        overlap_rows,
+                    overlap_rows.append(dict(
                         subject_id=subject_id,
                         scale=scale,
                         k=k,
@@ -678,16 +653,15 @@ def main() -> None:
                         method_b=method_b,
                         strategy_b=strategy_b,
                         overlap=subspace_overlap(basis_a, basis_b),
-                    )
+                    ))
 
-            append_row(
-                rank_divergence_rows,
+            rank_divergence_rows.append(dict(
                 subject_id=subject_id,
                 scale=scale,
                 spearman_degree_vs_topology=rank_correlation,
                 mean_delta_log10_energy=float(np.mean(delta_log10_energies)),
                 spectral_radius_before_shift=spectral_radius,
-            )
+            ))
         target_summary_progress.close()
 
     write_csv(pd.concat(node_score_tables, ignore_index=True), results["primary"] / "node_scores.csv")

@@ -8,7 +8,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from common import SCALES, Table, pd, tabular
+import pandas as pd
+from common import SCALES, Table, tabular
 
 MODELS = [
     ("ER", "Random (Erd\\H{o}s--R\\'enyi)"),

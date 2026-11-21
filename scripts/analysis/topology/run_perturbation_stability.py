@@ -45,9 +45,9 @@ from hoc.analysis.topology import (
     top_k_nodes,
     variant_scores,
 )
-from hoc.preprocessing import dropout_perturbation, multiplicative_noise_perturbation  # noqa: E402
-from hoc.runs import RunContext, add_run_arguments, partial_stage  # noqa: E402
-from hoc.utils import n_jobs  # noqa: E402
+from hoc.preprocessing import dropout_perturbation, multiplicative_noise_perturbation
+from hoc.runs import RunContext, add_run_arguments, partial_stage
+from hoc.utils import n_jobs
 
 K_VALUES = (1, 2, 3, 5, 15)
 RANKINGS = (*VARIANTS, "degree")

@@ -25,12 +25,11 @@ from pathlib import Path
 import numpy as np
 from scipy.stats import spearmanr, wilcoxon
 
-from hoc import config as hoc_config  # noqa: E402
-from hoc.analysis import representatives as rs  # noqa: E402
-from hoc.paths import REPO_ROOT as REPO_ROOT  # noqa: E402
-from hoc.preprocessing import stabilize_adjacency  # noqa: E402
-from hoc.rankings import random_top_k_nodes, strength_scores, top_k_nodes  # noqa: E402,F401  (top_k_nodes: re-exported)
-from hoc.utils import make_rng, subject_seed  # noqa: E402
+from hoc import config as hoc_config
+from hoc.analysis import representatives as rs
+from hoc.preprocessing import stabilize_adjacency
+from hoc.rankings import random_top_k_nodes, strength_scores, top_k_nodes  # noqa: F401  (top_k_nodes: re-exported)
+from hoc.utils import make_rng, subject_seed
 
 CONFIG = hoc_config.active_config()
 BASE_SEED = int(CONFIG["analysis"]["random_seed"])
@@ -57,7 +56,6 @@ def load_stack(scale: int, root: str | Path) -> np.ndarray:
     return np.load(Path(root) / "processed" / f"connectomes_scale-{scale}.npz")["adjacency"]
 
 
-# --------------------------------------------------------------------------- control
 class EigenGramian:
     """Spectra of set Gramians for a symmetric stabilized system."""
 
@@ -102,7 +100,6 @@ def validate_fast_gramian(adjacency: np.ndarray, sets: list[np.ndarray]) -> floa
     return worst
 
 
-# --------------------------------------------------------------------------- rankings
 def variant_scores(adjacency: np.ndarray, variants=VARIANTS) -> dict[str, np.ndarray]:
     """Min-max normalized CP_i under each representative variant.
 
@@ -143,9 +140,8 @@ def spearman(a, b) -> float:
     return float(spearmanr(a, b).statistic)
 
 
-# --------------------------------------------------------------------------- nulls
 def uniform_random_sets(n: int, k: int, scale: int, subject_index: int) -> np.ndarray:
-    """The exact 100 random sets of the primary pipeline (same seeds)."""
+    """The ``N_RANDOM`` random sets of the primary pipeline (same seeds)."""
     return np.stack(
         [
             random_top_k_nodes(n, k, make_rng(subject_seed(BASE_SEED, scale, subject_index, k, sample)))
@@ -192,7 +188,6 @@ def percentile_vs(null: np.ndarray, value: float) -> float:
     return float(100.0 * (np.mean(null < value) + 0.5 * np.mean(null == value)))
 
 
-# --------------------------------------------------------------------------- stats
 def rank_biserial(values: np.ndarray) -> float:
     """Matched-pairs rank-biserial correlation (zeros dropped, as in Wilcoxon 'wilcox')."""
     v = np.asarray(values, float)

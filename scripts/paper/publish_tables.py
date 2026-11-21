@@ -21,14 +21,13 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from condense import RULES, _group_label  # noqa: E402
-from table_catalog import GROUPS  # noqa: E402
+from condense import RULES, _group_label
+from table_catalog import GROUPS
 
 REPO = Path(__file__).resolve().parents[2]
 OUT = REPO / "supplementary"
 TITLE = "Hub Inputs Funnel Control into the Connectome's Dominant Mode"
 
-# ----------------------------------------------------------------------------- LaTeX -> text
 SYMBOLS = {r"\in": " in ", r"\_": "_", r"\log_{10}": "log10 ", r"\log": "log ", r"\alpha": "alpha", r"\epsilon": "eps", r"\rho": "rho", r"\lambda": "lambda", r"\ell": "l", r"\sigma": "sigma",
            r"\Delta": "Delta ", r"\tilde z": "median z", r"\geq": ">=", r"\leq": "<=", r"\infty": "inf", r"\times": "x",
            r"\pm": "+/-", r"\beta": "beta", r"\pi": "pi", r"\phi": "phi", r"\xi": "xi", r"\mu": "mu", r"\bar r": "r_bar",
@@ -97,7 +96,6 @@ def to_rows(tex: str) -> list[list[str]]:
     return [header, *[r[1:] if r[0] != "#" else r[1:] for r in rows]]
 
 
-# ----------------------------------------------------------------------------- index
 def csv_name(key: str, slug: str, supports: bool) -> str:
     return f"{key}_{slug}.csv" if supports else f"additional_{slug}.csv"
 

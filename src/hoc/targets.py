@@ -215,7 +215,6 @@ def single_parcel_targets(labels: pd.DataFrame) -> dict[str, np.ndarray]:
 
 
 def single_parcel_target_name(node_index: int, family: str) -> str:
-    """Create a stable target name for single-parcel baseline targets."""
     prefix = "single_subcortical" if family == "single_subcortical_parcel" else "single_cortical"
     return f"{prefix}_node_{node_index:03d}"
 
@@ -244,7 +243,6 @@ def is_subcortical_row(row: pd.Series) -> bool:
 
 
 def support_labels(labels: pd.DataFrame, target_vector: np.ndarray) -> list[str]:
-    """Return atlas labels with nonzero support in a target vector."""
     support = np.flatnonzero(np.abs(np.asarray(target_vector, dtype=float)) > 1.0e-12)
     return labels.loc[support, "region_label"].astype(str).tolist()
 
@@ -254,9 +252,8 @@ def margulies_principal_gradient(labels: pd.DataFrame, atlas_dir: str) -> np.nda
 
     The published fcgradient01 map (fsLR-32k) is resampled to fsaverage5 by
     nearest-neighbor matching on the fsLR sphere registered to fsaverage (``registered_nn``)
-    and averaged within each Cammoun parcel. Unlike the leading nontrivial eigenvector of the structural
-    affinity, which is dominated by the interhemispheric split, this yields the genuine
-    unimodal-to-transmodal gradient of macroscale cortical organization.
+    and averaged within each Cammoun parcel. A structural-eigenvector gradient is not used because it is
+    dominated by the interhemispheric split.
     """
     if synthetic.is_synthetic(atlas_dir):
         return synthetic.gradient(labels)
@@ -322,25 +319,21 @@ def registered_nn(hemi: str) -> np.ndarray:
 
 
 def normalized_mask_vector(mask: np.ndarray) -> np.ndarray:
-    """Normalize an indicator vector to unit Euclidean norm."""
     return normalize_vector(mask.astype(float))
 
 
 def normalized_signed_contrast(positive_mask: np.ndarray, negative_mask: np.ndarray) -> np.ndarray:
-    """Build a signed contrast vector and normalize it."""
     vector = positive_mask.astype(float) - negative_mask.astype(float)
     return normalize_vector(vector)
 
 
 def normalized_sparse_vector(length: int, indices: np.ndarray) -> np.ndarray:
-    """Build a sparse unit vector over selected indices."""
     vector = np.zeros(length, dtype=float)
     vector[np.asarray(indices, dtype=int)] = 1.0
     return normalize_vector(vector)
 
 
 def normalize_vector(vector: np.ndarray) -> np.ndarray:
-    """Normalize a vector to unit Euclidean norm."""
     norm = float(np.linalg.norm(vector))
     if norm == 0.0:
         raise ValueError("Cannot normalize a zero vector target.")

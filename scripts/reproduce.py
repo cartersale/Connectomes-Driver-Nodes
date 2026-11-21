@@ -74,7 +74,7 @@ P0, P1, P2 = "primary/00_prepare_data", "primary/01_primary_analysis", "primary/
 
 # Steps outside the smoke run: they need external atlas data that the synthetic dataset does not provide.
 NEEDS_ATLAS_DATA = {"target_states"}  # Yeo (2011) networks and neuromaps gradient maps
-SURFACE_FIGURES = {"fig1", "fig3", "fig4", "fig5"}  # brain surfaces need the Cammoun annotation files
+SURFACE_FIGURES = {"fig1", "fig3", "fig4", "figS_corecut"}  # brain surfaces need the Cammoun annotation files
 
 
 def analysis(group: str, name: str, requires=(), outputs=(), **kw) -> Step:
@@ -172,7 +172,9 @@ STEPS: list[Step] = [
     figure("fig3", ("mechanisms/04_leading_eigenvectors", "mechanisms/08_gramian_alignment")),
     figure("fig3b", ("mechanisms/08_gramian_alignment",)),
     figure("fig4", ("mechanisms/05_second_subspace", "concentration/02_tables", "concentration/03_decay_collapse")),
-    figure("fig5", ("null_models/02_analyze", "null_models/04_rayleigh_bound", "mechanisms/07_core_cut")),
+    figure("fig5", ("null_models/02_analyze", "null_models/04_rayleigh_bound")),
+    # Supplementary figure (Section S6)
+    figure("figS_corecut", ("mechanisms/07_core_cut",)),
 ]
 STEPS += [
     # Supplementary tables, the number registry, validation, and the assembled paper folder
@@ -194,9 +196,6 @@ STEPS += [
          smoke=False),
 ]
 BY_STAGE = {s.stage: s for s in STEPS}
-
-
-# --------------------------------------------------------------------------- graph
 
 
 def check_graph() -> list[Step]:
@@ -240,9 +239,6 @@ def downstream(name: str) -> set[str]:
     return out
 
 
-# --------------------------------------------------------------------------- status
-
-
 def stage_record(manifest: dict, step: Step) -> dict:
     return manifest.get("stages", {}).get(step.stage, {})
 
@@ -279,9 +275,6 @@ def status(manifest: dict, step: Step, config_sha: str) -> tuple[str, str]:
     return ("reused" if rec.get("reused_from") else "done"), note
 
 
-# --------------------------------------------------------------------------- checks
-
-
 def check_outputs(run_dir: Path, step: Step) -> list[str]:
     problems = []
     rec = stage_record(read_manifest(run_dir) or {}, step)
@@ -300,7 +293,7 @@ def check_outputs(run_dir: Path, step: Step) -> list[str]:
                     import pandas as pd
 
                     pd.read_csv(path, nrows=5)
-                except Exception as exc:  # noqa: BLE001
+                except Exception as exc:
                     problems.append(f"unreadable CSV {path.relative_to(run_dir)}: {exc}")
     return problems
 
@@ -322,9 +315,6 @@ def check_inputs() -> int:
             bad += 1
     print(f"{len(entries) - bad}/{len(entries)} input files match {INPUTS_REFERENCE.relative_to(REPO_ROOT)}")
     return bad
-
-
-# --------------------------------------------------------------------------- reuse
 
 
 def reuse(step: Step, source_run: str, run_dir: Path, config_path: Path) -> None:
@@ -371,9 +361,6 @@ def reuse(step: Step, source_run: str, run_dir: Path, config_path: Path) -> None
     tmp = run_dir / (MANIFEST_NAME + ".tmp")
     tmp.write_text(json.dumps(manifest, indent=2, sort_keys=True))
     tmp.replace(run_dir / MANIFEST_NAME)
-
-
-# --------------------------------------------------------------------------- main
 
 
 def parse_args() -> argparse.Namespace:

@@ -22,10 +22,10 @@ def collect(run: Path) -> list[Number]:
     c = Collector(run)
     for fn in (_robustness, _criteria, _modes, _nulls, _core):
         fn(c)
-    return c.done()
+    return c.out
 
 
-# ============================================================================ S2 sec:robustness
+# S2 sec:robustness
 def _robustness(c: Collector) -> None:
     L = "sec:robustness"
     # "At every scale and eps, 80% to 98% of the eigenvalues of W lay below eps"
@@ -64,14 +64,14 @@ def _robustness(c: Collector) -> None:
           "max |mean_diff| (cycle - degree, k-averaged) over 3 scales x 7 eps, rounded up", L,
           {"c": 0.1}, bound=(mx <= 2.4e-3, "<="))
 
-    # Damping: "changed sign in 8, 4, and 20 subjects"; "changed sign at c ~ 0.88, 0.69, and 0.29"
+    # Damping: "changed sign in 6, 3, and 8 subjects" (k in {2,3,5}); "changed sign at c ~ 0.88, 0.69, and 0.29"
     fl = c.csv("concentration/decay_flip_summary.csv")
     r = fl[(fl.curve == "cd_q1") & (fl.axis == "flip_c")].iloc[0]
-    for s, ms_ in zip(SC, ("8", "4", "20")):
+    for s, ms_ in zip(SC, ("6", "3", "8")):
         v = int(r[f"n_flip_{s}"])
         c.add(f"SCsweepQOneSignChangeSubjects{SCN[s]}", v, str(v), ms_,
               "concentration/03_decay_collapse: concentration/decay_flip_summary.csv | curve == cd_q1, axis == flip_c; "
-              f"n_flip_{s}", L, {"scale": s, "grid": "25 c values"})
+              f"n_flip_{s}", L, {"scale": s, "grid": "45 c values"})
     sf = c.csv("sensitivity/csweep_signflip.csv")
     for s, ms_ in zip(SC, ("0.88", "0.69", "0.29")):
         v = float(sf[(sf.metric == "effective_rank") & (sf.scale == s)].c_flip_mean.iloc[0])
@@ -91,7 +91,7 @@ def _robustness(c: Collector) -> None:
           src + f"max |d_er_eps_rescaled| = {v:.3g}; 1 significant figure rounded up", L, bound=(v <= 3e-14, "<="))
 
 
-# ============================================================================ S3 sec:criteria
+# S3 sec:criteria
 def _criteria(c: Collector) -> None:
     L = "sec:criteria"
     spin = c.csv("target_states/spin_tests.csv")
@@ -143,7 +143,7 @@ def _criteria(c: Collector) -> None:
     c.add("SRepOverlapRsqMax", 100 * r2.max(), pct(r2.max()), "71", src.format("max"), L, {"k": "2,3,5"})
 
 
-# ============================================================================ S4 sec:modes
+# S4 sec:modes
 def _projector_eigenvalues(stack: np.ndarray, cols: list[int]) -> np.ndarray:
     """Eigenvalues (descending) of the mean projector onto each subject's span of the given eigenvectors
     (1 = v1, 2 = v2, ...), as in scripts/analysis/mechanisms/05_second_subspace.py."""
@@ -205,7 +205,7 @@ def _modes(c: Collector) -> None:
         c.add(f"S{nm}GapMax", g.max(), f2(g.max()), hi_, srcm.format("max over models x scales" if nm == "Model" else "max over scales"), L)
 
 
-# ============================================================================ S5 sec:nulls
+# S5 sec:nulls
 def _nulls(c: Collector) -> None:
     L = "sec:nulls"
     fid = c.csv("null_models/null_fidelity.csv")
@@ -247,7 +247,7 @@ def _nulls(c: Collector) -> None:
         c.add(f"SRayleighRho{nm}LambdaMax", v.max(), f2(v.max()), hi_, src + f"per-scale median of {col}; max", L)
 
 
-# ============================================================================ S6 sec:core
+# S6 sec:core
 def _core(c: Collector) -> None:
     L = "sec:core"
     fo = c.csv("mechanisms/core_cut_first_order.csv")

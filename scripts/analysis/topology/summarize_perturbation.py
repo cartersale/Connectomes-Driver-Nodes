@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""Summaries and supplement tables for the edge-weight perturbation stability).
+"""Summaries and supplement tables for the edge-weight perturbation stability.
 
 Run: python scripts/analysis/topology/summarize_perturbation.py --run <name> [--overwrite]
 Reads runs/<name>/topology/{perturbation,representatives}/, writes .../tables/.
@@ -12,9 +12,9 @@ import numpy as np
 import pandas as pd
 from scipy.stats import spearmanr, wilcoxon
 
-from hoc import config as hoc_config  # noqa: E402
+from hoc import config as hoc_config
 from hoc.analysis.topology import STAGE_PREFIX, VARIANTS, output_dir
-from hoc.runs import n_subjects, stage_from_argv  # noqa: E402
+from hoc.runs import n_subjects, stage_from_argv
 
 SCALES = hoc_config.scales()
 K_ER = (1, 2, 3, 5)

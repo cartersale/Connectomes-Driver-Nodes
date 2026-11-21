@@ -7,7 +7,9 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from common import LABEL, SCALES, Table, np, pd, ptex, tabular
+import numpy as np
+import pandas as pd
+from common import LABEL, SCALES, Table, ptex, tabular
 
 VAR = ["ripser", "gudhi", "geodesic", "birth_edge"]
 LEVELS = (0.05, 0.1, 0.2)
@@ -23,7 +25,7 @@ def build(res: Path) -> list[Table]:
     tb = st / "tables"
     parts = []
 
-    # ---------------- S9a: agreement with degree ----------------
+    # S9a: agreement with degree
     ag = pd.read_csv(tb / "rep_agreement.csv")
     rows = []
     for scale in SCALES:
@@ -46,7 +48,7 @@ NOTE: per-subject rho(cycle participation, degree) = 0.48 / 0.38 / 0.40 here; th
 the GROUP-level map correlation (spin-tested; S10_9), not a per-subject value."""
     parts.append(Table("S9_1", tab, note))
 
-    # ---------------- S9b: result level ER / PR per variant, incl. k-average ----------------
+    # S9b: result level ER / PR per variant, incl. k-average
     rl = pd.read_csv(tb / "rep_result_level.csv")
     ps = pd.concat([pd.read_csv(st / "representatives" / f"per_subject_scale-{s}.csv") for s in SCALES])
     kav = (ps[ps.k.isin([1, 2, 3, 5])].groupby(["scale", "variant", "subject_id"])[["er_diff_degree", "pr_diff_degree"]].mean()
@@ -76,7 +78,7 @@ The Ripser rows reproduce the primary analysis exactly (e.g. avg 0.84 / 0.98 / 0
 q1 is not computed for the representative variants (per_subject_scale-*.csv has ER/PR only)."""
         parts.append(Table(f"S9_{len(parts) + 1}", tab, note))
 
-    # ---------------- S9c: variants vs nulls ----------------
+    # S9c: variants vs nulls
     nc = pd.read_csv(tb / "rep_null_comparisons.csv")
     rows = []
     for scale in SCALES:
@@ -103,7 +105,7 @@ Source: <run>/topology/tables/rep_null_comparisons.csv (columns random_mean, mea
 strength_*). CIs and Wilcoxon p are in the CSV."""
     parts.append(Table("S9_4", tab, note))
 
-    # ---------------- S9d: distance regressions ----------------
+    # S9d: distance regressions
     dr = pd.read_csv(tb / "rep_distance_regressions.csv")
     rows = []
     # iterrows() upcasts the integer scale and k columns to float (the row Series is float64), so they print as
@@ -120,7 +122,7 @@ degree set; R2_J = within-subject variance explained by overlap; R2_var|J = addi
 rep_distance_regressions.csv (jaccard_degree_* columns; the CSV also has the same models with spearman_vs_degree and closeness_rank)."""
     parts.append(Table("S9_5", tab, note))
 
-    # ---------------- S9e: perturbation rank stability ----------------
+    # S9e: perturbation rank stability
     rs = pd.read_csv(tb / "perturb_rank_stability.csv")
     ref = pd.read_csv(tb / "perturb_between_subject_reference.csv")
     rk_order = ["ripser", "gudhi", "geodesic", "birth_edge", "degree"]
@@ -160,7 +162,7 @@ perturbed and unperturbed top-k sets, shown as J1 / J5 / J15. Source: <run>/topo
 (columns j1, j5, j15; medians j5_median / j15_median also saved). J2 and J3 exist only in perturbation/per_draw_scale-*.csv."""
     parts.append(Table("S9_7", tab, note))
 
-    # ---------------- S9g: ER difference persistence (Ripser) ----------------
+    # S9g: ER difference persistence (Ripser)
     pe = pd.read_csv(tb / "perturb_er_persistence.csv")
     rows = []
     for scale in SCALES:

@@ -1,9 +1,7 @@
 """Shared helpers for the network-null analysis.
 
-Question: is the hub-concentration effect (degree-selected driver sets have a
-Gramian dominated by one direction, q1 = lambda_1(W)/tr W, far above random sets)
-a property of the brain's wiring, or does it follow from the strength sequence,
-from spatial embedding, or from the weight distribution alone?
+Each null tests whether the Gramian concentration q1 = lambda_1(W)/tr W of a driver set follows from one
+property of the wiring: the strength sequence, the spatial embedding, or the weight distribution.
 
 Nulls are applied to the *preprocessed* adjacency A0 (symmetrized, log1p,
 max-normalized), which is the matrix whose strength defines the degree ranking and
@@ -42,11 +40,10 @@ import pandas as pd
 from scipy.spatial.distance import cdist
 from scipy.stats import spearmanr
 
-from hoc import config as hoc_config  # noqa: E402
-from hoc.paths import REPO_ROOT as REPO_ROOT  # noqa: E402
-from hoc.rankings import random_top_k_nodes, top_k_nodes  # noqa: E402
-from hoc.runs import n_subjects  # noqa: E402,F401  (re-exported for the stage scripts)
-from hoc.utils import make_rng, subject_seed  # noqa: E402
+from hoc import config as hoc_config
+from hoc.rankings import random_top_k_nodes, top_k_nodes
+from hoc.runs import n_subjects  # noqa: F401  (re-exported for the stage scripts)
+from hoc.utils import make_rng, subject_seed
 
 BASE_SEED = hoc_config.random_seed()
 SCALES = hoc_config.scales()
@@ -64,9 +61,6 @@ GEO_NBINS = 10
 GEO_SWAPS_PER_EDGE = 10
 
 
-# ----------------------------------------------------------------------------- data
-
-
 def out_dir(root: Path) -> Path:
     """Null-analysis output folder of a run (``<root>/null_models``), created on demand."""
     path = Path(root) / "null_models"
@@ -82,9 +76,6 @@ def centroid_distances(scale: int, root: Path) -> np.ndarray:
     """Needs spectra/01_compute_spectra (parcel centroids) in the run."""
     xyz = pd.read_csv(Path(root) / "spectra" / f"centroids_scale-{scale}.csv")[["x", "y", "z"]].to_numpy()
     return cdist(xyz, xyz)
-
-
-# ----------------------------------------------------------------------------- nulls
 
 
 def null_seed(null: str, scale: int, subject_index: int, null_index: int) -> int:
@@ -145,9 +136,6 @@ def _clean(matrix: np.ndarray) -> np.ndarray:
     return matrix
 
 
-# ----------------------------------------------------------------------------- network statistics
-
-
 def rich_club_level(real_adjacency: np.ndarray) -> int:
     degree = np.count_nonzero(real_adjacency, axis=0)
     return int(np.floor(np.percentile(degree, RC_PERCENTILE)))
@@ -201,9 +189,6 @@ def network_stats(adjacency: np.ndarray, spec: "Spectral", real_adjacency: np.nd
 def _jaccard(a, b) -> float:
     a, b = set(map(int, a)), set(map(int, b))
     return len(a & b) / len(a | b)
-
-
-# ----------------------------------------------------------------------------- Gramians
 
 
 class Spectral:
@@ -284,17 +269,16 @@ def set_level_rows(spec: Spectral, c: float, sets: dict[str, np.ndarray], random
         "rho_loading_q1_random": _spearman(loading[rnd], met["q1"][rnd]),
     }
     for j, m in enumerate(names):
-        tag = m
-        row[f"{tag}_q1"] = float(met["q1"][j])
-        row[f"{tag}_er"] = float(met["er"][j])
-        row[f"{tag}_pr"] = float(met["pr"][j])
-        row[f"{tag}_loading"] = float(loading[j])
-        row[f"{tag}_perron_share"] = float(pshare[j])
-        row[f"{tag}_q1perp"] = float(met_perp["q1"][j])
-        row[f"{tag}_q1_pct"] = percentile_of(met["q1"][j], met["q1"][rnd])
-        row[f"{tag}_er_pct"] = percentile_of(met["er"][j], met["er"][rnd])
-        row[f"{tag}_q1perp_pct"] = percentile_of(met_perp["q1"][j], met_perp["q1"][rnd])
-        row[f"{tag}_loading_pct"] = percentile_of(loading[j], loading[rnd])
+        row[f"{m}_q1"] = float(met["q1"][j])
+        row[f"{m}_er"] = float(met["er"][j])
+        row[f"{m}_pr"] = float(met["pr"][j])
+        row[f"{m}_loading"] = float(loading[j])
+        row[f"{m}_perron_share"] = float(pshare[j])
+        row[f"{m}_q1perp"] = float(met_perp["q1"][j])
+        row[f"{m}_q1_pct"] = percentile_of(met["q1"][j], met["q1"][rnd])
+        row[f"{m}_er_pct"] = percentile_of(met["er"][j], met["er"][rnd])
+        row[f"{m}_q1perp_pct"] = percentile_of(met_perp["q1"][j], met_perp["q1"][rnd])
+        row[f"{m}_loading_pct"] = percentile_of(loading[j], loading[rnd])
     return row
 
 
@@ -302,9 +286,6 @@ def _spearman(x, y) -> float:
     if np.ptp(x) == 0 or np.ptp(y) == 0:
         return np.nan
     return float(spearmanr(x, y).statistic)
-
-
-# ----------------------------------------------------------------------------- one network, all conditions
 
 
 def analyze_network(

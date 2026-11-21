@@ -29,11 +29,11 @@ import numpy as np
 import pandas as pd
 from joblib import Parallel, delayed
 
-from hoc import config as hoc_config  # noqa: E402
-from hoc.analysis.concentration import TAU, load_matched, load_orders, top  # noqa: E402
-from hoc.analysis.null_models import Spectral, load_stack, random_driver_sets, spectrum_metrics  # noqa: E402
-from hoc.runs import stage_from_argv  # noqa: E402
-from hoc.utils import n_jobs  # noqa: E402
+from hoc import config as hoc_config
+from hoc.analysis.concentration import TAU, load_matched, load_orders, top
+from hoc.analysis.null_models import Spectral, load_stack, random_driver_sets, spectrum_metrics
+from hoc.runs import stage_from_argv
+from hoc.utils import n_jobs
 
 ROOT: Path  # run directory (runs/<name>/), set in main()
 OUT: Path  # <run>/concentration, set in main()

@@ -24,7 +24,6 @@ def stable_descending_ranks(scores: np.ndarray) -> np.ndarray:
 
 
 def strength_scores(adjacency: np.ndarray) -> np.ndarray:
-    """Weighted node strength."""
     return np.sum(adjacency, axis=1)
 
 
@@ -39,7 +38,6 @@ def betweenness_scores(adjacency: np.ndarray) -> np.ndarray:
 
 
 def eigenvector_centrality_scores(adjacency: np.ndarray) -> np.ndarray:
-    """Undirected weighted eigenvector centrality."""
     return np.asarray(bct.eigenvector_centrality_und(adjacency), dtype=float)
 
 
@@ -116,7 +114,6 @@ def scores_to_table(
     method: str,
     scores: np.ndarray,
 ) -> pd.DataFrame:
-    """Convert node scores to a tidy table."""
     table = region_labels.copy()
     table["subject_id"] = subject_id
     table["method"] = method

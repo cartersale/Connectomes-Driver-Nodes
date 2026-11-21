@@ -4,18 +4,24 @@
 For every subject (70), scale (68/114/219) and k in {1, 2, 3, 5} at c = 0.1, infinite horizon:
   - the named criteria and the 100 primary random sets, built as in concentration/01_compute_q1.py
     (same rankings, same random seeds; matched sets are left out);
-  - the Gramian's top eigenvector, and its cosine with v1.
+  - the Gramian's top eigenvector, and its cosine with v1;
+  - absolute reachability: the three largest Gramian eigenvalues, the trace, and the trace outside v1,
+    tr_perp = tr W - v1^T W v1 = tr W - L_S / 2c (q1 is a share of the trace, so it cannot say whether a
+    concentrated set reaches the other patterns less well in absolute terms).
 
 In A0's eigenbasis the Gramian is G_S = K o (U_S^T U_S), and v1 is the last basis vector. So the
 cosine is the absolute last component of G_S's top eigenvector. One set is cross-checked against
 the full-space Gramian from hoc.control.
 
 Also, per node: strength s_i, v1(i), and the strength-weighted mean loading of its neighbours
-m_i = (A v1)_i / s_i. These satisfy v1(i) = s_i m_i / l1.
+m_i = (A v1)_i / s_i. These satisfy v1(i) = s_i m_i / l1. And average controllability at c = 0.1,
+    avg_ctrl(i) = sum_a v_a(i)^2 / (2 (c + l1 - l_a)),
+the trace of the single-node Gramian (the top_avg_ctrl criterion), with its leading-mode term
+avg_ctrl_v1(i) = v1(i)^2 / 2c, the most heavily weighted term because v1 decays most slowly.
 
 Outputs in <run>/mechanisms/:
-  gramian_alignment.csv     subject_id, scale, k, family, sample, cos_top_v1, q1, loading
-  node_v1_strength.csv      subject_id, scale, node_index, strength, v1, m
+  gramian_alignment.csv     subject_id, scale, k, family, sample, cos_top_v1, q1, loading, lam1, lam2, lam3, trace, tr_perp
+  node_v1_strength.csv      subject_id, scale, node_index, strength, v1, m, avg_ctrl, avg_ctrl_v1
   gramian_alignment_summary.md
 """
 
@@ -29,13 +35,13 @@ import numpy as np
 import pandas as pd
 from joblib import Parallel, delayed
 
-from hoc import config as hoc_config  # noqa: E402
-from hoc.analysis import concentration as q1mod  # noqa: E402
-from hoc.analysis.null_models import Spectral, load_stack, random_driver_sets  # noqa: E402
-from hoc.control import gramian_metrics  # noqa: E402
-from hoc.preprocessing import stabilize_adjacency  # noqa: E402
-from hoc.runs import stage_from_argv  # noqa: E402
-from hoc.utils import n_jobs  # noqa: E402
+from hoc import config as hoc_config
+from hoc.analysis import concentration as q1mod
+from hoc.analysis.null_models import Spectral, load_stack, random_driver_sets
+from hoc.control import gramian_metrics
+from hoc.preprocessing import stabilize_adjacency
+from hoc.runs import stage_from_argv
+from hoc.utils import n_jobs
 
 SCALES = hoc_config.scales()
 C = 0.1
@@ -54,15 +60,14 @@ def sets_for(spec: Spectral, A: np.ndarray, sid: str, si: int, scale: int, k: in
     mu = lam - spec.lam_max - C
     avg = (U**2) @ (1.0 / (-2.0 * mu))
     modal_ct = (U**2) @ (1.0 - np.exp(2.0 * mu * q1mod.TAU))
-    top = q1mod.top
     methods = sorted(m for (s, m) in orders if s == sid)
     out = [(m, -1, orders[(sid, m)][:k]) for m in methods]
     out += [
-        ("cycle_resid", -1, top(resid, k)),
-        ("top_avg_ctrl", -1, top(avg, k)),
-        ("top_modal_gu", -1, top(modal_gu, k)),
-        ("top_modal_ct", -1, top(modal_ct, k)),
-        ("low_perron", -1, top(spec.perron_sq, k, ascending=True)),
+        ("cycle_resid", -1, q1mod.top(resid, k)),
+        ("top_avg_ctrl", -1, q1mod.top(avg, k)),
+        ("top_modal_gu", -1, q1mod.top(modal_gu, k)),
+        ("top_modal_ct", -1, q1mod.top(modal_ct, k)),
+        ("low_perron", -1, q1mod.top(spec.perron_sq, k, ascending=True)),
     ]
     out += [("random", r, s) for r, s in enumerate(random_driver_sets("real", -1, scale, si, k))]
     return out
@@ -79,13 +84,20 @@ def job(scale: int, si: int, A: np.ndarray, orders: dict, scores: dict) -> tuple
         w, vec = np.linalg.eigh(stack)
         q1 = w[:, -1] / np.clip(w, 0, None).sum(axis=1)
         cos = np.abs(vec[:, -1, -1])  # last eigenvector's component on the last basis vector (v1)
+        trace = np.trace(stack, axis1=1, axis2=2)
+        tr_perp = trace - stack[:, -1, -1]  # v1^T W v1 is the (v1, v1) entry in this basis
         for j, (fam, r, s) in enumerate(sets):
             rows.append({"subject_id": sid, "scale": scale, "k": k, "family": fam, "sample": r,
-                         "cos_top_v1": float(cos[j]), "q1": float(q1[j]), "loading": float(spec.perron_sq[s].sum())})
+                         "cos_top_v1": float(cos[j]), "q1": float(q1[j]), "loading": float(spec.perron_sq[s].sum()),
+                         "lam1": float(w[j, -1]), "lam2": float(w[j, -2]), "lam3": float(w[j, -3]),
+                         "trace": float(trace[j]), "tr_perp": float(tr_perp[j])})
     s = A.sum(axis=1)
     v1 = spec.perron
     m = (A @ v1) / s
-    nodes = [{"subject_id": sid, "scale": scale, "node_index": i, "strength": float(s[i]), "v1": float(v1[i]), "m": float(m[i])}
+    avg = (spec.U**2) @ (1.0 / (-2.0 * (spec.lam - spec.lam_max - C)))  # as top_avg_ctrl in sets_for
+    avg_v1 = spec.perron_sq / (2.0 * C)
+    nodes = [{"subject_id": sid, "scale": scale, "node_index": i, "strength": float(s[i]), "v1": float(v1[i]), "m": float(m[i]),
+              "avg_ctrl": float(avg[i]), "avg_ctrl_v1": float(avg_v1[i])}
              for i in range(len(s))]
     return rows, nodes
 
@@ -113,6 +125,19 @@ def summarize(df: pd.DataFrame) -> str:
         d = df[(df.scale == scale) & df.family.isin(keep)]
         t = d.groupby(["family", "subject_id", "k"]).cos_top_v1.mean().groupby(["family", "k"]).mean().unstack("k")
         lines += [f"## {scale} regions (columns: k)", "", "```", t.round(3).to_string(), "```", ""]
+    lines += ["# Absolute reachability: hub-oriented / random", "",
+              "Per subject, the set's value over the mean of its 100 random sets; median over subjects (n = subjects with",
+              "ratio > 1 in brackets). lam2: second Gramian eigenvalue; nonlead = tr W - lam1 (everything except the most",
+              "reachable pattern); tr_perp = tr W - v1^T W v1 (everything outside v1).", ""]
+    d = df.assign(nonlead=df.trace - df.lam1)
+    cols = ["lam1", "lam2", "nonlead", "tr_perp", "trace"]
+    rand = d[d.family == "random"].groupby(["scale", "k", "subject_id"])[cols].mean()
+    for fam in ["degree_strength", "eigenvector_centrality", "top_avg_ctrl", "cycle_participation"]:
+        h = d[d.family == fam].set_index(["scale", "k", "subject_id"])[cols]
+        ratio = h / rand.loc[h.index]
+        g = ratio.groupby(["scale", "k"])
+        t = g.median().round(2).astype(str) + " (" + (ratio > 1).groupby(["scale", "k"]).sum().astype(str) + ")"
+        lines += [f"## {fam}", "", "```", t.to_string(), "```", ""]
     return "\n".join(lines)
 
 

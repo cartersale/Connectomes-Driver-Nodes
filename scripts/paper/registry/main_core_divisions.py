@@ -12,7 +12,8 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-from .record import Number  # noqa: E402
+from ._common import scale_siblings
+from .record import Number
 
 SCALES = (68, 114, 219)
 WORD = {1: "one", 2: "two", 3: "three", 4: "four", 5: "five", 6: "six", 7: "seven", 8: "eight", 9: "nine", 10: "ten"}
@@ -63,6 +64,7 @@ def rng_pair(prefix: str, vals: dict, fmt, source: str, locus, context: dict) ->
                tuple(locus), {**context, "end": "min"}),
         Number(prefix + "Max", float(vals[hi_k]), fmt(vals[hi_k]), source + f" | max over the set (at {hi_k})" + detail,
                tuple(locus), {**context, "end": "max"}),
+        *scale_siblings(prefix, list(vals.items()), fmt, source, locus, context),
     ]
 
 
@@ -70,7 +72,7 @@ def collect(run: Path) -> list[Number]:
     run = Path(run)
     out: list[Number] = []
 
-    # ------------------------------------------------------------------ paragraph 1: v2 and the v2-v3 subspace
+    # paragraph 1: v2 and the v2-v3 subspace
     # "The second eigenvector, v2, placed a median of 83--95% of its squared weight on the 20% of regions with the
     #  highest v1 loadings."
     ev = csv(run, "mechanisms/eigvec_subjects.csv")
@@ -85,7 +87,7 @@ def collect(run: Path) -> list[Number]:
                     "mechanisms/04_leading_eigenvectors: mechanisms/eigvec_subjects.csv | column l2_l3 (l2 - l3 of A0), "
                     "median over 70 subjects per scale", LOC_METHODS, {"stat": "median over subjects", "set": "3 scales"})
 
-    # ------------------------------------------------------------------ paragraph 2: projecting v1 out (Fig. 4B)
+    # paragraph 2: projecting v1 out (Fig. 4B)
     # "We assessed the contribution of v1 by removing it from each controllability Gramian and recalculating q1. This
     #  reduced the difference between degree-strength and cycle-participation sets by 52--69% for two to five drivers."
     p3 = csv(run, "concentration/q1_perp.csv")
@@ -106,7 +108,7 @@ def collect(run: Path) -> list[Number]:
                                  + "); text 'in all 70 subjects'"),
                       LOC, {"c": 0.1, "k": "2,3,5", "stat": "count of 70"}))
 
-    # ------------------------------------------------------------------ paragraph 3: decay rates and the gap
+    # paragraph 3: decay rates and the gap
     # "At c=0.1, v1 decayed approximately five to six times more slowly than v2" (decay rates at the median gap)
     ss = csv(run, "mechanisms/second_subspace_subjects.csv")
     gap = ss.groupby("scale").gap.median().to_dict()
@@ -120,39 +122,46 @@ def collect(run: Path) -> list[Number]:
                       LOC, {"c": 0.1, "end": "min"}))
     out.append(Number("MDecayRatioCTenthHigh", hi, WORD[round(hi)], src_r.format(c=0.1, vals=vals01) + "; max, spelled-out rounded integer",
                       LOC, {"c": 0.1, "end": "max"}))
+    out.append(Number("MDecayRatioCTenthOneFourteen", r01[114], WORD[round(r01[114])],
+                      src_r.format(c=0.1, vals=vals01) + "; scale 114, spelled-out rounded integer", LOC, {"c": 0.1, "scale": 114}))
+    r1 = {s: (1.0 + g) / 1.0 for s, g in gap.items()}
+    v = float(np.mean(list(r1.values())))
+    out.append(Number("MDecayRatioCOne", v, fx(v, 1),
+                      src_r.format(c=1, vals=", ".join(f"{s}: {x:.2f}" for s, x in r1.items()))
+                      + "; text gives one approximate value: mean over scales, 1 decimal (per-scale 1.43-1.53)",
+                      LOC, {"c": 1.0, "stat": "mean over scales"}))
 
-    # ------------------------------------------------------------------ paragraph 4: damping sweep (Fig. 4C)
-    # "The excess q1 of degree-strength sets over random sets was greatest under weaker damping, reaching 0.35--0.40
-    #  near c=0.01, compared with 0.21--0.25 at c=0.1"; "the excess declined to 0.30--0.38 at c=0.003 and 0.03--0.06
-    #  at c=1"
+    # paragraph 4: damping sweep (Fig. 4C)
+    # "The excess q1 of degree-strength sets over random sets (averaged over two to five drivers) was greatest under
+    #  weaker damping, reaching 0.49 at c=0.01, compared with 0.37 at c=0.1"; "... and 0.10 at c=1"
     def dr(s, c):
-        return one(p1, family="degree_strength", scale=s, c=c, k="avg", metric="q1")
+        return one(p1, family="degree_strength", scale=s, c=c, k="avg2+", metric="q1")
 
     src_dr = ("concentration/02_tables: concentration/q1_vs_random.csv | family == 'degree_strength', metric == 'q1', k == 'avg' "
-              "(mean over k in 1,2,3,5 of criterion q1 minus the subject's random mean), c == {c}; column 'mean' (over 70 "
+              "(k == 'avg2+': mean over k in 2,3,5 of criterion q1 minus the subject's random mean), c == {c}; column 'mean' (over 70 "
               "subjects). Matches decay_curves.csv.gz dr_q1 means plotted in Fig. 4C")
-    for c, tag in ((0.1, "Tenth"), (1.0, "One")):
+    for c, tag in ((0.01, "Hundredth"), (0.1, "Tenth"), (1.0, "One")):
         out += rng_pair(f"MDegExcessQOneC{tag}", {s: dr(s, c)["mean"] for s in SCALES}, fx, src_dr.format(c=c),
-                        LOC, {"c": c, "k": "1,2,3,5", "comparison": "degree vs random mean", "set": "3 scales"})
-    # The low-damping end of the Fig. 4C curves (25 values of c from 10^-2.5 to 10^0.5)
+                        LOC, {"c": c, "k": "2,3,5", "comparison": "degree vs random mean", "set": "3 scales"})
+    # "... and 0.04--0.16 at c=10^{-5}" (below the q1_vs_random grid: from the decay curves, k in {2,3,5})
     dc = csv(run, "concentration/decay_curves.csv.gz")
-    curve = dc.groupby(["scale", "c"]).dr_q1.mean()
-    src_dc = ("concentration/03_decay_collapse: concentration/decay_curves.csv.gz | column dr_q1 (degree-strength q1 minus "
-              "the subject's random mean, mean over k in 1,2,3,5), mean over 70 subjects per scale and c (the Fig. 4C "
-              "line); {}")
-    peak = curve.groupby("scale").max().to_dict()
-    at_peak = {s: float(curve.loc[s].idxmax()) for s in SCALES}
-    out += rng_pair("MDegExcessQOnePeak", peak, fx,
-                    src_dc.format("maximum over c of the cohort-mean curve, per scale (at c = "
-                                  + ", ".join(f"{s}: {c:.4f}" for s, c in at_peak.items()) + ")"),
-                    LOC, {"c": "curve maximum", "k": "1,2,3,5", "comparison": "degree vs random mean", "set": "3 scales"})
-    c_low = float(dc.c.min())
-    assert np.isclose(c_low, 10 ** -2.5)
-    out += rng_pair("MDegExcessQOneLowestC", curve.xs(c_low, level="c").to_dict(), fx,
-                    src_dc.format("c == 10^-2.5 (the smallest c of the grid, printed 0.003)"),
-                    LOC, {"c": c_low, "k": "1,2,3,5", "comparison": "degree vs random mean", "set": "3 scales"})
+    tiny = dc[np.isclose(dc.c, 1e-5)].groupby("scale").dr_q1.mean()
+    out += rng_pair("MDegExcessQOneCTiny", tiny.to_dict(), fx,
+                    "concentration/03_decay_collapse: concentration/decay_curves.csv.gz | c == 1e-5, column dr_q1 (mean over "
+                    "k in 2,3,5 of degree q1 minus the subject's random mean); mean over 70 subjects",
+                    LOC, {"c": 1e-5, "k": "2,3,5", "comparison": "degree vs random mean", "set": "3 scales"})
+    # "With a single driver, the excess was negative at c = 0.1 (-0.08)"
+    out += rng_pair("MDegExcessQOneSingleCTenth",
+                    {s: one(p1, family="degree_strength", scale=s, c=0.1, k="1", metric="q1")["mean"] for s in SCALES}, fx,
+                    "concentration/02_tables: concentration/q1_vs_random.csv | family == 'degree_strength', metric == 'q1', "
+                    "k == '1', c == 0.1; column 'mean' (degree q1 minus the subject's random mean, over 70 subjects)",
+                    LOC, {"c": 0.1, "k": 1, "comparison": "degree vs random mean", "set": "3 scales"})
+    # "Degree-strength sets nevertheless exceeded the random mean in 62--70 of 70 subjects at c=1."
+    out += rng_pair("MDegExcessQOneCOneNPos", {s: dr(s, 1.0)["n_positive"] for s in SCALES}, cnt,
+                    src_dr.format(c=1.0).replace("column 'mean' (over 70 subjects)", "column n_positive"),
+                    LOC, {"c": 1.0, "k": "2,3,5", "stat": "count of 70", "set": "3 scales"})
 
-    # ------------------------------------------------------------------ paragraph 5: gap vs excess across subjects (Fig. 4D)
+    # paragraph 5: gap vs excess across subjects (Fig. 4D)
     # "Subjects with larger gaps showed greater excess q1 ... (Spearman rho=0.53--0.67 across scales; Fig. 4D)"
     gc = csv(run, "concentration/decay_gap_correlations.csv")
     out += rng_pair("MGapRhoDegExcess", {s: one(gc, scale=s, c=0.1, curve="dr_q1").rho_gap for s in SCALES}, fx,
@@ -174,25 +183,20 @@ def collect(run: Path) -> list[Number]:
 
 # Tokens as printed in the manuscript.
 PRINTED = {
-    "MVTwoOnCorePctMin": "83",
-    "MVTwoOnCorePctMax": "95",
     "MLTwoLThreeMedianMin": "0.15",
     "MLTwoLThreeMedianMax": "0.18",
-    "MPerpFractionRemovedQOneKTwoPlusPctMin": "52",
-    "MPerpFractionRemovedQOneKTwoPlusPctMax": "69",
     "MPerpDegreeExcessNPositive": "70",
     "MDecayRatioCTenthLow": "five",
     "MDecayRatioCTenthHigh": "six",
-    "MDegExcessQOnePeakMin": "0.35",
-    "MDegExcessQOnePeakMax": "0.40",
-    "MDegExcessQOneCTenthMin": "0.21",
-    "MDegExcessQOneCTenthMax": "0.25",
-    "MDegExcessQOneLowestCMin": "0.30",
-    "MDegExcessQOneLowestCMax": "0.38",
-    "MDegExcessQOneCOneMin": "0.03",
-    "MDegExcessQOneCOneMax": "0.06",
-    "MGapRhoDegExcessMin": "0.53",
-    "MGapRhoDegExcessMax": "0.67",
-    "MGapPartialRhoDegExcessMin": "0.54",
-    "MGapPartialRhoDegExcessMax": "0.82",
+    # 114-region values quoted in the Results (ranges over scales: Supplementary Table C_scales)
+    "MVTwoOnCorePctOneFourteen": "89",
+    "MPerpFractionRemovedQOneKTwoPlusPctOneFourteen": "68",
+    "MDegExcessQOneCHundredthOneFourteen": "0.49",
+    "MDegExcessQOneCTenthOneFourteen": "0.37",
+    "MDegExcessQOneCOneOneFourteen": "0.10",
+    "MDegExcessQOneCTinyOneFourteen": "0.08",
+    "MDegExcessQOneSingleCTenthOneFourteen": "-0.08",
+    "MGapRhoDegExcessOneFourteen": "0.72",
+    "MGapPartialRhoDegExcessOneFourteen": "0.85",
+    "MDecayRatioCTenthOneFourteen": "six",
 }

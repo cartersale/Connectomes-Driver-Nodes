@@ -8,7 +8,9 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from common import SCALES, Table, np, npos, num, pd, ptex, tabular
+import numpy as np
+import pandas as pd
+from common import SCALES, Table, npos, num, ptex, tabular
 
 
 def eps_tex(e):
@@ -24,7 +26,7 @@ def build(res: Path) -> list[Table]:
     Q1 = res / "concentration"
     parts = []
 
-    # ---------------- S5a: finite horizon ----------------
+    # S5a: finite horizon
     fh = pd.read_csv(REG / "finite_horizon_summary.csv")
     rows = []
     for c in (0.01, 0.1, 1.0):
@@ -59,7 +61,7 @@ Check: at c = 1, T >= 2.5 is within {t_dev:.3f} of the infinite-horizon result f
 {slash(er_inf(1e-8))} at eps = 1e-8)."""
     parts.append(Table("S5_1", tab, note))
 
-    # ---------------- S5b1: c sweep ER / PR ----------------
+    # S5b1: c sweep ER / PR
     cd = pd.read_csv(REG / "csweep_cycle_minus_degree.csv")
     vr = pd.read_csv(REG / "csweep_vs_random.csv")
     vr = vr[vr.method == "degree_strength"]
@@ -97,7 +99,7 @@ q1 is NOT in these files; it is in S5b(ii) from a different c grid."""
     parts.append(Table("S5_2", tab1, note))
     parts.append(Table("S5_3", tab2, "Same source/filters as S5b(i); second half of the table."))
 
-    # ---------------- S5b2: c sweep q1 (decay curves) ----------------
+    # S5b2: c sweep q1 (decay curves)
     dc = pd.read_csv(Q1 / "decay_curves.csv.gz")
     rows = []
     for c in sorted(dc.c.unique()):
@@ -119,7 +121,7 @@ saved for this grid). PR is not saved on this grid. The ER column reproduces S5b
 For q1, 'positive' means cycle MORE concentrated than degree (cd_q1) or degree MORE concentrated than random (dr_q1)."""
     parts.append(Table("S5_4", tab, note))
 
-    # ---------------- S5c: sign-flip points ----------------
+    # S5c: sign-flip points
     sf = pd.read_csv(REG / "csweep_signflip.csv")
     rows = []
     for metric in ("effective_rank", "participation_ratio"):
@@ -139,7 +141,7 @@ negative difference. '--' (PR, {' and '.join(map(str, pr_none))}): no sign chang
     parts.append(Table("S5_5", tab, note))
 
 
-    # ---------------- S5d: decay collapse ----------------
+    # S5d: decay collapse
     col = pd.read_csv(Q1 / "decay_collapse.csv")
     rows = []
     for _, x in col.iterrows():
@@ -159,7 +161,7 @@ Matched windows, D on c -> D on d: cycle-degree q1 {mw['cd_q1']}; ER {mw['cd_er'
 On the full c range D is {Dv[('c', 'cd_q1')]:.3f} / {Dv[('c', 'cd_er')]:.3f} / {Dv[('c', 'dr_q1')]:.3f} (degree-random q1 on c vs d: {Dv[('c', 'dr_q1')]:.3f} vs {Dv[('decay_ratio', 'dr_q1')]:.3f})."""
     parts.append(Table("S5_8", tab, note))
 
-    # ---------------- S5e: gap correlations ----------------
+    # S5e: gap correlations
     gc = pd.read_csv(Q1 / "decay_gap_correlations.csv")
     pc = pd.read_csv(Q1 / "decay_gap_partial_correlations.csv")
     cvals = sorted(gc.c.unique())
@@ -196,7 +198,7 @@ Sign convention: dr_q1 positive = degree more concentrated than random; cd_q1 ne
 negative rho for cd_q1 means 'larger gap -> larger cycle-degree separation'."""
     parts.append(Table("S5_9", tab, note))
 
-    # ---------------- S5f: large k at c = 0.1 ----------------
+    # S5f: large k at c = 0.1
     lk = pd.read_csv(REG / "large_k_summary.csv")
     rows = []
     large = {}
@@ -222,7 +224,7 @@ Source: <run>/sensitivity/large_k_summary.csv (filter c == 0.1; eps = 1e-5; T = 
 plus a common k = 10 ({sizes}) as saved. q1 is not computed for large k in any saved file."""
     parts.append(Table("S5_10", tab, note))
 
-    # ---------------- S5g: nctpy equivalence ----------------
+    # S5g: nctpy equivalence
     nc = pd.read_csv(REG / "nctpy_cohort_summary.csv")
     det = pd.read_csv(REG / "nctpy_equivalence_detail.csv")
     rows = []

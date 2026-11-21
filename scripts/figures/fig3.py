@@ -24,8 +24,8 @@ import numpy as np
 import pandas as pd
 from scipy import stats
 
-from hoc import figstyle as fs  # noqa: E402
-from hoc.runs import stage_from_argv  # noqa: E402
+from hoc import figstyle as fs
+from hoc.runs import stage_from_argv
 
 SCALE, K = 114, 3
 ROWS = list(fs.CRITERION_ROWS)  # sorted by mean loading in main()

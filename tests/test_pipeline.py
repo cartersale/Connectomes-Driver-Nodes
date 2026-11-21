@@ -11,7 +11,7 @@ import pytest
 from hoc.paths import REPO_ROOT
 
 sys.path.insert(0, str(REPO_ROOT / "scripts"))
-import reproduce  # noqa: E402
+import reproduce
 
 STEPS = reproduce.STEPS
 

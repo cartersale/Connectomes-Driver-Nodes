@@ -26,9 +26,7 @@ def single_node_gramians(
 
     exp_at = matrix_exponential(system_matrix, horizon)
     finite_gramians = np.zeros_like(infinite_gramians)
-    # W_T = W_inf - e^{AT} W_inf e^{AT}^T. Plain matrix products: the former
-    # three-operand einsum was O(n^4) per node (hours per subject at scale 219)
-    # and agrees with this to ~1e-14 absolute.
+    # W_T = W_inf - e^{AT} W_inf e^{AT}^T
     for node_index in range(n_nodes):
         # Apple Accelerate raises spurious FP flags in matmul; check the result instead.
         with np.errstate(all="ignore"):
@@ -54,7 +52,6 @@ def assemble_gramian(
     node_indices: np.ndarray,
     node_weights: np.ndarray | None = None,
 ) -> np.ndarray:
-    """Assemble a set Gramian from single-node Gramians."""
     node_indices = np.asarray(node_indices, dtype=int)
     if node_weights is None:
         weights = np.ones(node_indices.shape[0], dtype=float)
@@ -132,7 +129,11 @@ def target_energy(gramian: np.ndarray, target: np.ndarray, epsilon: float) -> fl
 
 
 def subspace_overlap(basis_a: np.ndarray, basis_b: np.ndarray) -> float:
-    """Compare two bottom-eigenspace projectors."""
+    """sqrt(tr(P_a P_b) / k_a) = ||A^T B||_F / sqrt(k_a), with k_a the number of columns of basis_a.
+
+    For orthonormal columns this is the RMS cosine of the principal angles (counted over k_a):
+    1 for identical subspaces of equal dimension, 0 for orthogonal ones.
+    """
     cross_gram = basis_a.T @ basis_b
     numerator = np.linalg.norm(cross_gram, ord="fro")
     return float(numerator / np.sqrt(basis_a.shape[1]))

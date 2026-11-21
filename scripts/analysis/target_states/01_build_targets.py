@@ -25,7 +25,7 @@ ctx = C.start_stage(__file__, ["primary/00_prepare_data"])
 
 warnings.filterwarnings("ignore", category=RuntimeWarning)
 
-# ---------------------------------------------------------------- gradient orientation (vertex level, mask independent)
+# gradient orientation (vertex level, mask independent)
 yeo_v = {h: nib.freesurfer.read_annot(str(C.YEO_DIR / f"{'lh' if h == 'L' else 'rh'}.Yeo2011_7Networks_N1000.annot"))[0] for h in ("L", "R")}
 orient_rows = []
 for g in (1, 2):
@@ -116,6 +116,7 @@ for scale in C.SCALES:
     for name, vec in T.items():
         if fam[name] == "single_cortical_parcel":
             continue
+        # gradient targets: list sign split rather than "support" (all parcels)
         pos = np.flatnonzero(vec > 1e-12)
         neg = np.flatnonzero(vec < -1e-12)
         mask_rows.append(
@@ -128,7 +129,6 @@ for scale in C.SCALES:
 
 pd.concat(assign_all).to_csv(C.OUT / "parcel_network_assignment.csv", index=False)
 masks = pd.DataFrame(mask_rows)
-# gradient targets: list sign split rather than "support" (all parcels)
 masks.to_csv(C.OUT / "target_mask_parcels.csv", index=False)
 pd.DataFrame(catalog).to_csv(C.OUT / "target_catalog.csv", index=False)
 

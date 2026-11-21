@@ -22,7 +22,7 @@ from hoc.paths import REPO_ROOT
 from hoc.runs import resolve_run_dir
 
 sys.path.insert(0, str(REPO_ROOT / "scripts" / "paper"))
-import validate  # noqa: E402
+import validate
 
 
 @pytest.mark.data

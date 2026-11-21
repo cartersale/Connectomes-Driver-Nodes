@@ -7,7 +7,9 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from common import SCALES, Table, np, pd
+import numpy as np
+import pandas as pd
+from common import SCALES, Table
 
 S = list(SCALES)
 C = [0.01, 0.1, 1.0]
@@ -61,7 +63,7 @@ def build(res: Path) -> list[Table]:
     def add(label, caption, colspec, header, rows, note, detail, size="\\scriptsize"):
         tables.append(Table(IDS[label], tab(colspec, header, rows), notes(label, caption, note, size, detail)))
 
-    # --- S7.1 node-level correspondence
+    # S7.1 node-level correspondence
     n_all = pd.read_csv(M / "node_level_correlations.csv")
     n = n_all[n_all.c == 0.1]
     nm = {"modal_gu": "Modal ctrl.\\ (Gu)", "modal_ct": "Modal ctrl.\\ (cont.-time)", "avg_ctrl": "Average ctrl.",
@@ -91,7 +93,7 @@ def build(res: Path) -> list[Table]:
   Modal (Gu and continuous-time) and v1^2 are c-independent (the file repeats them at every c). Average controllability varies with c.
   Key: modal_gu vs strength -0.94 / -0.92 / -0.93 (0/70). avg_ctrl vs strength 0.94 / 0.94 / 0.93 (70/70).""")
 
-    # --- S7.2 within-subject over random sets
+    # S7.2 within-subject over random sets
     w = pd.read_csv(M / "within_subject_summary.csv")
     preds = [("rho_q1_perron_loading", "$\\rho(L_S,q_1)$"), ("rho_q1_avg_ctrl", "$\\rho(\\overline{\\mathrm{AC}}_S,q_1)$"),
              ("rho_q1_modal_gu", "$\\rho(\\overline{\\mathrm{MC}}_S,q_1)$"), ("rho_q1_q1_G", "$\\rho(q_1(G_S),q_1)$"),
@@ -127,7 +129,7 @@ def build(res: Path) -> list[Table]:
     (0.23 / 0.19 / 0.12; 0.47 / 0.40 / 0.27). At k = 5: 0.31 / 0.29 / 0.25 and 0.56 / 0.54 / 0.45.""",
         size="\\tiny")
 
-    # --- S7.3 driver-Gram proxy (pooled)
+    # S7.3 driver-Gram proxy (pooled)
     g = pd.read_csv(M / "driver_gram_proxy.csv")
     rows = []
     for c in C:
@@ -152,7 +154,7 @@ def build(res: Path) -> list[Table]:
   Both gaps are >= 0 in every cell, consistent with the bounds pi_S <= q1 <= q1(G_S).
   NOTE: these are medians, not proofs. The bound holds per set per the derivation, but this table doesn't check per-set violations.""")
 
-    # --- S7.4 communicability vs geodesic
+    # S7.4 communicability vs geodesic
     rd = pd.read_csv(Q1 / "redundancy_summary.csv")
     rows = []
     for c in C:
@@ -183,7 +185,7 @@ def build(res: Path) -> list[Table]:
   At c = 1 the geodesic partial rho is -0.16 to -0.20 for 1/w and -0.24 to -0.30 for -log w.
   The c = 0.01 n-better values are 56 / 38 / 40.""")
 
-    # --- S7.5 modal sets vs cycle sets
+    # S7.5 modal sets vs cycle sets
     o = pd.read_csv(M / "set_overlap.csv")
     o = o[o.c == 0.1]
     cf = pd.read_csv(M / "cycle_vs_counterfactual.csv")
@@ -216,7 +218,7 @@ def build(res: Path) -> list[Table]:
   top_avg_ctrl vs eigenvector Jaccard = 0.88–0.98 at c = 0.1 (0.89–0.96 at k = 3).""",
         size="\\tiny")
 
-    # --- S7.7 coverage
+    # S7.7 coverage
     cb = pd.read_csv(MECH / "coverage_by_criterion.csv")
     cb = cb[cb.kgrp == "2+"]
     fams = [("betweenness", "Betweenness"), ("degree_strength", "Degree/strength"), ("cycle_participation", "Cycle participation"),
@@ -238,7 +240,7 @@ def build(res: Path) -> list[Table]:
   Key values (betweenness -3.9 / -4.0 / -5.3, 70/70; degree -2.2 / -2.6 / -3.9; cycle -1.9 / -2.2 / -2.6, 60–65/70; modal +21 to +26, 0/70).
   The modal pct_inv values are 1.00 / 0.999 / 0.998.""")
 
-    # --- S7.8 coverage rho (computed from per-subject rows)
+    # S7.8 coverage rho (computed from per-subject rows)
     cr = pd.read_csv(MECH / "coverage_rho.csv")
     rk_ = cr[cr.k > 1].groupby(["scale", "subject_id", "c"]).mean(numeric_only=True).reset_index()
     rows = []
@@ -264,7 +266,7 @@ def build(res: Path) -> list[Table]:
   This mirrors the aggregation in 03_coverage_distance.py.
   Raw 1/w: -0.08 to -0.45. Partial | L_S (1/w): +0.07 to +0.23.""")
 
-    # --- S7.9 hub loading
+    # S7.9 hub loading
     hl = pd.read_csv(MECH / "hub_loading_summary.csv")
     stats = [("cos_s_v1", "$\\cos(s,v_1)$"), ("cos_As_v1", "$\\cos(As,v_1)$"), ("rho_logs_logm", "$\\rho(s_i,m_i)$"),
              ("jac_top5", "Top-5 Jaccard ($s$ vs $v_1$)"), ("L_deg_5", "$L_S$, top-5 strength"),

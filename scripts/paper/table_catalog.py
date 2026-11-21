@@ -22,7 +22,7 @@ GROUPS: list[tuple[str, str, bool, list[tuple[str, str, str]]]] = [
         ('horizon', 'S5_1',
          'Cycle-minus-degree differences in effective rank and participation ratio for finite-horizon and infinite-horizon Gramians. Entries are mean paired differences ($k$-averaged), with the number of subjects (of 70) with a positive difference.'),
         ('csweep_q1', 'S5_4',
-         'Sweep of the stabilization margin for $q_1$ (25 log-spaced values of $c$; $k$-averaged). Entries are means over 70 subjects with the number of subjects with a positive difference in parentheses. A positive cycle-minus-degree $q_1$ means cycle-participation sets are more concentrated; a positive degree-minus-random $q_1$ means degree-strength sets are more concentrated than random sets. The last three columns give the cycle-minus-degree difference in effective rank.'),
+         'Sweep of the stabilization margin for $q_1$ (45 log-spaced values of $c$ from $10^{-5}$ to $10^{0.5}$; averaged over $k = 2$, 3, 5). Entries are means over 70 subjects with the number of subjects with a positive difference in parentheses. A positive cycle-minus-degree $q_1$ means cycle-participation sets are more concentrated; a positive degree-minus-random $q_1$ means degree-strength sets are more concentrated than random sets. The last three columns give the cycle-minus-degree difference in effective rank.'),
         ('csweep_er', 'S5_2',
          'Cycle-minus-degree differences in effective rank and participation ratio for the 13 values of $c$ used in the main analyses ($\\epsilon = 10^{-5}$, $k$-averaged). Entries are mean paired differences with the number of subjects with a positive difference in parentheses.'),
         ('csweep_er_rand', 'S5_3',
@@ -56,7 +56,7 @@ GROUPS: list[tuple[str, str, bool, list[tuple[str, str, str]]]] = [
     ]),
     ('S4', 'Structural eigenmodes and hub concentration', True, [
         ('gapcorr', 'S5_9',
-         'Across-subject Spearman correlations between the spectral gap and the size of the effect at six values of $c$, raw (with $p$) and partial, controlling for mean strength or for mean strength, edge density, and the coefficient of variation of strength. Degree-minus-random $q_1$: positive means degree-strength sets are more concentrated than random. Cycle-minus-degree $q_1$: a negative $\\rho$ means a larger gap goes with a larger separation.'),
+         'Across-subject Spearman correlations between the spectral gap and the size of the effect (averaged over $k = 2$, 3, 5) at six values of $c$, raw (with $p$) and partial, controlling for mean strength or for mean strength, edge density, and the coefficient of variation of strength. Degree-minus-random $q_1$: positive means degree-strength sets are more concentrated than random. Cycle-minus-degree $q_1$: a negative $\\rho$ means a larger gap goes with a larger separation.'),
         ('canonical', 'S_canonical',
          'Hub concentration in weighted model networks of matched density and in the human connectomes ($c = 0.1$). Gap: mean spectral gap. Remaining columns: excess $q_1$ of degree-strength sets over random sets, with the mean percentile among random sets in parentheses, for single drivers ($k = 1$) and for $k = 2$ to 5. Model networks (50 per model and scale) received edge weights drawn from the pooled empirical weights.'),
     ]),
@@ -86,7 +86,7 @@ GROUPS: list[tuple[str, str, bool, list[tuple[str, str, str]]]] = [
     ]),
     ('decay', 'Decay-ratio collapse', False, [
         ('collapse', 'S5_8',
-         'Decay-ratio collapse. $D$ is the between-scale variance of the three scale-mean curves divided by the total variance across subjects, averaged over the grid (smaller values mean a tighter collapse), on the full range of each axis and on matched windows.'),
+         'Decay-ratio collapse (curves averaged over $k = 2$, 3, 5). $D$ is the between-scale variance of the three scale-mean curves divided by the total variance across subjects, averaged over the grid (smaller values mean a tighter collapse), on the full range of each axis and on matched windows.'),
     ]),
     ('gradients', 'Rank divergence and resting-state networks', False, [
         ('rankdiv', 'S10_10',

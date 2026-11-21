@@ -42,8 +42,8 @@ import numpy as np
 import pandas as pd
 from scipy import stats
 
-from hoc.analysis.null_models import SCALES, load_stack  # noqa: E402
-from hoc.runs import stage_from_argv  # noqa: E402
+from hoc.analysis.null_models import SCALES, load_stack
+from hoc.runs import stage_from_argv
 
 CORE_FRAC = 0.20
 SUBJECT_MEASURES = [

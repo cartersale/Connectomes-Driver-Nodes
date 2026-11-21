@@ -10,8 +10,7 @@ import numpy as np
 import pandas as pd
 from scipy.stats import rankdata, spearmanr
 
-from hoc.analysis import sensitivity as regime_common  # noqa: E402,F401  (puts src/ on sys.path)
-from hoc.runs import stage_from_argv  # noqa: E402
+from hoc.runs import stage_from_argv
 
 ctx = stage_from_argv("modal_controllability/02_analyze_modal")
 ctx.require_stage("primary/01_primary_analysis")
@@ -51,7 +50,7 @@ def summ(v):
     return {"mean": v.mean(), "median": np.median(v), "n_pos": int((v > 0).sum()), "n": v.size}
 
 
-# ---------- A/C/D: within-subject over the 100 random sets ----------
+# A/C/D: within-subject over the 100 random sets
 rows = []
 rnd = d[d.family == "random"]
 for (scale, k, c, sid), g in rnd.groupby(["scale", "k", "c", "subject_id"]):
@@ -87,7 +86,7 @@ long = ws.melt(id_vars=["scale", "k", "c", "subject_id"])
 summary = long.groupby(["variable", "scale", "k", "c"])["value"].apply(lambda v: pd.Series(summ(v))).unstack().reset_index()
 summary.to_csv(OUT / "within_subject_summary.csv", index=False)
 
-# ---------- B: pooled Spearman across all sets (random + ranked + counterfactual) ----------
+# B: pooled Spearman across all sets (random + ranked + counterfactual)
 prow = []
 for (scale, k, c), g in d.groupby(["scale", "k", "c"]):
     for t in TARGETS:
@@ -98,7 +97,7 @@ for (scale, k, c), g in d.groupby(["scale", "k", "c"]):
 pooled = pd.DataFrame(prow)
 pooled.to_csv(OUT / "pooled_spearman.csv", index=False)
 
-# ---------- E: counterfactual / ranked sets vs the subject's 100 random sets ----------
+# E: counterfactual / ranked sets vs the subject's 100 random sets
 crow = []
 fams = [f for f in d.family.unique() if f != "random"]
 for (scale, k, c, sid), g in d.groupby(["scale", "k", "c", "subject_id"]):
@@ -128,7 +127,7 @@ for (scale, k, c), g in cf.groupby(["scale", "k", "c"]):
                        **summ(a[f"{t}_diff"] - b[f"{t}_diff"])})
 pd.DataFrame(pr).to_csv(OUT / "cycle_vs_counterfactual.csv", index=False)
 
-# ---------- F: node-level correspondence of modal/avg controllability with the rankings ----------
+# F: node-level correspondence of modal/avg controllability with the rankings
 nd = pd.read_csv(OUT / "node_level_modal.csv.gz")
 ns = pd.read_csv(ctx.root / "primary" / "node_scores.csv", usecols=["subject_id", "scale", "node_index", "method", "score"])
 ns = ns.pivot_table(index=["subject_id", "scale", "node_index"], columns="method", values="score").reset_index()
@@ -152,7 +151,7 @@ for (scale, k, c, sid), g in d[d.family != "random"].groupby(["scale", "k", "c",
             orow.append({"scale": scale, "k": k, "c": c, "a": a, "b": b, "jaccard": len(sets[a] & sets[b]) / len(sets[a] | sets[b])})
 pd.DataFrame(orow).groupby(["a", "b", "scale", "k", "c"]).jaccard.mean().reset_index().to_csv(OUT / "set_overlap.csv", index=False)
 
-# ---------- G: k x k driver Gram G as proxy for W's leading spectrum ----------
+# G: k x k driver Gram G as proxy for W's leading spectrum
 grow = []
 for (scale, k, c), g in d.groupby(["scale", "k", "c"]):
     grow.append({"scale": scale, "k": k, "c": c,
@@ -165,7 +164,7 @@ for (scale, k, c), g in d.groupby(["scale", "k", "c"]):
                  "rho_pshare_q1": spearmanr(g.perron_share, g.q1)[0]})
 pd.DataFrame(grow).to_csv(OUT / "driver_gram_proxy.csv", index=False)
 
-# ---------- H: out-of-sample prediction of ranked sets from models fit on the 100 random sets ----------
+# H: out-of-sample prediction of ranked sets from models fit on the 100 random sets
 MODELS = {"node3": NODE, "node3+redGperp": NODE + ["red_G_perp"], "q1G": ["q1_G"], "pshare": ["perron_share"]}
 hrow = []
 for (scale, k, c, sid), g in d.groupby(["scale", "k", "c", "subject_id"]):
@@ -199,7 +198,7 @@ for (scale, k, c, t, m), g in h.groupby(["scale", "k", "c", "target", "model"]):
 pd.DataFrame(hs).to_csv(OUT / "ranked_set_prediction_summary.csv", index=False)
 print("done")
 
-# ---------- I: across subjects, does the cycle - degree contrast track node-level or pairwise differences? ----------
+# I: across subjects, does the cycle - degree contrast track node-level or pairwise differences?
 rows = []
 for (scale, k, c), g in d[d.family.isin(["cycle_participation", "degree_strength"])].groupby(["scale", "k", "c"]):
     a = g[g.family == "cycle_participation"].set_index("subject_id")
