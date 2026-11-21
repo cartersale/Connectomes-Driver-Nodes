@@ -101,6 +101,43 @@ def style(ax, grid: bool = False) -> None:
         ax.set_axisbelow(True)
 
 
+def strips(ax, groups: list, width: float = 0.66, ms: float = 4.5, dot: float = 2.5, stat=np.mean, ylim=None) -> None:
+    """groups: list (per condition) of (dict scale -> per-subject values, colour, marker). x = scale index."""
+    rng = np.random.default_rng(1)
+    n = len(groups)
+    off = (np.arange(n) - (n - 1) / 2) * width / n
+    for g, grp in enumerate(groups):
+        vals, color, marker = grp[:3]
+        hollow = len(grp) > 3 and grp[3]
+        for i, sc in enumerate(SCALES):
+            v = np.asarray(vals[sc])
+            x = i + off[g]
+            color = SCALE_COLORS[sc] if grp[1] == "scale" else grp[1]
+            if ylim is not None:  # points beyond the axis are drawn at its edge
+                v_show = np.clip(v, ylim[0], ylim[1])
+            else:
+                v_show = v
+            if hollow:
+                ax.scatter(x + rng.uniform(-0.035, 0.035, len(v)), v_show, s=dot * 1.6, facecolor="none", edgecolor=color,
+                           alpha=0.5, lw=0.4, marker=marker, rasterized=True)
+                ax.plot(x, stat(v), marker, ms=ms, mfc="white", mec=color, mew=0.9, zorder=5)
+            else:
+                ax.scatter(x + rng.uniform(-0.035, 0.035, len(v)), v_show, s=dot, color=color, alpha=0.45, lw=0,
+                           marker=marker, rasterized=True)
+                ax.plot(x, stat(v), marker, ms=ms, color=color, mec="white" if color != "#cfcec9" else MUTED,
+                        mew=0.6, zorder=5)
+    ax.set_xticks(range(len(SCALES)), [str(s) for s in SCALES])
+    ax.set_xlim(-0.5, len(SCALES) - 0.5)
+    ax.tick_params(axis="x", length=0)
+    style(ax)
+
+
+def handles(items, ms=4):
+    items = [(l, SCALE_COLORS[114] if c == "scale" else c, m) for l, c, m in items]
+    return [mpl.lines.Line2D([], [], ls="", marker=m, ms=ms, color=c, mec="white" if c != "#cfcec9" else MUTED,
+                             mew=0.5, label=l) for l, c, m in items]
+
+
 def panel_label(ax, letter: str, title: str = "", x: float = -0.02, y: float = 1.0) -> None:
     """Bold panel letter at the top left, with an optional short title after it."""
     ax.text(x, y, letter, transform=ax.transAxes, ha="right", va="bottom", fontsize=9, fontweight="bold", color=INK)

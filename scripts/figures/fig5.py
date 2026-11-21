@@ -17,7 +17,6 @@ from __future__ import annotations
 
 import matplotlib as mpl
 import matplotlib.pyplot as plt
-import numpy as np
 import pandas as pd
 from scipy import stats
 
@@ -37,52 +36,15 @@ Q1 = {  # condition: (label, colour)
 }
 
 
-def strips(ax, groups: list, width: float = 0.66, ms: float = 4.5, dot: float = 2.5, stat=np.mean, ylim=None) -> None:
-    """groups: list (per condition) of (dict scale -> per-subject values, colour, marker). x = scale index."""
-    rng = np.random.default_rng(1)
-    n = len(groups)
-    off = (np.arange(n) - (n - 1) / 2) * width / n
-    for g, grp in enumerate(groups):
-        vals, color, marker = grp[:3]
-        hollow = len(grp) > 3 and grp[3]
-        for i, sc in enumerate(fs.SCALES):
-            v = np.asarray(vals[sc])
-            x = i + off[g]
-            color = fs.SCALE_COLORS[sc] if grp[1] == "scale" else grp[1]
-            if ylim is not None:  # points beyond the axis are drawn at its edge
-                v_show = np.clip(v, ylim[0], ylim[1])
-            else:
-                v_show = v
-            if hollow:
-                ax.scatter(x + rng.uniform(-0.035, 0.035, len(v)), v_show, s=dot * 1.6, facecolor="none", edgecolor=color,
-                           alpha=0.5, lw=0.4, marker=marker, rasterized=True)
-                ax.plot(x, stat(v), marker, ms=ms, mfc="white", mec=color, mew=0.9, zorder=5)
-            else:
-                ax.scatter(x + rng.uniform(-0.035, 0.035, len(v)), v_show, s=dot, color=color, alpha=0.45, lw=0,
-                           marker=marker, rasterized=True)
-                ax.plot(x, stat(v), marker, ms=ms, color=color, mec="white" if color != "#cfcec9" else fs.MUTED,
-                        mew=0.6, zorder=5)
-    ax.set_xticks(range(len(fs.SCALES)), [str(s) for s in fs.SCALES])
-    ax.set_xlim(-0.5, len(fs.SCALES) - 0.5)
-    ax.tick_params(axis="x", length=0)
-    fs.style(ax)
-
-
-def handles(items, ms=4):
-    items = [(l, fs.SCALE_COLORS[114] if c == "scale" else c, m) for l, c, m in items]
-    return [mpl.lines.Line2D([], [], ls="", marker=m, ms=ms, color=c, mec="white" if c != "#cfcec9" else fs.MUTED,
-                             mew=0.5, label=l) for l, c, m in items]
-
-
 def panel_gap(ax, ray: pd.DataFrame) -> None:
     per = ray.groupby(["null", "scale", "subject"]).gap.mean()
     groups = [({sc: per[(n, sc)].to_numpy() for sc in fs.SCALES}, c, m) for n, (_, c, m) in NETS.items()]
-    strips(ax, groups)
+    fs.strips(ax, groups)
     ax.set_ylim(0, 1.3)
     ax.set_yticks([0, 0.2, 0.4, 0.6, 0.8])
     ax.set_ylabel("Spectral gap  ℓ1 − ℓ2")
     ax.set_xlabel("Regions")
-    ax.legend(handles=handles([(l, c, m) for l, c, m in NETS.values()]), loc="upper right", ncol=1, fontsize=6,
+    ax.legend(handles=fs.handles([(l, c, m) for l, c, m in NETS.values()]), loc="upper right", ncol=1, fontsize=6,
               handletextpad=0.2, columnspacing=0.8, borderaxespad=0.1)
     for sc in fs.SCALES:
         print(f"5A  gap {sc}: " + ", ".join(f"{n} {per[(n, sc)].mean():.2f}" for n in NETS))
@@ -95,11 +57,11 @@ def panel_q1(ax, sets: pd.DataFrame) -> None:
     nulls = per.drop("real", level="null").groupby(["c_mode", "scale", "subject_id"]).mean()  # mean over null models
     vals = {"human": human, "fixed": nulls.loc["fixed"], "gap": nulls.loc["gap"]}
     groups = [({sc: vals[c].loc[sc].to_numpy() for sc in fs.SCALES}, col, "o", c == "gap") for c, (_, col) in Q1.items()]
-    strips(ax, groups)
+    fs.strips(ax, groups)
     ax.set_ylim(0.3, 1.05)
     ax.set_ylabel("$q_1$ of degree-strength sets")
     ax.set_xlabel("Regions")
-    hs = handles([(Q1["human"][0], HUMAN, "o"), (Q1["fixed"][0], Q1["fixed"][1], "o")])
+    hs = fs.handles([(Q1["human"][0], HUMAN, "o"), (Q1["fixed"][0], Q1["fixed"][1], "o")])
     hs.append(mpl.lines.Line2D([], [], ls="", marker="o", ms=4, mfc="white", mec=Q1["gap"][1], mew=0.9,
                                label=Q1["gap"][0]))
     ax.legend(handles=hs, loc="upper right", ncol=1, fontsize=6,

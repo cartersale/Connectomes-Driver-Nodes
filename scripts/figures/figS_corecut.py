@@ -14,7 +14,6 @@ Run: python scripts/figures/figS_corecut.py --run <name>
 
 from __future__ import annotations
 
-import sys
 from pathlib import Path
 
 import matplotlib as mpl
@@ -23,9 +22,6 @@ import numpy as np
 import pandas as pd
 
 from hoc import figstyle as fs
-
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-from fig5 import handles, strips
 
 ANT, POST = "#b8312f", "#184f95"  # diverging poles: front (red) and back (blue), as in Fig 4A
 COND = {  # core-cut condition: (label, colour)
@@ -52,13 +48,13 @@ def panel_cut(fig, cell, cut: pd.DataFrame) -> list:
     groups = [({sc: t.loc[(c, sc), "closed"].to_numpy() for sc in fs.SCALES}, col, "o") for c, (_, col) in COND.items()]
     groups.append(({sc: t.loc[("v2_cross", sc), "closed"].to_numpy() for sc in fs.SCALES}, fs.HUB, "D", True))
     lim = (-30, 80)
-    strips(ax, groups, stat=np.median, ylim=lim)
+    fs.strips(ax, groups, stat=np.median, ylim=lim)
     ax.set_ylim(lim[0] - 3, lim[1] + 3)
     n_out = int(((t.closed < lim[0]) | (t.closed > lim[1])).sum())
     print(f"5D  gap closed: {n_out} of {len(t)} subject values beyond {lim} (drawn at the edge)")
     ax.axhline(0, color=fs.GRID, lw=0.6, zorder=0)
     ax.set_ylabel("Gap closed (%)")
-    hs = handles([(l, c, "o") for l, c in COND.values()])
+    hs = fs.handles([(l, c, "o") for l, c in COND.values()])
     hs.append(mpl.lines.Line2D([], [], ls="", marker="D", ms=3.5, mfc="white", mec=fs.HUB, mew=0.9,
                                label="Front-back links, $v_2$ halves"))
     ax.legend(handles=hs, loc="lower left", fontsize=6, ncol=2, handletextpad=0.2, columnspacing=0.8,
@@ -68,7 +64,7 @@ def panel_cut(fig, cell, cut: pd.DataFrame) -> list:
     for j, (col, lab) in enumerate((("dl1", "Δℓ1"), ("dl2", "Δℓ2"))):
         ax = fig.add_subplot(low[0, j])
         groups = [({sc: t.loc[(c, sc), col].to_numpy() for sc in fs.SCALES}, cc, "o") for c, (_, cc) in COND.items()]
-        strips(ax, groups, ms=3.5, dot=1.5, stat=np.median)
+        fs.strips(ax, groups, ms=3.5, dot=1.5, stat=np.median)
         ax.axhline(0, color=fs.MUTED, lw=0.6, zorder=0)
         ax.set_ylabel(lab, labelpad=1)
         ax.set_xlabel("Regions")

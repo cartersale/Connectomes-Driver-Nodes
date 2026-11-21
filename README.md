@@ -58,8 +58,8 @@ uv run python scripts/reproduce.py --run paper
 
 This runs every analysis, figure, table and number of the paper, in dependency order, into `runs/paper/`, and
 validates the result against the release reference in `reference/`. It can be interrupted and resumed: finished
-steps are skipped, and a step whose script or configuration has changed since it ran is reported instead of
-silently reused. The full run takes several days on one machine, almost all of it in the null-network step
+steps are skipped, and a step whose code (its script or any local module it imports) or configuration has changed
+since it ran is reported instead of silently reused. The full run takes several days on one machine, almost all of it in the null-network step
 (`null_models/01_run_nulls`); see [docs/reproduction.md](docs/reproduction.md) for runtimes, options
 (`--list`, `--dry-run`, `--only`, `--force`, `--reuse`) and how results are checked.
 
