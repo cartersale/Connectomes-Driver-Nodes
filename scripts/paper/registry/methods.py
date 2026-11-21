@@ -82,6 +82,16 @@ def collect(run: Path) -> list[Number]:
                    ("subsec:model", "subsec:perron"),
                    {"stat": "number of isolated (zero-strength) regions in the disconnected subject, each scale"}))
 
+    # ---- subsec:model: "At c=0.1, the decay ratio d was about 0.16 to 0.19 across scales" (the "five to six times"
+    #      in the same sentence is MDecayRatioCTenthLow/High of main_core_divisions)
+    ss = pd.read_csv(rev / "mechanisms" / "second_subspace_subjects.csv")
+    d = {s: 0.1 / (0.1 + g) for s, g in ss.groupby("scale").gap.median().items()}
+    src = ("mechanisms/05_second_subspace: mechanisms/second_subspace_subjects.csv | d = c / (c + gap) at c = 0.1 and the "
+           f"median gap over 70 subjects per scale; {{}} over scales {', '.join(f'{s}: {v:.3f}' for s, v in d.items())}")
+    for nm, val, ms in (("MDecayRatioDMin", min(d.values()), "0.16"), ("MDecayRatioDMax", max(d.values()), "0.19")):
+        out.append(_mk(nm, val, fx(val), ms, src.format("min" if nm.endswith("Min") else "max"), ("subsec:model",),
+                       {"c": 0.1, "stat": "d at the median gap"}))
+
     # ---- methods:gramian: "This solution agreed with a direct Lyapunov solver to within 10^{-13}."
     v = json.loads((rev / "sensitivity" / "validation.json").read_text())["library_vs_eigbasis"]
     worst = max(v["max_abs_W"], v["rel_W"])

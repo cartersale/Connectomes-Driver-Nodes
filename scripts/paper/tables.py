@@ -18,6 +18,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))  # sections/ and common.py
 
 import condense  # noqa: E402
+import scale_table  # noqa: E402
 
 from hoc.runs import stage_from_argv  # noqa: E402
 
@@ -66,6 +67,7 @@ def main() -> None:
     out = ctx.root / "paper" / "tables"
     written = write(build_all(ctx.root), out)
     written += condense.build_all(out, out)
+    written.append(scale_table.write(ctx.root, out))  # C_scales: Results values at all three scales
     print(f"wrote {len(written)} files to {out}")
     ctx.finish(outputs=written)
 

@@ -71,3 +71,50 @@ class Collector:
         dup = sorted({n for n in names if names.count(n) > 1})
         assert not dup, dup
         return self.out
+
+
+# ----------------------------------------------------------------------------- per-scale values of a quoted range
+# The Results quote the 114-region value and the supplement lists every scale (Table C_scales). A range helper passes
+# its (key, value) pairs here; a key is a scale, or a tuple containing one (criterion, scale), (k, scale), ...
+
+TEXT_SCALE = 114
+
+
+def _scale_of(key) -> int | None:
+    if isinstance(key, (int, float)) and int(key) in SC and key == int(key):
+        return int(key)
+    if isinstance(key, tuple):
+        hits = [x for x in key if isinstance(x, (int, float)) and not isinstance(x, bool) and x in SC]
+        return int(hits[-1]) if len(hits) == 1 else None
+    return None
+
+
+def by_scale(items) -> dict | None:
+    """{scale: (min, max)} over the values at each scale, or None when the keys do not identify every value's scale."""
+    groups: dict[int, list[float]] = {}
+    for key, value in items:
+        s = _scale_of(key)
+        if s is None:
+            return None
+        groups.setdefault(s, []).append(float(value))
+    if set(groups) != set(SC):
+        return None
+    return {s: (min(v), max(v)) for s, v in sorted(groups.items())}
+
+
+def scale_siblings(prefix: str, items, fmt, source: str, locus, context: dict) -> list[Number]:
+    """The 114-region value of a range: <prefix>OneFourteen, or <prefix>OneFourteenMin/Max when several values
+    (criteria, k) share that scale. Empty when the keys do not give each value's scale."""
+    bs = by_scale(items)
+    if bs is None:
+        return []
+    lo, hi = bs[TEXT_SCALE]
+    text = {str(s): fmt(a) if fmt(a) == fmt(b) else f"{fmt(a)}--{fmt(b)}" for s, (a, b) in bs.items()}
+    ctx = {**context, "scale": TEXT_SCALE, "by_scale": {str(s): list(v) for s, v in bs.items()}, "by_scale_text": text,
+           "range_of": prefix}
+    src = source + f" | scale == {TEXT_SCALE}"
+    name = prefix + SCN[TEXT_SCALE]
+    if lo == hi or fmt(lo) == fmt(hi):
+        return [Number(name, lo, fmt(lo), src, tuple(locus), ctx)]
+    return [Number(name + "Min", lo, fmt(lo), src + " | min", tuple(locus), {**ctx, "end": "min"}),
+            Number(name + "Max", hi, fmt(hi), src + " | max", tuple(locus), {**ctx, "end": "max"})]

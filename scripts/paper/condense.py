@@ -284,7 +284,7 @@ BUILDERS = {"C_eps": c_eps, "C_horizon": c_horizon, "C_criteria": c_criteria, "C
 
 
 COPIED = ("S_canonical",)  # printed in the supplement as is
-SUPPLEMENT_TABLES = (*BUILDERS, *COPIED)  # every table supp_mat.tex inputs
+SUPPLEMENT_TABLES = (*BUILDERS, *COPIED, "C_scales")  # every table supp_mat.tex inputs (C_scales: scale_table.py)
 
 
 def build_all(full: Path, out: Path) -> list[Path]:

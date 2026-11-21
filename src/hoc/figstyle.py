@@ -112,10 +112,11 @@ def panel_label(ax, letter: str, title: str = "", x: float = -0.02, y: float = 1
 
 def reference_lines(ax, labels: bool = True) -> None:
     """Dotted verticals at the primary damping (c = 0.1) and the nctpy default (c = 1)."""
-    for c, name in ((C_PRIMARY, "c = 0.1"), (C_NCTPY, "nctpy")):
+    # c = 0.1 is labelled on the left of its line and nctpy on the right, so the labels never collide
+    for c, name, ha in ((C_PRIMARY, "c = 0.1 ", "right"), (C_NCTPY, " nctpy", "left")):
         ax.axvline(c, color=MUTED, lw=0.6, ls=":", zorder=0)
         if labels:
-            ax.text(c, 1.0, f" {name}", transform=ax.get_xaxis_transform(), fontsize=6, color=INK2, ha="left", va="top")
+            ax.text(c, 1.0, name, transform=ax.get_xaxis_transform(), fontsize=6, color=INK2, ha=ha, va="top")
 
 
 def save(fig, run_root: Path, name: str) -> list[Path]:

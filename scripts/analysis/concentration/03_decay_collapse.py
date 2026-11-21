@@ -2,9 +2,10 @@
 """P4: does the c-dependence collapse across scales when c is replaced by the decay ratio
 d = c / (c + lambda1 - lambda2)?
 
-For every subject and scale, on a 25-point log grid of c in [10^-2.5, 10^0.5], compute q1 and ER of
+For every subject and scale, on a 45-point log grid of c in [10^-5, 10^0.5], compute q1 and ER of
 the degree set, the cycle-participation set (saved primary ranks) and the subject's 100 primary
-random sets (k in {1,2,3,5}; k-averaged as in the paper). Curves of interest per subject:
+random sets. Curves are averaged over k in {2,3,5}, as in the paper; k = 1, where the excess over random has the
+opposite sign, is kept separately (q1_deg_k1, q1_rand_k1, dr_q1_k1). Curves of interest per subject:
   cd_q1 = q1(cycle) - q1(degree), cd_er = ER(cycle) - ER(degree), dr_q1 = q1(degree) - mean q1(random)
 Collapse tests, on each axis (log c vs log d):
   1. dispersion: per-subject curves are interpolated onto a common log-axis grid (the range shared
@@ -44,7 +45,8 @@ ROOT: Path  # run directory (runs/<name>/), set in main()
 OUT: Path  # <run>/concentration, set in main()
 SCALES = hoc_config.scales()
 K_VALUES = hoc_config.k_values()
-C_GRID = np.logspace(-2.5, 0.5, 25)
+K_MULTI = [k for k in K_VALUES if k >= 2]  # the k-average reported in the paper
+C_GRID = np.logspace(-5, 0.5, 45)  # step 0.125 decades; includes c = 0.01, 0.1, 1 exactly
 CURVES = ("cd_q1", "cd_er", "dr_q1")
 
 
@@ -62,16 +64,21 @@ def job(scale, si, A, orders):
     for c in C_GRID:
         kernel = spec.kernel(c)
         acc = {"q1_deg": 0.0, "q1_cyc": 0.0, "q1_rand": 0.0, "er_deg": 0.0, "er_cyc": 0.0}
+        single = {}
         for k in K_VALUES:
             w, _, _ = spec.set_spectra(kernel, sets_k[k])
             m = spectrum_metrics(w)
-            acc["q1_deg"] += m["q1"][0] / len(K_VALUES)
-            acc["q1_cyc"] += m["q1"][1] / len(K_VALUES)
-            acc["q1_rand"] += m["q1"][2:].mean() / len(K_VALUES)
-            acc["er_deg"] += m["er"][0] / len(K_VALUES)
-            acc["er_cyc"] += m["er"][1] / len(K_VALUES)
+            if k == 1:
+                single = {"q1_deg_k1": m["q1"][0], "q1_rand_k1": m["q1"][2:].mean()}
+                continue
+            acc["q1_deg"] += m["q1"][0] / len(K_MULTI)
+            acc["q1_cyc"] += m["q1"][1] / len(K_MULTI)
+            acc["q1_rand"] += m["q1"][2:].mean() / len(K_MULTI)
+            acc["er_deg"] += m["er"][0] / len(K_MULTI)
+            acc["er_cyc"] += m["er"][1] / len(K_MULTI)
         rows.append({"subject_id": sid, "scale": scale, "c": c, "gap": spec.gap, "decay_ratio": c / (c + spec.gap), **acc,
-                     "cd_q1": acc["q1_cyc"] - acc["q1_deg"], "cd_er": acc["er_cyc"] - acc["er_deg"], "dr_q1": acc["q1_deg"] - acc["q1_rand"]})
+                     "cd_q1": acc["q1_cyc"] - acc["q1_deg"], "cd_er": acc["er_cyc"] - acc["er_deg"], "dr_q1": acc["q1_deg"] - acc["q1_rand"],
+                     **single, "dr_q1_k1": single.get("q1_deg_k1", np.nan) - single.get("q1_rand_k1", np.nan)})
     return rows
 
 
