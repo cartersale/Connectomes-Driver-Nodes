@@ -53,6 +53,20 @@ ROUNDOFF_COLUMNS = {
 # within roundoff of it.
 LOOSE_COLUMNS = {"eigenvalues_at_floor": 0.02, "fraction_eigenvalues_at_floor": 0.02}
 RTOL = 1e-6
+# Columns whose synthetic-data values depend on the machine: rank statistics over values tied up to roundoff,
+# z statistics with a null standard deviation near zero, and overlaps of near-degenerate eigenspaces. Between
+# Apple-silicon machines their sums differ by up to 1.4e-2 (relative).
+PLATFORM_RTOL = 0.02
+PLATFORM_COLUMNS = {
+    "mechanisms/coverage_rho.csv": ["prho_hop|L", "prho_inv|L", "prho_log|L", "rho_hop", "rho_inv", "rho_log"],
+    "modal_controllability/driver_gram_proxy.csv": ["rho_erG_er", "rho_pshare_q1", "rho_q1G_q1raw"],
+    "modal_controllability/pooled_spearman.csv": ["rho"],
+    "null_models/inference.csv": ["delta_median", "n_z_undefined", "wilcoxon_p", "z_mean", "z_median"],
+    "null_models/mediation.csv": ["p_mediator"],
+    "primary/eigenspace_overlap.csv": ["overlap"],
+    "primary/target_geometry.csv": ["hard_overlap", "spectral_entropy_effective_modes", "spectral_spread_effective_modes"],
+    "sensitivity/csweep_spearman.csv": ["rho_perronfrac_er"],
+}
 
 
 def run_pipeline(runs_root: Path) -> Path:
@@ -111,7 +125,7 @@ def compare(actual: dict, expected: dict) -> list[str]:
             av = a["numeric"].get(column)
             if av is None:
                 continue
-            rtol = LOOSE_COLUMNS.get(column, RTOL)
+            rtol = PLATFORM_RTOL if column in PLATFORM_COLUMNS.get(rel, ()) else LOOSE_COLUMNS.get(column, RTOL)
             for stat in ("sum", "abs_sum"):
                 if not np.isclose(av[stat], ev[stat], rtol=rtol, atol=1e-10):
                     problems.append(f"{rel}:{column} {stat} {av[stat]!r} != {ev[stat]!r}")
