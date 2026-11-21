@@ -11,12 +11,12 @@ from tqdm.auto import tqdm
 
 from hoc.atlas import build_label_table
 from hoc.config import (
-    active_config_path,  # noqa: E402
+    active_config_path,
     load_config,
 )
 from hoc.dataset import build_scale_metadata, build_subject_table, load_raw_connectomes
 from hoc.io import prepare_results_tree, write_csv, write_npz
-from hoc.paths import REPO_ROOT as REPO_ROOT  # noqa: E402
+from hoc.paths import REPO_ROOT
 from hoc.preprocessing import preprocess_structural_adjacency
 from hoc.runs import RunContext, add_run_arguments
 from hoc.utils import write_json

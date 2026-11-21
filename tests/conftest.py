@@ -1,3 +1,1 @@
-from __future__ import annotations
-
-from hoc.paths import REPO_ROOT as REPO_ROOT  # noqa: E402
+import hoc  # noqa: F401  (pins BLAS threads before any test module imports numpy)

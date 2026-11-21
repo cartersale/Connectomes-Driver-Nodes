@@ -13,7 +13,7 @@ A2  Mediators that do not reuse the degree driver set (top-k strength nodes). Co
                       binary degree (a broader, degree-defined class, not the strength top-k)
       strength_assort weighted strength assortativity (bct.assortativity_wei)
       rc_wu_p{75,85,95}  weighted (Opsahl) rich club at those binary-degree percentiles
-    plus the existing rc_bu, rc_wu (p90), hub_strength_frac (circular: top-5 strength), ipr_v1.
+    plus rc_bu, rc_wu (p90), hub_strength_frac (circular: top-5 strength), ipr_v1 from networks.csv.gz.
     Mediation as in 02_analyze (subject fixed effects; prop = 1 - beta_direct / beta_total), for
     two outcomes: degree-set q1 (fixed c = 0.1; k = avg and each k) and the spectral gap itself.
 A3  Summary numbers for the Abstract and Fig 5 -> gap_summary.md.
@@ -45,8 +45,8 @@ OUT_DIR: Path  # <run>/null_models, set in main()
 
 TOP_DEGREE_FRAC = 0.20
 RC_PERCENTILES = (75, 85, 95)
-NEW_MEDIATORS = ["wdeg_rho", "wdeg_top_share", "strength_assort"] + [f"rc_wu_p{p}" for p in RC_PERCENTILES]
-OLD_MEDIATORS = ["rc_bu", "rc_wu", "hub_strength_frac", "ipr_v1"]
+COMPUTED_MEDIATORS = ["wdeg_rho", "wdeg_top_share", "strength_assort"] + [f"rc_wu_p{p}" for p in RC_PERCENTILES]
+NET_STAT_MEDIATORS = ["rc_bu", "rc_wu", "hub_strength_frac", "ipr_v1"]
 CIRCULAR = {"hub_strength_frac"}
 
 
@@ -93,7 +93,6 @@ def per_subject_contrast(real: pd.Series, nulls: pd.DataFrame, stat: str) -> pd.
         x = g[stat].to_numpy(float)
         r = float(real.loc[sid])
         sd = x.std(ddof=1)
-        sd = sd if sd > 1e-12 * max(1.0, abs(x.mean())) else 0.0  # identical values: avoid float-noise z
         sd = sd if sd > 1e-12 * max(1.0, abs(x.mean())) else 0.0  # identical values: avoid float-noise z
         rows.append({"subject_id": sid, "real": r, "null_mean": x.mean(), "delta": r - x.mean(),
                      "z": (r - x.mean()) / sd if sd > 0 else np.nan,
@@ -161,7 +160,7 @@ def main():
     split.to_csv(OUT_DIR / "gap_split.csv", index=False)
     print(split.round(3).to_string(index=False), flush=True)
 
-    # A2: new mediators on all networks
+    # A2: mediators on the real and all null networks
     path = OUT_DIR / "mediators_network.csv.gz"
     if path.exists():  # cache: reuse mediators computed by an earlier run in this run directory
         med_net = pd.read_csv(path)
@@ -177,14 +176,14 @@ def main():
     contrast = []
     for (null, scale), g in full[full["null"] != "real"].groupby(["null", "scale"]):
         real = full[(full["null"] == "real") & (full["scale"] == scale)].set_index("subject_id")
-        for m in NEW_MEDIATORS + OLD_MEDIATORS:
+        for m in COMPUTED_MEDIATORS + NET_STAT_MEDIATORS:
             contrast.append({"null": null, "scale": scale, "stat": m, **summarize(per_subject_contrast(real[m], g, m))})
     contrast = pd.DataFrame(contrast)
 
     sets = pd.read_csv(OUT_DIR / "sets.csv.gz", usecols=["null", "null_index", "scale", "subject_id", "c_mode", "c_ref", "k", "degree_q1"])
     sets = sets[(sets["c_mode"] == "fixed") & (sets["c_ref"] == 0.1)]
     rows = []
-    mediators = NEW_MEDIATORS + OLD_MEDIATORS
+    mediators = COMPUTED_MEDIATORS + NET_STAT_MEDIATORS
     for null in NULL_TYPES:
         for scale in SCALES:
             nets = full[(full["scale"] == scale) & full["null"].isin(["real", null])]

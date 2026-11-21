@@ -22,8 +22,8 @@ from pathlib import Path
 from hoc.runs import reader_run_dir
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from condense import SUPPLEMENT_TABLES  # noqa: E402
-from table_catalog import GROUPS  # noqa: E402
+from condense import SUPPLEMENT_TABLES
+from table_catalog import GROUPS
 
 
 def main() -> None:

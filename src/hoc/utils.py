@@ -9,7 +9,6 @@ import numpy as np
 
 
 def make_rng(seed: int) -> np.random.Generator:
-    """Construct a reproducible numpy generator."""
     return np.random.default_rng(int(seed))
 
 
@@ -22,7 +21,6 @@ def subject_seed(base_seed: int, *parts: int) -> int:
 
 
 def write_json(path: str | Path, payload: dict) -> None:
-    """Write pretty JSON metadata."""
     output = Path(path)
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(json.dumps(payload, indent=2, sort_keys=True))

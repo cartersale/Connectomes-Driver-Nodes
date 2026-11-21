@@ -13,7 +13,8 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-from .record import Number  # noqa: E402
+from ._common import scale_siblings
+from .record import Number
 
 SCALES = (68, 114, 219)
 SW = {68: "SixtyEight", 114: "OneFourteen", 219: "TwoNineteen"}
@@ -65,6 +66,7 @@ def rng_pair(prefix: str, vals: dict, fmt, source: str, locus, context: dict) ->
                tuple(locus), {**context, "end": "min"}),
         Number(prefix + "Max", float(vals[hi_k]), fmt(vals[hi_k]), source + f" | max over the set (at {hi_k})" + detail,
                tuple(locus), {**context, "end": "max"}),
+        *scale_siblings(prefix, list(vals.items()), fmt, source, locus, context),
     ]
 
 
@@ -72,7 +74,7 @@ def collect(run: Path) -> list[Number]:
     run = Path(run)
     out: list[Number] = []
 
-    # ------------------------------------------------------------------ paragraph 1: v2 and the v2-v3 subspace
+    # paragraph 1: v2 and the v2-v3 subspace
     # "The second eigenvector, v2, placed a median of 83--95% of its squared weight on the 20% of regions with the
     #  highest v1 loadings."
     ev = csv(run, "mechanisms/eigvec_subjects.csv")
@@ -93,7 +95,7 @@ def collect(run: Path) -> list[Number]:
     out += rng_pair("MFrontBackOnVThreeCount", (ss.a_best == 3).groupby(ss.scale).sum().to_dict(), cnt, src_ab.format(3),
                     LOC_FIG, {"stat": "count of 70", "set": "3 scales", "eigenvector": "v3"})
 
-    # ------------------------------------------------------------------ paragraph 2: projecting v1 out (Fig. 4B)
+    # paragraph 2: projecting v1 out (Fig. 4B)
     # "Removing v1 from each controllability Gramian reduced the difference in q1 between degree-strength and
     #  cycle-participation sets by 52--69% for two to five drivers."
     p3 = csv(run, "concentration/q1_perp.csv")
@@ -118,7 +120,7 @@ def collect(run: Path) -> list[Number]:
                                  + "); text 'in all 70 subjects'"),
                       LOC, {"c": 0.1, "k": "2,3,5", "stat": "count of 70"}))
 
-    # ------------------------------------------------------------------ paragraph 3: decay rates and the gap
+    # paragraph 3: decay rates and the gap
     # "At the median gap (0.43--0.53 across scales), v1 decayed approximately five to six times more slowly than v2
     #  at c=0.1, compared with approximately 1.5 times at c=1."
     gap = ss.groupby("scale").gap.median().to_dict()
@@ -133,6 +135,8 @@ def collect(run: Path) -> list[Number]:
                       LOC, {"c": 0.1, "end": "min"}))
     out.append(Number("MDecayRatioCTenthHigh", hi, WORD[round(hi)], src_r.format(c=0.1, vals=vals01) + "; max, spelled-out rounded integer",
                       LOC, {"c": 0.1, "end": "max"}))
+    out.append(Number("MDecayRatioCTenthOneFourteen", r01[114], WORD[round(r01[114])],
+                      src_r.format(c=0.1, vals=vals01) + "; scale 114, spelled-out rounded integer", LOC, {"c": 0.1, "scale": 114}))
     r1 = {s: (1.0 + g) / 1.0 for s, g in gap.items()}
     v = float(np.mean(list(r1.values())))
     out.append(Number("MDecayRatioCOne", v, fx(v, 1),
@@ -140,36 +144,49 @@ def collect(run: Path) -> list[Number]:
                       + "; text gives one approximate value: mean over scales, 1 decimal (per-scale 1.43-1.53)",
                       LOC, {"c": 1.0, "stat": "mean over scales"}))
 
-    # ------------------------------------------------------------------ paragraph 4: damping sweep (Fig. 4C)
+    # paragraph 4: damping sweep (Fig. 4C)
     # "the excess q1 of degree-strength sets over random sets decreased from 0.34--0.39 at c=0.01 to 0.21--0.25 at
     #  c=0.1 and 0.03--0.06 at c=1."
     def dr(s, c):
-        return one(p1, family="degree_strength", scale=s, c=c, k="avg", metric="q1")
+        return one(p1, family="degree_strength", scale=s, c=c, k="avg2+", metric="q1")
 
     src_dr = ("concentration/02_tables: concentration/q1_vs_random.csv | family == 'degree_strength', metric == 'q1', k == 'avg' "
-              "(mean over k in 1,2,3,5 of criterion q1 minus the subject's random mean), c == {c}; column 'mean' (over 70 "
+              "(k == 'avg2+': mean over k in 2,3,5 of criterion q1 minus the subject's random mean), c == {c}; column 'mean' (over 70 "
               "subjects). Matches decay_curves.csv.gz dr_q1 means plotted in Fig. 4C")
     for c, tag in ((0.01, "Hundredth"), (0.1, "Tenth"), (1.0, "One")):
         out += rng_pair(f"MDegExcessQOneC{tag}", {s: dr(s, c)["mean"] for s in SCALES}, fx, src_dr.format(c=c),
-                        LOC, {"c": c, "k": "1,2,3,5", "comparison": "degree vs random mean", "set": "3 scales"})
+                        LOC, {"c": c, "k": "2,3,5", "comparison": "degree vs random mean", "set": "3 scales"})
+    # "... and 0.04--0.16 at c=10^{-5}" (below the q1_vs_random grid: from the decay curves, k in {2,3,5})
+    dc = csv(run, "concentration/decay_curves.csv.gz")
+    tiny = dc[np.isclose(dc.c, 1e-5)].groupby("scale").dr_q1.mean()
+    out += rng_pair("MDegExcessQOneCTiny", tiny.to_dict(), fx,
+                    "concentration/03_decay_collapse: concentration/decay_curves.csv.gz | c == 1e-5, column dr_q1 (mean over "
+                    "k in 2,3,5 of degree q1 minus the subject's random mean); mean over 70 subjects",
+                    LOC, {"c": 1e-5, "k": "2,3,5", "comparison": "degree vs random mean", "set": "3 scales"})
+    # "With a single driver, the excess was negative at c = 0.1 (-0.08)"
+    out += rng_pair("MDegExcessQOneSingleCTenth",
+                    {s: one(p1, family="degree_strength", scale=s, c=0.1, k="1", metric="q1")["mean"] for s in SCALES}, fx,
+                    "concentration/02_tables: concentration/q1_vs_random.csv | family == 'degree_strength', metric == 'q1', "
+                    "k == '1', c == 0.1; column 'mean' (degree q1 minus the subject's random mean, over 70 subjects)",
+                    LOC, {"c": 0.1, "k": 1, "comparison": "degree vs random mean", "set": "3 scales"})
     # "Degree-strength sets nevertheless exceeded the random mean in 62--70 of 70 subjects at c=1."
     out += rng_pair("MDegExcessQOneCOneNPos", {s: dr(s, 1.0)["n_positive"] for s in SCALES}, cnt,
                     src_dr.format(c=1.0).replace("column 'mean' (over 70 subjects)", "column n_positive"),
-                    LOC, {"c": 1.0, "k": "1,2,3,5", "stat": "count of 70", "set": "3 scales"})
+                    LOC, {"c": 1.0, "k": "2,3,5", "stat": "count of 70", "set": "3 scales"})
 
     # "The difference between degree-strength and cycle-participation sets declined similarly, with both effects about
     #  four to eight times smaller at c=1 than at c=0.1."
     p2 = csv(run, "concentration/q1_matched.csv")
 
     def cd(s, c, m):
-        return one(p2, comparison="cycle - degree", scale=s, c=c, k="avg", metric=m)
+        return one(p2, comparison="cycle - degree", scale=s, c=c, k="avg2+", metric=m)
 
     ratios = {}
     for s in SCALES:
         ratios[f"deg-rand {s}"] = dr(s, 0.1)["mean"] / dr(s, 1.0)["mean"]
         ratios[f"cyc-deg {s}"] = cd(s, 0.1, "q1")["mean"] / cd(s, 1.0, "q1")["mean"]
     src_ratio = ("concentration/02_tables: concentration/q1_vs_random.csv (degree - random q1) and concentration/q1_matched.csv "
-                 "(comparison == 'cycle - degree', metric == 'q1'), k == 'avg', column 'mean' | ratio c=0.1 / c=1 over both "
+                 "(comparison == 'cycle - degree', metric == 'q1'), k == 'avg2+', column 'mean' | ratio c=0.1 / c=1 over both "
                  "effects x 3 scales; spelled-out rounded integer")
     lo_k, hi_k = min(ratios, key=ratios.get), max(ratios, key=ratios.get)
     det = "; ratios: " + ", ".join(f"{k}: {v:.2f}" for k, v in ratios.items())
@@ -178,7 +195,7 @@ def collect(run: Path) -> list[Number]:
     out.append(Number("MDampingShrinkMax", ratios[hi_k], WORD[round(ratios[hi_k])], src_ratio + f" | max ({hi_k})" + det,
                       LOC, {"end": "max"}))
 
-    # ------------------------------------------------------------------ paragraph 5: gap vs excess across subjects (Fig. 4D)
+    # paragraph 5: gap vs excess across subjects (Fig. 4D)
     # "subjects with larger gaps showed greater excess q1 ... (Spearman rho=0.53--0.67 across scales; Fig. 4D)."
     gc = csv(run, "concentration/decay_gap_correlations.csv")
     out += rng_pair("MGapRhoDegExcess", {s: one(gc, scale=s, c=0.1, curve="dr_q1").rho_gap for s in SCALES}, fx,
@@ -211,20 +228,20 @@ def collect(run: Path) -> list[Number]:
                       src_rr.format(f"max p = {pmax:.4g}; text states the bound 'all p <= 0.002' -> max p rounded up to 3 decimals"),
                       LOC, {"stat": "bound", "c": "0.03-1"}))
 
-    # ------------------------------------------------------------------ paragraph 6: effective rank vs damping
+    # paragraph 6: effective rank vs damping
     # "Cycle-participation sets had higher effective rank than degree-strength sets at c=0.01 and c=0.1 (differences
     #  of 0.80--1.73)"
-    src_er = ("concentration/02_tables: concentration/q1_matched.csv | comparison == 'cycle - degree', metric == 'er', k == 'avg' "
-              "(mean over k in 1,2,3,5), c == {c}; column {col}")
+    src_er = ("concentration/02_tables: concentration/q1_matched.csv | comparison == 'cycle - degree', metric == 'er', k == 'avg2+' "
+              "(mean over k in 2,3,5), c == {c}; column {col}")
     er_lo = {f"{s}, c={c}": cd(s, c, "er")["mean"] for s in SCALES for c in (0.01, 0.1)}
     out += rng_pair("MCycMinusDegERLowDamping", er_lo, fx, src_er.format(c="0.01 and 0.1", col="mean (over 70 subjects)"),
-                    LOC, {"c": "0.01, 0.1", "k": "1,2,3,5", "comparison": "cycle - degree", "set": "3 scales x 2 c"})
+                    LOC, {"c": "0.01, 0.1", "k": "2,3,5", "comparison": "cycle - degree", "set": "3 scales x 2 c"})
     # "but the difference approached zero or reversed at c=1 (-0.02 to -0.24; positive in 4--34 of 70 subjects)."
     er1 = {s: cd(s, 1.0, "er")["mean"] for s in SCALES}
     # text range runs from the value nearest zero (-0.02) to the most negative (-0.24): Max then Min
     out += rng_pair("MCycMinusDegERCOne", er1, fx, src_er.format(c=1.0, col="mean (over 70 subjects)")
                     + "; text '-0.02 to -0.24' prints the max first", LOC,
-                    {"c": 1.0, "k": "1,2,3,5", "comparison": "cycle - degree", "set": "3 scales"})
+                    {"c": 1.0, "k": "2,3,5", "comparison": "cycle - degree", "set": "3 scales"})
     out += rng_pair("MCycMinusDegERCOneNPos", {s: cd(s, 1.0, "er")["n_positive"] for s in SCALES}, cnt,
                     src_er.format(c=1.0, col="n_positive"), LOC, {"c": 1.0, "stat": "count of 70", "set": "3 scales"})
     # "The mean difference crossed zero at approximately c=0.88, 0.69, and 0.29 for 68, 114, and 219 regions"
@@ -250,14 +267,10 @@ def collect(run: Path) -> list[Number]:
 
 # Tokens as printed in the manuscript.
 PRINTED = {
-    "MVTwoOnCorePctMin": "83",
-    "MVTwoOnCorePctMax": "95",
     "MFrontBackOnVTwoCountMin": "43",
     "MFrontBackOnVTwoCountMax": "48",
     "MFrontBackOnVThreeCountMin": "17",
     "MFrontBackOnVThreeCountMax": "22",
-    "MPerpFractionRemovedQOneKTwoPlusPctMin": "52",
-    "MPerpFractionRemovedQOneKTwoPlusPctMax": "69",
     "MPerpDegreeExcessQOneMin": "0.10",
     "MPerpDegreeExcessQOneMax": "0.15",
     "MPerpDegreeExcessNPositive": "70",
@@ -266,20 +279,10 @@ PRINTED = {
     "MDecayRatioCTenthLow": "five",
     "MDecayRatioCTenthHigh": "six",
     "MDecayRatioCOne": "1.5",
-    "MDegExcessQOneCHundredthMin": "0.34",
-    "MDegExcessQOneCHundredthMax": "0.39",
-    "MDegExcessQOneCTenthMin": "0.21",
-    "MDegExcessQOneCTenthMax": "0.25",
-    "MDegExcessQOneCOneMin": "0.03",
-    "MDegExcessQOneCOneMax": "0.06",
     "MDegExcessQOneCOneNPosMin": "62",
     "MDegExcessQOneCOneNPosMax": "70",
     "MDampingShrinkMin": "four",
     "MDampingShrinkMax": "eight",
-    "MGapRhoDegExcessMin": "0.53",
-    "MGapRhoDegExcessMax": "0.67",
-    "MGapPartialRhoDegExcessMin": "0.54",
-    "MGapPartialRhoDegExcessMax": "0.82",
     "MGapPartialRhoRangeMin": "0.38",
     "MGapPartialRhoRangeMax": "0.83",
     "MGapPartialRhoRangePMax": "0.002",
@@ -294,4 +297,15 @@ PRINTED = {
     "MCycMinusDegERFlipCTwoNineteen": "0.29",
     "MERAvgCtrlRhoMin": "0.91",
     "MERAvgCtrlRhoMax": "0.99",
+    # 114-region values quoted in the Results (ranges over scales: Supplementary Table C_scales)
+    "MVTwoOnCorePctOneFourteen": "89",
+    "MPerpFractionRemovedQOneKTwoPlusPctOneFourteen": "68",
+    "MDegExcessQOneCHundredthOneFourteen": "0.49",
+    "MDegExcessQOneCTenthOneFourteen": "0.37",
+    "MDegExcessQOneCOneOneFourteen": "0.10",
+    "MDegExcessQOneCTinyOneFourteen": "0.08",
+    "MDegExcessQOneSingleCTenthOneFourteen": "-0.08",
+    "MGapRhoDegExcessOneFourteen": "0.72",
+    "MGapPartialRhoDegExcessOneFourteen": "0.85",
+    "MDecayRatioCTenthOneFourteen": "six",
 }

@@ -11,7 +11,6 @@ from .paths import ensure_directory, resolve_repo_path
 
 
 def write_csv(table: pd.DataFrame, path_like: str | Path) -> Path:
-    """Write a tidy table as CSV."""
     path = resolve_repo_path(path_like)
     path.parent.mkdir(parents=True, exist_ok=True)
     table.to_csv(path, index=False)
@@ -19,7 +18,6 @@ def write_csv(table: pd.DataFrame, path_like: str | Path) -> Path:
 
 
 def write_npz(path_like: str | Path, **arrays: np.ndarray) -> Path:
-    """Write a compressed numpy archive."""
     path = resolve_repo_path(path_like)
     path.parent.mkdir(parents=True, exist_ok=True)
     np.savez_compressed(path, **arrays)

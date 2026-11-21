@@ -31,8 +31,8 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-from hoc import config as hoc_config  # noqa: E402
-from hoc.analysis.lesions import (  # noqa: E402
+from hoc import config as hoc_config
+from hoc.analysis.lesions import (
     BASE_SEED,
     HUB_COUNTS,
     K_VALUES,
@@ -45,10 +45,10 @@ from hoc.analysis.lesions import (  # noqa: E402
     top_k,
     top_k_excluding,
 )
-from hoc.rankings import strength_scores  # noqa: E402
-from hoc.runs import RunContext, add_run_arguments, n_subjects, partial_stage  # noqa: E402
-from hoc.topology import cycle_participation  # noqa: E402
-from hoc.utils import n_jobs, subject_seed  # noqa: E402
+from hoc.rankings import strength_scores
+from hoc.runs import RunContext, add_run_arguments, n_subjects, partial_stage
+from hoc.topology import cycle_participation
+from hoc.utils import n_jobs, subject_seed
 
 N_RANDOM_LESIONS = hoc_config.sampling("n_random_lesions")
 N_RANDOM_DRIVER_SETS = hoc_config.n_random()

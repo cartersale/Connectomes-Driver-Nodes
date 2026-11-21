@@ -22,7 +22,6 @@ RULES = ("\\toprule", "\\midrule", "\\bottomrule", "\\addlinespace", "\\cmidrule
          "\\endfirsthead", "\\endhead", "\\endfoot", "\\endlastfoot", "\\hline")
 
 
-# ----------------------------------------------------------------------------- parsing
 @dataclass
 class Row:
     group: str
@@ -82,7 +81,6 @@ def parse(path: Path) -> Parsed:
     return out
 
 
-# ----------------------------------------------------------------------------- formatting helpers
 def count(n_of: str) -> str:
     """'64/70' -> '64'."""
     return n_of.split("/")[0].strip()
@@ -124,9 +122,6 @@ def metric_header(lead_names: list[str], groups: list[str]) -> list[str]:
     top = " & " * lead + " & ".join(f"\\multicolumn{{3}}{{c}}{{{g}}}" for g in groups) + " \\\\"
     rules = "".join(f"\\cmidrule(lr){{{lead + 1 + 3 * i}-{lead + 3 * (i + 1)}}}" for i in range(len(groups)))
     return [top, rules, " & ".join(lead_names + list(SCALES) * len(groups)) + " \\\\"]
-
-
-# ----------------------------------------------------------------------------- short tables
 
 
 def c_eps(t: Path) -> str:
@@ -284,7 +279,7 @@ BUILDERS = {"C_eps": c_eps, "C_horizon": c_horizon, "C_criteria": c_criteria, "C
 
 
 COPIED = ("S_canonical",)  # printed in the supplement as is
-SUPPLEMENT_TABLES = (*BUILDERS, *COPIED)  # every table supp_mat.tex inputs
+SUPPLEMENT_TABLES = (*BUILDERS, *COPIED, "C_scales")  # every table supp_mat.tex inputs (C_scales: scale_table.py)
 
 
 def build_all(full: Path, out: Path) -> list[Path]:

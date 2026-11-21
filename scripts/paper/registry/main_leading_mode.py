@@ -14,15 +14,14 @@ import numpy as np
 import pandas as pd
 from scipy import stats
 
+from ._common import scale_siblings
+from .record import Number
+
 SCALES = (68, 114, 219)
 NAN = float("nan")
 HUB3 = ("degree_strength", "eigenvector_centrality", "top_avg_ctrl")
 _WORDS = {0: "zero", 1: "one", 2: "two", 3: "three", 4: "four", 5: "five"}
 
-
-from .record import Number  # noqa: E402
-
-# --------------------------------------------------------------------------- helpers
 
 def fx(x: float, d: int = 2) -> str:
     s = f"{x:.{d}f}"
@@ -71,7 +70,23 @@ def rng(name, vals, fmt, source, locus, context) -> list[Number]:
     v = pd.Series(vals, dtype=float)
     lo, hi = v.idxmin(), v.idxmax()
     return [Number(name + "Min", float(v[lo]), fmt(v[lo]), source + f" | min over {list(v.index)} (at {lo})", locus, context),
-            Number(name + "Max", float(v[hi]), fmt(v[hi]), source + f" | max over {list(v.index)} (at {hi})", locus, context)]
+            Number(name + "Max", float(v[hi]), fmt(v[hi]), source + f" | max over {list(v.index)} (at {hi})", locus, context),
+            *scale_siblings(name, list(vals.items()), fmt, source, locus, context)]
+
+
+def abs_reach(ga: pd.DataFrame) -> pd.DataFrame:
+    """Absolute reachability of each named set relative to its subject's random sets.
+
+    Per subject, the set's value over the mean of its 100 random sets, then the median over subjects, for
+    lam1 (most reachable pattern), nonlead = tr W - lam1 (all other patterns) and tr_perp = tr W - v1^T W v1
+    (outside v1). Index (family, scale, k). Same computation as the summary in mechanisms/08_gramian_alignment.py.
+    """
+    d = ga.assign(nonlead=ga.trace - ga.lam1)
+    cols = ["lam1", "nonlead", "tr_perp"]
+    rand = d[d.family == "random"].groupby(["scale", "k", "subject_id"])[cols].mean()
+    h = d[d.family != "random"].set_index(["family", "scale", "k", "subject_id"])[cols]
+    ratio = h / rand.reindex(h.index.droplevel("family")).to_numpy()
+    return ratio.groupby(["family", "scale", "k"]).median()
 
 
 HC = ("subsec:hub_concentration",)
@@ -81,12 +96,11 @@ F3 = ("fig:midline_core",)
 
 def collect(run: Path) -> list[Number]:
     run = Path(run)
-    rev = run
     out: list[Number] = []
 
-    # ================================================================ subsec:hub_concentration, last two paragraphs
-    p1 = _read(str(rev / "concentration" / "q1_vs_random.csv"))
-    p2 = _read(str(rev / "concentration" / "q1_matched.csv"))
+    # subsec:hub_concentration, last two paragraphs
+    p1 = _read(str(run / "concentration" / "q1_vs_random.csv"))
+    p2 = _read(str(run / "concentration" / "q1_matched.csv"))
     P1 = "concentration/02_tables: concentration/q1_vs_random.csv | c == 0.1, metric == 'q1', family == '{f}', k == '{k}', column {col}"
     P2 = "concentration/02_tables: concentration/q1_matched.csv | comparison == '{cmp}', c == 0.1, k == '{k}', metric == '{m}', column {col}"
 
@@ -165,8 +179,8 @@ def collect(run: Path) -> list[Number]:
                       HC, {"k": "avg (1,2,3,5)", "c": 0.1, "criterion": "cycle_resid", "comparison": "vs random mean",
                            "stat": "mean over subjects"}))
 
-    # ================================================================ v1 consistency (Fig 3A + subsec:leading_mode)
-    sj = _read(str(rev / "mechanisms" / "eigvec_subjects.csv"))
+    # v1 consistency (Fig 3A + subsec:leading_mode)
+    sj = _read(str(run / "mechanisms" / "eigvec_subjects.csv"))
     SJ = "mechanisms/04_leading_eigenvectors: mechanisms/eigvec_subjects.csv | column v1_consistency (Pearson r of subject v1 with group-mean v1)"
     # caption: "(black lines, medians of 0.89--0.92)"; text: "median correlations of 0.89--0.92 between each subject's v1 and the group mean"
     med = sj.groupby("scale").v1_consistency.median()
@@ -179,8 +193,8 @@ def collect(run: Path) -> list[Number]:
                           SJ + f" < 0.5, count per scale ({', '.join(f'{s}: {int(c)}' for s, c in nlow.items())}); {nm.lower()} over scales; printed as a word",
                           F3 + LM, {"stat": "count of subjects", "threshold": 0.5}))
 
-    # ================================================================ strength vs neighbours' loading (Fig 3B + text)
-    nd = _read(str(rev / "mechanisms" / "node_v1_strength.csv"))
+    # strength vs neighbours' loading (Fig 3B + text)
+    nd = _read(str(run / "mechanisms" / "node_v1_strength.csv"))
     ND = "mechanisms/08_gramian_alignment: mechanisms/node_v1_strength.csv"
     # caption: "one disconnected region omitted" (114 regions)
     keep = (nd.strength > 0) & (nd.m > 0)
@@ -204,15 +218,31 @@ def collect(run: Path) -> list[Number]:
                       LM, {"stat": "count of subjects"}))
 
     # text: "Strength alone approximated v1 (cosine similarity 0.69--0.82 across scales)"
-    hl = _read(str(rev / "mechanisms" / "hub_loading.csv.gz"), ("null", "scale", "subject_id", "cos_s_v1"))
+    hl = _read(str(run / "mechanisms" / "hub_loading.csv.gz"), ("null", "scale", "subject_id", "cos_s_v1"))
     cos = hl[hl.null == "real"].groupby("scale").cos_s_v1.mean()
     out += rng("MCosStrengthVOne", cos.to_dict(), fx,
                "mechanisms/01_hub_loading: mechanisms/hub_loading.csv.gz | null == 'real', column cos_s_v1, "
                "mean over 70 subjects (medians give the same rounded range)",
                LM, {"stat": "mean over subjects", "scales": "all"})
 
+    # text: "Among the regions with the highest average controllability, this term accounted for 62--68% of average
+    #        controllability at c = 0.1, so the two criteria selected nearly the same top-ranked regions (93--95% of the top five)"
+    def ac_top(g: pd.DataFrame, k: int = 5) -> pd.Series:
+        top = g.nlargest(k, "avg_ctrl")
+        return pd.Series({"share": float((top.avg_ctrl_v1 / top.avg_ctrl).mean()),
+                          "overlap": len(set(top.node_index) & set(g.nlargest(k, "v1").node_index)) / k})
+
+    act = nd.groupby(["scale", "subject_id"])[["node_index", "v1", "avg_ctrl", "avg_ctrl_v1"]].apply(ac_top)
+    AC = ND + " | per subject, the 5 regions with largest avg_ctrl (c = 0.1)"
+    out += rng("MAvgCtrlVOneShare", act.share.groupby("scale").median().to_dict(), pc,
+               AC + "; mean of avg_ctrl_v1 / avg_ctrl over them; median over subjects; x 100",
+               LM, {"stat": "median over subjects", "k": 5, "c": 0.1, "scales": "all"})
+    out += rng("MAvgCtrlEigOverlap", act.overlap.groupby("scale").mean().to_dict(), pc,
+               AC + "; fraction also among the 5 largest v1 (eigenvector-centrality top 5); mean over subjects; x 100",
+               LM, {"stat": "mean over subjects", "k": 5, "c": 0.1, "scales": "all"})
+
     # text: "The 20% of regions with the highest loadings accounted for 93--98% of the squared weight of v1."
-    rg = _read(str(rev / "mechanisms" / "eigvec_regions.csv"))
+    rg = _read(str(run / "mechanisms" / "eigvec_regions.csv"))
 
     def top_share(v: np.ndarray) -> float:
         n = int(np.ceil(0.20 * len(v)))  # CORE_FRAC of 04_leading_eigenvectors.py
@@ -226,8 +256,8 @@ def collect(run: Path) -> list[Number]:
                "median 95/98/99%, i.e. 95--99",
                LM, {"stat": "group-mean v1", "fraction": 0.2})
 
-    # ================================================================ L_S and Gramian alignment
-    ga = _read(str(rev / "mechanisms" / "gramian_alignment.csv"))
+    # L_S and Gramian alignment
+    ga = _read(str(run / "mechanisms" / "gramian_alignment.csv"))
     GA = "mechanisms/08_gramian_alignment: mechanisms/gramian_alignment.csv"
 
     # caption C: "the shaded band spans the 5th to 95th percentile of these per-subject averages (here 0.02--0.04, too narrow to see)"
@@ -296,46 +326,65 @@ def collect(run: Path) -> list[Number]:
     out += rng("MCosHubSingle", {(f, s): C1.loc[f, s] for f in HUB3 for s in SCALES}, fx,
                GA + " | k == 1, column cos_top_v1, mean over subjects; 3 hub criteria x 3 scales", LM,
                {"k": 1, "c": 0.1, "criterion": "hub3", "stat": "mean over subjects"})
+    # text (end of subsec:leading_mode, 114 regions): "individual hubs had 7.3--7.4 times the controllability of
+    #   random regions on patterns other than their most reachable one ... With two to five drivers, hub-oriented
+    #   sets had 5.0--7.4 times the controllability of random sets on their most reachable pattern, but 84--96% of
+    #   their controllability outside v1"
+    ar = abs_reach(ga).loc[list(HUB3)]
+    AR = (GA + " | columns lam1, trace, tr_perp; per subject, set / mean of its 100 random sets; median over subjects "
+          "(abs_reach); 3 hub criteria, scale 114, ")
+    a1 = ar.xs((114, 1), level=("scale", "k"))
+    out += rng("MAbsSingleNonlead", a1.nonlead.to_dict(), lambda x: fx(x, 1), AR + "k == 1; nonlead = trace - lam1", LM,
+               {"scale": 114, "k": 1, "c": 0.1, "stat": "median ratio over subjects"})
+    a2 = ar[(ar.index.get_level_values("scale") == 114) & (ar.index.get_level_values("k") >= 2)]
+    out += rng("MAbsSetLead", a2.lam1.to_dict(), lambda x: fx(x, 1), AR + "k in {2,3,5}; lam1", LM,
+               {"scale": 114, "k": "2,3,5", "c": 0.1, "stat": "median ratio over subjects"})
+    out += rng("MAbsSetPerp", a2.tr_perp.to_dict(), pc, AR + "k in {2,3,5}; tr_perp = trace - L_S/2c; x 100", LM,
+               {"scale": 114, "k": "2,3,5", "c": 0.1, "stat": "median ratio over subjects"})
     return out
 
 
-# --------------------------------------------------------------------------- check against the manuscript
-
 # Tokens as printed in the manuscript.
 PRINTED = {
-    "MQOneSingleDegreePctMin": "86", "MQOneSingleDegreePctMax": "89",
-    "MQOneSingleRandomPctMin": "95", "MQOneSingleRandomPctMax": "96",
     "MSingleHubBelowRandomAllN": "70",
-    "MExcessTwoDegreePtsMin": "23", "MExcessTwoDegreePtsMax": "28",
     "MExcessTwoDegreeCountMin": "68", "MExcessTwoDegreeCountMax": "70",
-    "MExcessFiveDegreePtsMin": "38", "MExcessFiveDegreePtsMax": "43",
     "MExcessFiveDegreeAllN": "70",
-    "MCycleBelowDegreePtsMin": "18", "MCycleBelowDegreePtsMax": "21",
     "MCycleBelowDegreeCountMin": "69", "MCycleBelowDegreeCountMax": "70",
     "MCycleRandomQOneWithin": "0.06",
     "MMatchedHigherErCountMin": "51", "MMatchedHigherErCountMax": "56",
     "MCycleResidQOneWithin": "0.014",
-    "MVOneConsistencyMedianMin": "0.89", "MVOneConsistencyMedianMax": "0.92",
     "MVOneConsistencyBelowHalfCountMin": "one", "MVOneConsistencyBelowHalfCountMax": "two",
     "MFigThreeOmittedRegions": "one",
     "MFigThreeRhoStrengthM": "0.54",
-    "MRhoStrengthMMin": "0.43", "MRhoStrengthMMax": "0.59",
     "MRhoStrengthMPositiveN": "70",
-    "MCosStrengthVOneMin": "0.69", "MCosStrengthVOneMax": "0.82",
-    "MVOneTopTwentyShareMin": "93", "MVOneTopTwentyShareMax": "98",
+    "MAbsSingleNonleadMin": "7.3", "MAbsSingleNonleadMax": "7.4",
+    "MAbsSetLeadMin": "5.0", "MAbsSetLeadMax": "7.4",
+    "MAbsSetPerpMin": "84", "MAbsSetPerpMax": "96",
     "MFigThreeRandomLoadingBandLo": "0.02", "MFigThreeRandomLoadingBandHi": "0.04",
     "MFigThreeHubCosMin": "0.98", "MFigThreeHubCosMax": "0.99",
     "MFigThreeRandomCos": "0.26",
-    "MLoadingHubMin": "0.32", "MLoadingHubMax": "0.52",
     "MLoadingBetweennessMin": "0.15", "MLoadingBetweennessMax": "0.24",
     "MLoadingCycleMin": "0.03", "MLoadingCycleMax": "0.13",
-    "MLoadingRandomMin": "0.01", "MLoadingRandomMax": "0.04",
-    "MCosHubTwoFiveMin": "0.97", "MCosHubTwoFiveMax": "0.99",
     "MCosHubAboveNinetyPct": "99",
-    "MCosRandomTwoFiveMin": "0.17", "MCosRandomTwoFiveMax": "0.34",
     "MCosBetweennessCritTwoFiveMin": "0.70", "MCosBetweennessCritTwoFiveMax": "0.86",
     "MCosCycleAboveNinetyPctMin": "9", "MCosCycleAboveNinetyPctMax": "37",
     "MCosCycleBelowThirtyPctMin": "25", "MCosCycleBelowThirtyPctMax": "59",
     "MCosModalLowEigBelow": "0.01",
-    "MCosHubSingleMin": "0.87", "MCosHubSingleMax": "0.96",
+    # 114-region values quoted in the Results (ranges over scales: Supplementary Table C_scales)
+    "MQOneSingleDegreePctOneFourteen": "87",
+    "MQOneSingleRandomPctOneFourteen": "95",
+    "MExcessTwoDegreePtsOneFourteen": "27",
+    "MExcessFiveDegreePtsOneFourteen": "43",
+    "MCycleBelowDegreePtsOneFourteen": "21",
+    "MVOneTopTwentyShareOneFourteen": "96",
+    "MVOneConsistencyMedianOneFourteen": "0.92",
+    "MCosStrengthVOneOneFourteen": "0.76",
+    "MRhoStrengthMOneFourteen": "0.54",
+    "MLoadingHubOneFourteenMin": "0.41", "MLoadingHubOneFourteenMax": "0.45",
+    "MLoadingRandomOneFourteen": "0.02",
+    "MAvgCtrlVOneShareOneFourteen": "68",
+    "MAvgCtrlEigOverlapOneFourteen": "95",
+    "MCosHubTwoFiveOneFourteenMin": "0.98", "MCosHubTwoFiveOneFourteenMax": "0.99",
+    "MCosRandomTwoFiveOneFourteen": "0.27",
+    "MCosHubSingleOneFourteenMin": "0.94", "MCosHubSingleOneFourteenMax": "0.96",
 }

@@ -39,7 +39,7 @@ def per_subject(df: pd.DataFrame, energy_col: str) -> pd.DataFrame:
     return w.groupby(["scale", "family", "target_name", "subject_id"], as_index=False)[["pct", "d_dist", "d_coupling"]].mean()
 
 
-# ------------------------------------------------------------------ named targets: full and driver-excluded
+# named targets: full and driver-excluded
 named_rows = []
 subj_tables = {}
 for variant, col in (("full", "energy_full"), ("drivers_excluded", "energy_excl")):
@@ -60,7 +60,7 @@ named = C.holm(pd.DataFrame(named_rows), ["variant", "scale", "family"])
 named.to_csv(C.OUT / "named_target_summary.csv", index=False)
 pd.concat([t.assign(variant=v) for v, t in subj_tables.items()]).to_csv(C.OUT / "named_target_subject_pct.csv.gz", index=False)
 
-# ------------------------------------------------------------------ single-parcel baseline: full and driver-excluded
+# single-parcel baseline: full and driver-excluded
 sp_rows, sp_dist_rows, sp_parcel = [], [], []
 for variant, col in (("full", "energy_full"), ("drivers_excluded", "energy_excl")):
     sub = per_subject(L[L.family == "single_cortical_parcel"], col)
@@ -96,7 +96,7 @@ for variant, col in (("full", "energy_full"), ("drivers_excluded", "energy_excl"
 pd.DataFrame(sp_rows).to_csv(C.OUT / "single_parcel_summary.csv", index=False)
 pd.concat(sp_parcel).to_csv(C.OUT / "single_parcel_tests.csv", index=False)
 
-# ------------------------------------------------------------------ driver-target overlap
+# driver-target overlap
 ov = L[L.family.isin(NAMED)].copy()
 ov["any_driver_in"] = ov.n_drivers_in > 0
 overlap_k = ov.groupby(["scale", "family", "target_name", "method", "k"], as_index=False).agg(

@@ -34,10 +34,10 @@ import pandas as pd
 from joblib import Parallel, delayed
 from scipy.stats import spearmanr, wilcoxon
 
-from hoc import config as hoc_config  # noqa: E402
-from hoc.analysis.null_models import NULL_TYPES, SCALES, load_stack, n_subjects, out_dir  # noqa: E402
-from hoc.runs import stage_from_argv  # noqa: E402
-from hoc.utils import n_jobs  # noqa: E402
+from hoc import config as hoc_config
+from hoc.analysis.null_models import NULL_TYPES, SCALES, load_stack, n_subjects, out_dir
+from hoc.runs import stage_from_argv
+from hoc.utils import n_jobs
 
 ROOT: Path  # run directory (runs/<name>/), set in main()
 NULL_DIR: Path  # <run>/null_models, set in main()

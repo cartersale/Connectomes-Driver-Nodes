@@ -36,10 +36,10 @@ from joblib import Parallel, delayed
 from scipy.sparse.csgraph import shortest_path
 from scipy.stats import spearmanr
 
-from hoc import config as hoc_config  # noqa: E402
-from hoc.analysis.null_models import SCALES, Spectral, load_stack, percentile_of, spectrum_metrics  # noqa: E402
-from hoc.runs import stage_from_argv  # noqa: E402
-from hoc.utils import n_jobs  # noqa: E402
+from hoc import config as hoc_config
+from hoc.analysis.null_models import SCALES, Spectral, load_stack, percentile_of, spectrum_metrics
+from hoc.runs import stage_from_argv
+from hoc.utils import n_jobs
 
 ROOT: Path  # run directory (runs/<name>/), set in main()
 OUT: Path  # <run>/mechanisms, set in main()

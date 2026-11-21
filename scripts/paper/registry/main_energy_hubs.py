@@ -13,15 +13,14 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
+from ._common import scale_siblings
+from .record import Number
+
 NAN = float("nan")
 SCALES = (68, 114, 219)
 SCALE_WORD = {68: "SixtyEight", 114: "OneFourteen", 219: "TwoNineteen"}
 HUB3 = ("degree_strength", "eigenvector_centrality", "top_avg_ctrl")
 
-
-from .record import Number  # noqa: E402
-
-# --------------------------------------------------------------------------- formatting helpers
 
 def fx(x: float, d: int = 2) -> str:
     s = f"{x:.{d}f}"
@@ -72,6 +71,13 @@ def N(name, value, text, source, locus, **context) -> Number:
     return Number(name=name, value=float(value), text=text, source=source, locus=tuple(locus), context=context)
 
 
+def sib(prefix: str, df: pd.DataFrame, col: str, fmt, source: str, locus, **context) -> list[Number]:
+    """114-region sibling of a range over p1rows rows (keys: family/method and scale)."""
+    keys = [c for c in ("family", "method") if c in df.columns]
+    items = [((getattr(r, keys[0]) if keys else None, int(r.scale)), getattr(r, col)) for r in df.itertuples()]
+    return scale_siblings(prefix, items, fmt, source, locus, context)
+
+
 def gramian_q1_factory(a0: np.ndarray, c: float):
     """Eigenbasis of A0 and the infinite-horizon Gramian kernel, exactly as hoc.analysis.null_models.Spectral.kernel and
     figures/fig1.py set_values: mu = lam - lam_max - c, kernel = -1/(mu_i + mu_j), W (in A0's eigenbasis) =
@@ -89,8 +95,7 @@ def gramian_q1_factory(a0: np.ndarray, c: float):
     return lam, u, spectrum
 
 
-# --------------------------------------------------------------------------- subsec:energy_floor
-
+# subsec:energy_floor
 def energy_floor(run: Path) -> list[Number]:
     out: list[Number] = []
     loc = ("subsec:energy_floor",)
@@ -107,6 +112,8 @@ def energy_floor(run: Path) -> list[Number]:
                  loc, eps=1e-5, stat="min over scale x method of cohort mean"))
     out.append(N("MFracBelowEpsMax", fb.max(), pc(fb.max()), tsrc + "fraction_below_eps, max over scales x methods (x100)",
                  loc, eps=1e-5, stat="max over scale x method of cohort mean"))
+    out += scale_siblings("MFracBelowEps", list(fb.items()), pc, tsrc + "fraction_below_eps (x100)", loc,
+                          {"eps": 1e-5, "stat": "cohort mean, over methods"})
 
     # "$\log_{10}E_{\mathrm{avg}}$ remained within 0.07 of $\log_{10}(N/\epsilon)$ across all criteria and spatial resolutions"
     dev = (np.log10(g.index.get_level_values("scale") / 1e-5) - g["log10_average_energy"]).abs()
@@ -127,8 +134,7 @@ def energy_floor(run: Path) -> list[Number]:
     return out
 
 
-# --------------------------------------------------------------------------- fig:overview (Fig. 1 caption)
-
+# fig:overview (Fig. 1 caption)
 def fig1(run: Path) -> list[Number]:
     """Replicates scripts/figures/fig1.py main() + set_values(): cohort_reference of
     processed/connectomes_scale-114.npz, c = 0.1, k = 3, hub = top-3 strength (hoc.rankings.strength_scores),
@@ -171,8 +177,7 @@ def fig1(run: Path) -> list[Number]:
     return out
 
 
-# --------------------------------------------------------------------------- subsec:hub_concentration + paragraph after Fig. 2
-
+# subsec:hub_concentration + paragraph after Fig. 2
 P1SRC = "concentration/02_tables: concentration/q1_vs_random.csv | c == 0.1, metric == '{m}', k == '{k}'; "
 
 
@@ -193,11 +198,13 @@ def hub_concentration(run: Path) -> list[Number]:
     ctx = dict(c=0.1, k="avg2+ (2,3,5)", criterion="hub3", stat="mean over subjects")
     out.append(N("MQOneHubTwoFiveMin", h.value_mean.min(), pc(h.value_mean.min()), s + "value_mean x100, min", loc, **ctx))
     out.append(N("MQOneHubTwoFiveMax", h.value_mean.max(), pc(h.value_mean.max()), s + "value_mean x100, max", loc, **ctx))
+    out += sib("MQOneHubTwoFive", h, "value_mean", pc, s + "value_mean x100", loc, **ctx)
     # "compared with 36--39\% for random sets"
     out.append(N("MQOneRandomTwoFiveMin", h.random_mean.min(), pc(h.random_mean.min()),
                  s + "random_mean x100 (mean of each subject's 100 random sets), min over scales", loc, **ctx))
     out.append(N("MQOneRandomTwoFiveMax", h.random_mean.max(), pc(h.random_mean.max()),
                  s + "random_mean x100, max over scales", loc, **ctx))
+    out += sib("MQOneRandomTwoFive", h, "random_mean", pc, s + "random_mean x100", loc, **ctx)
     # "All three exceeded the random mean in every subject at every spatial scale"
     npos = h.n_positive.min()
     out.append(N("MHubAboveRandomEvery", npos, "every" if npos == h.n.min() else cnt(npos),
@@ -205,6 +212,7 @@ def hub_concentration(run: Path) -> list[Number]:
     # "ranking at the 99th to 100th percentile of random sets"
     out.append(N("MHubPctTwoFiveMin", h.pct_mean.min(), pc(h.pct_mean.min()), s + "pct_mean x100, min", loc, **ctx))
     out.append(N("MHubPctTwoFiveMax", h.pct_mean.max(), pc(h.pct_mean.max()), s + "pct_mean x100, max", loc, **ctx))
+    out += sib("MHubPctTwoFive", h, "pct_mean", pc, s + "pct_mean x100", loc, **ctx)
     # "with lower values than random sets in at least 65 of 70 subjects for each hub-oriented criterion and scale"
     er = pd.concat([p1rows(run, HUB3, "avg2+", "er"), p1rows(run, HUB3, "avg2+", "pr")])
     lower = (er.n - er.n_positive).min()
@@ -213,7 +221,7 @@ def hub_concentration(run: Path) -> list[Number]:
                  "(subjects whose criterion ER/PR is not above the random mean; no exact ties assumed); lower bound",
                  loc, c=0.1, k="avg2+ (2,3,5)", bound="at least"))
 
-    # ---- paragraph after Fig. 2
+    # paragraph after Fig. 2
     loc2 = ("subsec:hub_concentration",)
     # "Betweenness and cycle criticality were intermediate, with 50--61\%"
     m = p1rows(run, ("betweenness", "cycle_criticality"), "avg2+")
@@ -221,9 +229,11 @@ def hub_concentration(run: Path) -> list[Number]:
     ctx = dict(c=0.1, k="avg2+ (2,3,5)", criterion="betweenness+cycle_criticality")
     out.append(N("MQOneIntermediateMin", m.value_mean.min(), pc(m.value_mean.min()), s + "value_mean x100, min", loc2, **ctx))
     out.append(N("MQOneIntermediateMax", m.value_mean.max(), pc(m.value_mean.max()), s + "value_mean x100, max", loc2, **ctx))
+    out += sib("MQOneIntermediate", m, "value_mean", pc, s + "value_mean x100", loc2, **ctx)
     # "(79th--91st percentile of random sets)"
     out.append(N("MIntermediatePctMin", m.pct_mean.min(), pc(m.pct_mean.min()), s + "pct_mean x100, min", loc2, **ctx))
     out.append(N("MIntermediatePctMax", m.pct_mean.max(), pc(m.pct_mean.max()), s + "pct_mean x100, max", loc2, **ctx))
+    out += sib("MIntermediatePct", m, "pct_mean", pc, s + "pct_mean x100", loc2, **ctx)
 
     # "Criteria that selected less strongly connected regions remained closer to random sets (34--49\%, within ten
     #  percentage points of random)" -- the remaining Fig. 2C rows (figures/fig3.py ROWS minus hub3, betweenness,
@@ -234,6 +244,7 @@ def hub_concentration(run: Path) -> list[Number]:
     ctx = dict(c=0.1, k="avg2+ (2,3,5)", criterion="non-hub Fig. 2C rows")
     out.append(N("MQOneNonHubMin", r.value_mean.min(), pc(r.value_mean.min()), s + "value_mean x100, min", loc2, **ctx))
     out.append(N("MQOneNonHubMax", r.value_mean.max(), pc(r.value_mean.max()), s + "value_mean x100, max", loc2, **ctx))
+    out += sib("MQOneNonHub", r, "value_mean", pc, s + "value_mean x100", loc2, **ctx)
     d = r["mean"].abs().max() * 100
     tok = "ten" if d <= 10 else f"{math.ceil(d - 1e-9)}"
     out.append(N("MNonHubWithinRandomPoints", d, tok,
@@ -250,22 +261,19 @@ def hub_concentration(run: Path) -> list[Number]:
     return out
 
 
-# --------------------------------------------------------------------------- fig:combining (Fig. 2 caption)
-
-
-
+# fig:combining (Fig. 2 caption)
 def fig2(run: Path) -> list[Number]:
     out: list[Number] = []
     loc = ("fig:combining",)
     sets = csv(run, "concentration/set_q1.csv.gz")
     x = sets[(sets.scale == 114) & np.isclose(sets.c, 0.1)]
 
-    # ---- panel A: replicates fig2.py Example + Example.spectrum
+    # panel A: replicates fig2.py Example + Example.spectrum
     deg3 = x[(x.family == "degree_strength") & (x.k == 3)].set_index("subject_id").q1
     sid = (deg3 - deg3.median()).abs().idxmin()
     si = int(sid.split("-")[1])
     xs = x[x.subject_id == sid]
-    nodes = lambda s: [int(t) for t in str(s).split(";")]  # noqa: E731
+    nodes = lambda s: [int(t) for t in str(s).split(";")]
     hub1 = nodes(xs[(xs.family == "degree_strength") & (xs.k == 1)].nodes.iloc[0])
     hubs = nodes(xs[(xs.family == "degree_strength") & (xs.k == 3)].nodes.iloc[0])
     rand = {}
@@ -297,7 +305,7 @@ def fig2(run: Path) -> list[Number]:
                  asrc + "max over the four spectra of sum of normalized eigenvalues 7..N, x100; bound rounded up", loc,
                  scale=114, c=0.1, subject=sid, bound="at most"))
 
-    # ---- panel B: replicates fig2.py panel_k (mean over subjects of per-subject mean q1)
+    # panel B: replicates fig2.py panel_k (mean over subjects of per-subject mean q1)
     def bmean(fam, k):
         return float(x[(x.family == fam) & (x.k == k)].groupby("subject_id").q1.mean().mean())
 
@@ -312,7 +320,7 @@ def fig2(run: Path) -> list[Number]:
                          criterion=fam, stat="mean over subjects"))
     # (claim "lie above them for every k >= 2" checked in the report, not a number)
 
-    # ---- panel C: replicates fig2.py panel_criteria band
+    # panel C: replicates fig2.py panel_criteria band
     al = csv(run, "mechanisms/gramian_alignment.csv")
     aa = al[(al.scale == 114) & (al.k == 3)]
     rm = aa[aa.family == "random"].groupby("subject_id").q1.mean().to_numpy()
@@ -326,30 +334,27 @@ def fig2(run: Path) -> list[Number]:
     return out
 
 
-# --------------------------------------------------------------------------- entry point
-
 def collect(run: Path) -> list[Number]:
     run = Path(run)
-    out = energy_floor(run) + fig1(run) + hub_concentration(run) + fig2(run)
-    names = [n.name for n in out]
-    assert len(names) == len(set(names)), "duplicate macro names"
-    assert all(n.isalpha() for n in names)
-    return out
+    return energy_floor(run) + fig1(run) + hub_concentration(run) + fig2(run)
 
 
 # Tokens as printed in the manuscript.
-PRINTED = {
-    "MFracBelowEpsMin": "86", "MFracBelowEpsMax": "96", "MLogEavgFloorGap": "0.07", "MLambdaMinEqEpsNSets": "302,400",
+PRINTED = { "MLogEavgFloorGap": "0.07", "MLambdaMinEqEpsNSets": "302,400",
     "MLambdaMinEqEpsAll": "all",
     "MFigOneHubLoading": "0.48", "MFigOneHubQOne": "0.78", "MFigOneRandomMedianLoading": "0",
     "MFigOneRandomMedianQOne": "0.33", "MFigOneRandomReachHub": "none",
-    "MQOneHubTwoFiveMin": "67", "MQOneHubTwoFiveMax": "78", "MQOneRandomTwoFiveMin": "36", "MQOneRandomTwoFiveMax": "39",
-    "MHubAboveRandomEvery": "every", "MHubPctTwoFiveMin": "99", "MHubPctTwoFiveMax": "100", "MHubErPrLowerMinN": "65",
-    "MQOneIntermediateMin": "50", "MQOneIntermediateMax": "61", "MIntermediatePctMin": "79", "MIntermediatePctMax": "91",
-    "MQOneNonHubMin": "34", "MQOneNonHubMax": "49", "MNonHubWithinRandomPoints": "ten",
+    "MHubAboveRandomEvery": "every", "MHubErPrLowerMinN": "65", "MIntermediatePctMin": "79", "MIntermediatePctMax": "91", "MNonHubWithinRandomPoints": "ten",
     "MQOneModalTwoFiveSixtyEight": "34", "MQOneModalTwoFiveOneFourteen": "34", "MQOneModalTwoFiveTwoNineteen": "34",
     "MFigTwoQOneHubOne": "0.90", "MFigTwoQOneRandomOne": "0.99", "MFigTwoQOneHubThree": "0.75",
     "MFigTwoQOneRandomThree": "0.34", "MFigTwoTailMaxPct": "0.2",
     "MFigTwoQOneDegreeKOne": "0.87", "MFigTwoQOneRandomKOne": "0.95", "MFigTwoQOneDegreeKFive": "0.69",
     "MFigTwoQOneRandomKFive": "0.25", "MFigTwoRandomBandLo": "0.35", "MFigTwoRandomBandHi": "0.38",
+    # 114-region values quoted in the Results (ranges over scales: Supplementary Table C_scales)
+    "MFracBelowEpsOneFourteen": "92",
+    "MQOneHubTwoFiveOneFourteenMin": "74", "MQOneHubTwoFiveOneFourteenMax": "78",
+    "MQOneRandomTwoFiveOneFourteen": "37",
+    "MHubPctTwoFiveOneFourteen": "100",
+    "MQOneIntermediateOneFourteenMin": "57", "MQOneIntermediateOneFourteenMax": "61",
+    "MQOneNonHubOneFourteenMin": "35", "MQOneNonHubOneFourteenMax": "44",
 }

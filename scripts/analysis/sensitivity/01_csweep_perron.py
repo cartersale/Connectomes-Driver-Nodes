@@ -1,4 +1,4 @@
-"""Tasks 1 + 3: dense c sweep (eps = 1e-5, infinite horizon) with random baselines and Perron-mode mechanism.
+"""Dense c sweep (eps = 1e-5, infinite horizon) with random baselines and Perron-mode mechanism.
 
 Per subject x scale x c x k in {1,2,3,5}: 9 static top-k rankings (saved primary node ranks) and the
 primary pipeline's 100 random sets (same seeds). Outputs
@@ -42,7 +42,7 @@ def pct_vs(value, null):
 def subject_job(scale, subject_index, ranks, adjacency):
     spec = Spectral(adjacency)
     sid = f"sub-{subject_index:03d}"
-    v2 = spec.perron**2
+    perron_sq = spec.perron**2
     pidx = int(np.argmax(spec.lam))
     Usq = spec.U**2  # (node, mode)
     rows, sp_rows = [], []
@@ -54,7 +54,7 @@ def subject_job(scale, subject_index, ranks, adjacency):
         for ki, k in enumerate(K_VALUES):
             sets = [ranks[(sid, m)][:k] for m in METHODS] + rnd[k]
             met = metrics_from_eigs(spec.eigvals_batch(kern, sets), EPS)
-            perron_load = np.array([v2[s].sum() for s in sets])
+            perron_load = np.array([perron_sq[s].sum() for s in sets])
             # v^T W v = K_pp * sum_{i in S} v_i^2 ; tr W = sum_a K_aa sum_{i in S} U_ia^2
             trace_w = np.array([Usq[s].sum(axis=0) @ kdiag for s in sets])
             perron_frac = kdiag[pidx] * perron_load / trace_w
@@ -85,7 +85,7 @@ def subject_job(scale, subject_index, ranks, adjacency):
             })
             sp_rows.append({
                 "subject_id": sid, "scale": scale, "c": c, "k": k,
-                "rho_perronload_er": spearmanr(perron_load, er).statistic if k > 0 else np.nan,
+                "rho_perronload_er": spearmanr(perron_load, er).statistic,
                 "rho_perronload_pr": spearmanr(perron_load, pr).statistic,
                 "rho_perronfrac_er": spearmanr(perron_frac, er).statistic,
                 "rho_perronload_er_rankings_only": spearmanr(perron_load[:nm], er[:nm]).statistic,

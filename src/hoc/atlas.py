@@ -78,7 +78,7 @@ def classify_region_group(region_name: str) -> str:
         return "insula"
     if any(token in region_name for token in ("frontal", "orbital", "precentral", "paracentral")):
         return "frontal"
-    if any(token in region_name for token in ("parietal", "supramarginal", "precuneus", "postcentral")):
+    if any(token in region_name for token in ("parietal", "supramarginal", "postcentral")):
         return "parietal"
     if any(token in region_name for token in ("temporal", "bankssts", "entorhinal", "fusiform", "parahippocampal")):
         return "temporal"

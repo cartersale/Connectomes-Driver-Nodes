@@ -43,7 +43,7 @@ OUT_DIR = out_dir(ROOT)
 
 report: dict = {}
 
-# ---- 1. direct comparison with library ----
+# 1. direct comparison with library
 rows = []
 for scale in SCALES:
     stack = load_stack(scale, ROOT)
@@ -72,7 +72,7 @@ report["library_vs_eigbasis"] = {k: float(lib_cmp[k].max()) for k in ("max_abs_W
 print("library vs eigbasis", report["library_vs_eigbasis"], flush=True)
 
 
-# ---- 2. geometry_metrics.csv at c = 0.1 ----
+# 2. geometry_metrics.csv at c = 0.1
 def primary_subject(scale, subject_index, ranks, adjacency):
     spec = Spectral(adjacency)
     kern = spec.kernel(0.1)
@@ -110,7 +110,7 @@ report["primary_max_abs_d_pr"] = float(np.max(np.abs(merged["participation_ratio
 report["primary_max_abs_d_log10E"] = float(np.max(np.abs(merged["log10_average_energy"] - merged["le_new"])))
 print({k: v for k, v in report.items() if k.startswith("primary")}, flush=True)
 
-# ---- 3. sensitivity_summary.csv ----
+# 3. sensitivity_summary.csv
 sens = pd.read_csv(ROOT / "robustness/sensitivity_summary.csv")
 sens = sens[sens["k"].isin(K_VALUES + (7, 10, 14, 6, 11, 23, 22, 44))]
 

@@ -2,9 +2,10 @@
 """P4: does the c-dependence collapse across scales when c is replaced by the decay ratio
 d = c / (c + lambda1 - lambda2)?
 
-For every subject and scale, on a 25-point log grid of c in [10^-2.5, 10^0.5], compute q1 and ER of
+For every subject and scale, on a 45-point log grid of c in [10^-5, 10^0.5], compute q1 and ER of
 the degree set, the cycle-participation set (saved primary ranks) and the subject's 100 primary
-random sets (k in {1,2,3,5}; k-averaged as in the paper). Curves of interest per subject:
+random sets. Curves are averaged over k in {2,3,5}, as in the paper; k = 1, where the excess over random has the
+opposite sign, is kept separately (q1_deg_k1, q1_rand_k1, dr_q1_k1). Curves of interest per subject:
   cd_q1 = q1(cycle) - q1(degree), cd_er = ER(cycle) - ER(degree), dr_q1 = q1(degree) - mean q1(random)
 Collapse tests, on each axis (log c vs log d):
   1. dispersion: per-subject curves are interpolated onto a common log-axis grid (the range shared
@@ -30,21 +31,27 @@ from pathlib import Path
 
 os.environ.setdefault("OMP_NUM_THREADS", "1")
 
+import matplotlib
+
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from joblib import Parallel, delayed
-from scipy.stats import kruskal
+from scipy.stats import kruskal, spearmanr
+from scipy.stats import t as t_dist
 
-from hoc import config as hoc_config  # noqa: E402
-from hoc.analysis.null_models import Spectral, load_stack, random_driver_sets, spectrum_metrics  # noqa: E402
-from hoc.runs import stage_from_argv  # noqa: E402
-from hoc.utils import n_jobs  # noqa: E402
+from hoc import config as hoc_config
+from hoc.analysis.null_models import Spectral, load_stack, random_driver_sets, spectrum_metrics
+from hoc.runs import stage_from_argv
+from hoc.utils import n_jobs
 
 ROOT: Path  # run directory (runs/<name>/), set in main()
 OUT: Path  # <run>/concentration, set in main()
 SCALES = hoc_config.scales()
 K_VALUES = hoc_config.k_values()
-C_GRID = np.logspace(-2.5, 0.5, 25)
+K_MULTI = [k for k in K_VALUES if k >= 2]  # the k-average reported in the paper
+C_GRID = np.logspace(-5, 0.5, 45)  # step 0.125 decades; includes c = 0.01, 0.1, 1 exactly
 CURVES = ("cd_q1", "cd_er", "dr_q1")
 
 
@@ -62,16 +69,21 @@ def job(scale, si, A, orders):
     for c in C_GRID:
         kernel = spec.kernel(c)
         acc = {"q1_deg": 0.0, "q1_cyc": 0.0, "q1_rand": 0.0, "er_deg": 0.0, "er_cyc": 0.0}
+        single = {}
         for k in K_VALUES:
             w, _, _ = spec.set_spectra(kernel, sets_k[k])
             m = spectrum_metrics(w)
-            acc["q1_deg"] += m["q1"][0] / len(K_VALUES)
-            acc["q1_cyc"] += m["q1"][1] / len(K_VALUES)
-            acc["q1_rand"] += m["q1"][2:].mean() / len(K_VALUES)
-            acc["er_deg"] += m["er"][0] / len(K_VALUES)
-            acc["er_cyc"] += m["er"][1] / len(K_VALUES)
+            if k == 1:
+                single = {"q1_deg_k1": m["q1"][0], "q1_rand_k1": m["q1"][2:].mean()}
+                continue
+            acc["q1_deg"] += m["q1"][0] / len(K_MULTI)
+            acc["q1_cyc"] += m["q1"][1] / len(K_MULTI)
+            acc["q1_rand"] += m["q1"][2:].mean() / len(K_MULTI)
+            acc["er_deg"] += m["er"][0] / len(K_MULTI)
+            acc["er_cyc"] += m["er"][1] / len(K_MULTI)
         rows.append({"subject_id": sid, "scale": scale, "c": c, "gap": spec.gap, "decay_ratio": c / (c + spec.gap), **acc,
-                     "cd_q1": acc["q1_cyc"] - acc["q1_deg"], "cd_er": acc["er_cyc"] - acc["er_deg"], "dr_q1": acc["q1_deg"] - acc["q1_rand"]})
+                     "cd_q1": acc["q1_cyc"] - acc["q1_deg"], "cd_er": acc["er_cyc"] - acc["er_deg"], "dr_q1": acc["q1_deg"] - acc["q1_rand"],
+                     **single, "dr_q1_k1": single.get("q1_deg_k1", np.nan) - single.get("q1_rand_k1", np.nan)})
     return rows
 
 
@@ -156,8 +168,6 @@ def main():
     fsum.to_csv(OUT / "decay_flip_summary.csv", index=False)
     print(fsum.round(3).to_string(index=False))
 
-    from scipy.stats import spearmanr
-
     corr = []
     for (s, c), g in df.groupby(["scale", "c"]):
         for cv in CURVES:
@@ -167,8 +177,6 @@ def main():
     corr.to_csv(OUT / "decay_gap_correlations.csv", index=False)
 
     # 5. partial Spearman rho(gap, curve | controls): ranks residualized on the controls' ranks (OLS)
-    from scipy.stats import t as t_dist
-
     net = []
     for s in SCALES:
         stack = load_stack(s, ROOT)
@@ -197,10 +205,6 @@ def main():
     print("Spearman rho of gap with controls:\n", ctrl_corr.round(2).to_string())
     print(part[np.isclose(part["c"], 0.1, rtol=0.05)].round(3).to_string(index=False))
 
-    import matplotlib
-    matplotlib.use("Agg")
-    import matplotlib.pyplot as plt
-
     colors = {68: "#1b6ca8", 114: "#d1495b", 219: "#2e933c"}
     fig, axes = plt.subplots(len(CURVES), 2, figsize=(9, 9), sharey="row")
     labels = {"cd_q1": "q1(cycle) − q1(degree)", "cd_er": "ER(cycle) − ER(degree)", "dr_q1": "q1(degree) − q1(random)"}
@@ -209,7 +213,7 @@ def main():
             ax = axes[i, j]
             for s in SCALES:
                 g = df[df["scale"] == s]
-                m = g.groupby("c")[[ax_name, cv]].mean() if ax_name == "c" else g.groupby("c")[[ax_name, cv]].mean()
+                m = g.groupby("c")[[ax_name, cv]].mean()
                 ax.plot(m[ax_name], m[cv], color=colors[s], lw=2, label=f"{s} regions")
             ax.axhline(0, color="0.5", lw=0.8)
             ax.set_xscale("log")

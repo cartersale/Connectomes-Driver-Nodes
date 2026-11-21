@@ -34,7 +34,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-from hoc.analysis.sensitivity import (  # noqa: E402
+from hoc.analysis.sensitivity import (
     SCALES,
     Spectral,
     load_ranks,
@@ -43,8 +43,8 @@ from hoc.analysis.sensitivity import (  # noqa: E402
     random_sets,
     run_parallel,
 )
-from hoc.runs import stage_from_argv  # noqa: E402
-from hoc.utils import n_jobs  # noqa: E402
+from hoc.runs import stage_from_argv
+from hoc.utils import n_jobs
 
 OUT: Path  # set in main(): <run>/modal_controllability
 C_VALUES = (0.01, 0.1, 1.0)

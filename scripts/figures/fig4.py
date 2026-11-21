@@ -25,10 +25,10 @@ import pandas as pd
 from matplotlib.colors import TwoSlopeNorm
 from scipy import stats
 
-from hoc import figstyle as fs  # noqa: E402
+from hoc import figstyle as fs
 
 SCALE = 114
-SLOT = ("#2a78d6", "#eb6834", "#cfcec9")  # v2, v3, later (direct-labelled)
+SLOT = ("#4a4945", "#eb6834", "#cfcec9")  # v2, v3, later (direct-labelled); v2 not blue, which is the brains' back pole
 
 
 def panel_split(fig, cell, root: Path, axes_tab: pd.DataFrame, subj: pd.DataFrame) -> None:
@@ -123,11 +123,12 @@ def panel_sweep(ax, curves: pd.DataFrame) -> None:
         vals = {c: m.iloc[np.argmin(np.abs(np.log(m.index / c)))] for c in (0.01, 0.1, 1.0)}
         print(f"4C  excess q1 {sc}: " + ", ".join(f"c={c}: {v:.2f}" for c, v in vals.items()))
     ax.set_xscale("log")
+    ax.set_ylim(top=ax.get_ylim()[1] * 1.1)  # headroom so the line labels clear the peak
     fs.reference_lines(ax)
     ax.axhline(0, color=fs.GRID, lw=0.6, zorder=0)
     ax.set_xlabel("Damping c")
     ax.set_ylabel("Excess q1, degree − random")
-    ax.legend(title="Regions", loc="lower left", title_fontsize=6, handlelength=1.2, borderaxespad=0.1)
+    ax.legend(title="Regions", loc="upper left", title_fontsize=6, handlelength=1.2, borderaxespad=0.1)
     fs.style(ax)
 
 

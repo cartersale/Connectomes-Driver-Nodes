@@ -36,7 +36,7 @@ def partial_spearman(x, y, z):
 def job(scale, si, ranks, A0):
     spec = Spectral(A0)
     strength = A0.sum(axis=1)
-    v2 = spec.perron**2
+    perron_sq = spec.perron**2
     sid = f"sub-{si:03d}"
     rows = []
     for c in (0.01, 0.1, 1.0):
@@ -44,7 +44,7 @@ def job(scale, si, ranks, A0):
         for k in K_VALUES:
             sets = [ranks[(sid, m)][:k] for m in METHODS] + random_sets(scale, si, k)
             er = metrics_from_eigs(spec.eigvals_batch(kern, sets), 1e-5)["effective_rank"]
-            pl = np.array([v2[s].sum() for s in sets]); st = np.array([strength[s].sum() for s in sets])
+            pl = np.array([perron_sq[s].sum() for s in sets]); st = np.array([strength[s].sum() for s in sets])
             rows.append({"scale": scale, "subject_id": sid, "c": c, "k": k,
                          "rho_er_strength": spearmanr(er, st).statistic, "rho_er_perron": spearmanr(er, pl).statistic,
                          "partial_rho_er_perron_given_strength": partial_spearman(er, pl, st),

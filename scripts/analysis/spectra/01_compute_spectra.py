@@ -4,7 +4,7 @@
 Recomputes, at the primary setting (c = 0.1, eps = 1e-5, infinite horizon), the
 regularized controllability Gramian W_eps for every static top-k driver set of every
 saved ranking, the 100 primary random sets (regenerated with the primary seeds), and
-new matched control sets:
+matched control sets:
 
 * ``degree_matched``         100 sets per cycle set; each cycle node is replaced by a node
                              drawn from its nearest-strength neighbours (pool of
@@ -33,18 +33,18 @@ import numpy as np
 import pandas as pd
 from joblib import Parallel, delayed
 
-from hoc import synthetic  # noqa: E402
-from hoc.atlas import EXCLUDED_LABELS, SCALE_TO_RESOLUTION, build_label_table  # noqa: E402
+from hoc import synthetic
+from hoc.atlas import EXCLUDED_LABELS, SCALE_TO_RESOLUTION, build_label_table
 from hoc.config import (
-    active_config_path,  # noqa: E402
-    load_config,  # noqa: E402
+    active_config_path,
+    load_config,
 )
-from hoc.control import assemble_gramian, gramian_metrics, single_node_gramians  # noqa: E402
-from hoc.paths import REPO_ROOT as REPO_ROOT  # noqa: E402
-from hoc.preprocessing import stabilize_adjacency  # noqa: E402
-from hoc.rankings import random_top_k_nodes, top_k_nodes  # noqa: E402
-from hoc.runs import RunContext, add_run_arguments  # noqa: E402
-from hoc.utils import make_rng, n_jobs, subject_seed  # noqa: E402
+from hoc.control import assemble_gramian, gramian_metrics, single_node_gramians
+from hoc.paths import REPO_ROOT
+from hoc.preprocessing import stabilize_adjacency
+from hoc.rankings import random_top_k_nodes, top_k_nodes
+from hoc.runs import RunContext, add_run_arguments
+from hoc.utils import make_rng, n_jobs, subject_seed
 
 STAGE = "spectra/01_compute_spectra"
 OUT: Path  # set in main(): <run>/spectra
@@ -302,7 +302,7 @@ def main():
     df.to_csv(OUT / "set_metrics.csv", index=False)
     pd.DataFrame(extras).to_csv(OUT / "subject_extras.csv", index=False)
 
-    # ---- Verification against saved primary outputs ----
+    # Verification against saved primary outputs
     geo = pd.read_csv(ctx.root / "primary/geometry_metrics.csv")
     geo = geo[geo.selection_strategy == "static"].copy()
     geo["sample"] = geo.groupby(["subject_id", "scale", "k", "method"]).cumcount()

@@ -31,7 +31,7 @@ def cycle_participation(adjacency: np.ndarray) -> tuple[np.ndarray, dict]:
             continue
         persistence = death - birth
         persistences.append(persistence)
-        cocycle = cocycles[feature_index] if feature_index < len(cocycles) else np.empty((0, 3))
+        cocycle = cocycles[feature_index]
         support_nodes = np.unique(cocycle[:, :2].astype(int).ravel()) if cocycle.size else np.array([], dtype=int)
         if support_nodes.size == 0:
             continue
@@ -42,7 +42,6 @@ def cycle_participation(adjacency: np.ndarray) -> tuple[np.ndarray, dict]:
 
 
 def total_h1_persistence(adjacency: np.ndarray) -> float:
-    """Return the total finite H1 persistence for an adjacency matrix."""
     distances = adjacency_to_distance(adjacency)
     result = ripser(distances, distance_matrix=True, maxdim=1, do_cocycles=False)
     diagram = result["dgms"][1]
@@ -52,7 +51,6 @@ def total_h1_persistence(adjacency: np.ndarray) -> float:
 
 
 def degree_normalized_cycle_participation(cycle_scores: np.ndarray, strength: np.ndarray) -> np.ndarray:
-    """Normalize cycle participation by weighted degree strength."""
     return min_max_normalize(cycle_scores / np.maximum(strength, 1.0e-12))
 
 

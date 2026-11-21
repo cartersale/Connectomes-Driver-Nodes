@@ -13,13 +13,13 @@ from pathlib import Path
 import matplotlib
 
 matplotlib.use("Agg")
-import matplotlib.pyplot as plt  # noqa: E402
-import numpy as np  # noqa: E402
-import pandas as pd  # noqa: E402
-from scipy.stats import rankdata, spearmanr, wilcoxon  # noqa: E402
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+from scipy.stats import rankdata, spearmanr, wilcoxon
 
-from hoc.analysis.lesions import STAGE_PREFIX, out_dir  # noqa: E402
-from hoc.runs import RunContext, add_run_arguments  # noqa: E402
+from hoc.analysis.lesions import STAGE_PREFIX, out_dir
+from hoc.runs import RunContext, add_run_arguments
 
 LESIONS = ["degree", "cycle", "random"]
 STRATS = ["degree_strength", "cycle_participation"]
@@ -164,10 +164,10 @@ def main() -> None:
     ps = per_subject(d, list(METRICS) + extra)
     ps.to_csv(out / "per_subject_degradation.csv", index=False)
 
-    # --- reproduction check (static protocol, degree lesion) ---
+    # reproduction check (static protocol, degree lesion)
     rep = d[(d.protocol == "static") & (d.lesion_type == "degree")].groupby(["strategy", "h"]).dER.mean().unstack()
 
-    # --- crossover statistics ---
+    # crossover statistics
     tabs = []
     for protocol in ["static", "recompute"]:
         for metric in METRICS:
@@ -177,12 +177,12 @@ def main() -> None:
     cross = pd.concat(tabs, ignore_index=True)
     cross.to_csv(out / "crossover_stats.csv", index=False)
 
-    # --- 3x2 summary (pooled over scale, h, k; random draws averaged) ---
+    # 3x2 summary (pooled over scale, h, k; random draws averaged)
     summ = (ps.groupby(["protocol", "lesion_type", "strategy", "subject"])[list(METRICS)].mean()
             .groupby(["protocol", "lesion_type", "strategy"]).mean().reset_index())
     summ.to_csv(out / "summary_3x2.csv", index=False)
 
-    # --- energy / size diagnostics ---
+    # energy / size diagnostics
     st = d[d.protocol == "static"]
     energy = (st.groupby(["scale", "lesion_type", "h", "strategy"])
               .agg(frac_floor_intact=("intact_fraction_at_floor", "mean"),
@@ -201,7 +201,7 @@ def main() -> None:
     resid_floor = (st.dlog10E - pred_floor)
     lesion_energy_diff = cross[(cross.metric == "dlog10E") & (cross.protocol == "static")]
 
-    # --- random-lesion draw variability & mechanism diagnostics ---
+    # random-lesion draw variability & mechanism diagnostics
     hits = (ps[ps.protocol == "static"].groupby(["lesion_type", "strategy"])
             [["lesion_hits_topk_degree", "lesion_hits_topk_cycle", "drivers_displaced"]].mean().reset_index())
     lesion_overlap = (d[(d.protocol == "static") & (d.lesion_type != "random") & (d.k == 1)
@@ -209,10 +209,10 @@ def main() -> None:
                       .groupby(["scale", "h", "lesion_type"])[["lesion_hits_topk_degree", "lesion_hits_topk_cycle"]]
                       .mean().reset_index())
 
-    # --- diagnostic figure (not a paper figure) ---
+    # diagnostic figure (not a paper figure)
     make_figure(ps, cross, energy, out / "fig_lesion_diagnostic.png")
 
-    # --- write markdown snippets consumed by the report ---
+    # write markdown snippets consumed by the report
     snippets = {}
     snippets["reproduction"] = rep.round(3).to_markdown()
     for protocol in ["static", "recompute"]:
@@ -302,7 +302,7 @@ def make_figure(ps: pd.DataFrame, cross: pd.DataFrame, energy: pd.DataFrame, pat
     ax.plot(lim, lim, "k--", lw=0.8, label="y = log10((N−h)/N)")
     ax.set_xlabel("log10((N − h)/N)")
     ax.set_ylabel("Δ log10 E_avg (lesioned − intact)")
-    ax.set_title("Energy change tracks network size", fontsize=10)
+    ax.set_title("Energy change vs log10((N − h)/N)", fontsize=10)
     ax.legend(fontsize=8, frameon=False)
     fig.tight_layout()
     fig.savefig(path, dpi=160)

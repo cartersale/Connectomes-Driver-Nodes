@@ -21,8 +21,7 @@ import pandas as pd
 from scipy.stats import wilcoxon
 from statsmodels.stats.multitest import multipletests
 
-from hoc.paths import REPO_ROOT as REPO_ROOT  # noqa: E402
-from hoc.runs import stage_from_argv  # noqa: E402
+from hoc.runs import stage_from_argv
 
 OUT: Path  # <run>/concentration, set in main()
 METRICS = ["q1", "er", "pr", "q1_perp", "er_perp", "pr_perp", "loading", "perron_share"]
@@ -80,7 +79,7 @@ def p1(named, rmean, pct) -> pd.DataFrame:
     rows = []
     for kl, ks in K_GROUPS.items():
         n, r, p = kgroup(named, ks), kgroup(rmean, ks), kgroup(pct, ks)
-        diff = n.sub(r, axis=0, level=None) if False else n.reset_index().merge(r.reset_index(), on=["subject_id", "scale", "c"], suffixes=("", "_rand"))
+        diff = n.reset_index().merge(r.reset_index(), on=["subject_id", "scale", "c"], suffixes=("", "_rand"))
         diff = diff.merge(p.reset_index(), on=["subject_id", "scale", "c", "family"])
         for (fam, scale, c), g in diff.groupby(["family", "scale", "c"]):
             for m in ("q1", "er", "pr", "q1_perp"):

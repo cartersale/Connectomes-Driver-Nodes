@@ -12,18 +12,16 @@ Schemes implemented here:
 - ``ripser``: the baseline, support of Ripser's returned H1 cocycles.
 - ``geodesic``: for each feature, the shortest cycle through the feature's birth
   edge in the graph thresholded at the feature's birth. These are length-minimized
-  ("geodesic-ish") representatives, localized where Ripser's cohomology
-  representatives are typically not.
+  representatives, localized where Ripser's cohomology representatives are typically not.
 - ``gudhi``: the same filtration recomputed in GUDHI, scored from GUDHI's own
-  birth/death pairing simplices. An independent implementation's representative
-  choice, which is exactly what the "implementation dependence" limitation names.
+  birth/death pairing simplices: an independent implementation's representative choice.
 - ``gudhi_geodesic``: the length-minimized cycle built on GUDHI's birth edge, which
   separates disagreement about the *birth simplex* from disagreement about the
   representative built on it.
 
 This file deliberately does not import from ``hoc.topology`` beyond the shared
 distance transform and normalizer, so the stability test stays decoupled from the
-main analysis code. GUDHI is imported lazily: the Ripser-side schemes run without it.
+main analysis code.
 """
 
 from __future__ import annotations
@@ -31,9 +29,12 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Iterable, Literal
 
+import gudhi
 import numpy as np
 from ripser import ripser
 from scipy.sparse.csgraph import csgraph_from_dense, dijkstra
+
+from hoc.topology import adjacency_to_distance, min_max_normalize
 
 SchemeName = Literal["ripser", "geodesic", "gudhi", "gudhi_geodesic"]
 WeightMode = Literal["filtration", "hops"]
@@ -43,28 +44,6 @@ ThresholdMode = Literal["below_death", "death", "birth"]
 # float64 distance matrix by roughly float32 epsilon. Comparisons of filtration
 # values must absorb that, hence a tolerance far looser than float64 epsilon.
 FILTRATION_TOLERANCE = 1.0e-6
-
-
-def adjacency_to_distance(adjacency: np.ndarray) -> np.ndarray:
-    """Map normalized weights in [0, 1] to distances in [0, 1].
-
-    Mirrors ``hoc.topology.adjacency_to_distance`` so both schemes see exactly the
-    same filtration.
-    """
-    adjacency = np.asarray(adjacency, dtype=float)
-    distances = np.where(adjacency > 0, 1.0 - adjacency, 1.0)
-    np.fill_diagonal(distances, 0.0)
-    return distances
-
-
-def min_max_normalize(values: np.ndarray) -> np.ndarray:
-    """Normalize to [0, 1] inside one connectome."""
-    values = np.asarray(values, dtype=float)
-    vmin = float(values.min())
-    vmax = float(values.max())
-    if np.isclose(vmax, vmin):
-        return np.zeros_like(values)
-    return (values - vmin) / (vmax - vmin)
 
 
 @dataclass
@@ -137,7 +116,7 @@ class RepresentativeSet:
 
 
 def compute_persistence(distances: np.ndarray) -> dict:
-    """Run the shared H1 computation once; both schemes reuse this output."""
+    """Run the Ripser H1 computation once; the Ripser-derived schemes reuse this output."""
     result = ripser(distances, distance_matrix=True, maxdim=1, do_cocycles=True)
     return {"diagram": np.asarray(result["dgms"][1], dtype=float), "cocycles": result["cocycles"][1]}
 
@@ -153,8 +132,6 @@ def _finite_features(diagram: np.ndarray) -> Iterable[tuple[int, float, float]]:
 
 def _cocycle_edges(cocycles: list, feature_index: int) -> np.ndarray:
     """Return the (n_edges, 2) integer edge support of one cocycle."""
-    if feature_index >= len(cocycles):
-        return np.empty((0, 2), dtype=int)
     cocycle = np.asarray(cocycles[feature_index])
     if cocycle.size == 0:
         return np.empty((0, 2), dtype=int)
@@ -397,8 +374,6 @@ def gudhi_h1_generators(distances: np.ndarray) -> dict:
 
     Returns the diagram plus the birth and death edges, one row per H1 feature.
     """
-    import gudhi  # imported lazily so the other schemes work without GUDHI installed
-
     distances = np.asarray(distances, dtype=float)
     simplex_tree = gudhi.RipsComplex(distance_matrix=distances).create_simplex_tree(max_dimension=2)
     simplex_tree.compute_persistence()
@@ -496,8 +471,8 @@ def compare_libraries(distances: np.ndarray, persistence: dict | None = None, ge
     """Do Ripser and GUDHI agree on the barcode, and on which edge births each class?
 
     Features are matched by their (birth, death) coordinates, which are canonical.
-    Birth-edge agreement is then the sharpest single measure of the implementation
-    dependence the limitation names: same class, same filtration, different library.
+    Birth-edge agreement then compares the libraries directly: same class, same filtration,
+    different library.
     """
     distances = np.asarray(distances, dtype=float)
     persistence = persistence if persistence is not None else compute_persistence(distances)

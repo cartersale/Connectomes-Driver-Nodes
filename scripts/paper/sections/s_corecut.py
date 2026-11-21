@@ -8,7 +8,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from common import SCALES, Table, num, pd, sgn, tabular
+import pandas as pd
+from common import SCALES, Table, num, sgn, tabular
 
 PARTITIONS = [("labels", "Anatomical"), ("ycut", "Median coordinate"), ("v2sign", "$v_2$ sign")]
 CONDITIONS = [("cross", "Front--back"), ("within_matched", "Within halves"), ("other_matched", "Outside core"),

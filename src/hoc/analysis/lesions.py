@@ -21,13 +21,12 @@ from pathlib import Path
 
 import numpy as np
 
-from hoc import config as hoc_config  # noqa: E402
-from hoc.paths import REPO_ROOT as REPO_ROOT  # noqa: E402
-from hoc.preprocessing import stabilize_adjacency  # noqa: E402
+from hoc import config as hoc_config
+from hoc.preprocessing import stabilize_adjacency
 
 CONFIG = hoc_config.active_config()
-C_VALUE = float(CONFIG["control"]["primary_c"])  # 0.1
-EPSILON = float(CONFIG["control"]["primary_epsilon"])  # 1e-5
+C_VALUE = float(CONFIG["control"]["primary_c"])
+EPSILON = float(CONFIG["control"]["primary_epsilon"])
 SCALES = [int(s) for s in CONFIG["analysis"]["parcellation_scales"]]
 K_VALUES = [int(k) for k in CONFIG["analysis"]["top_k_values"]]
 HUB_COUNTS = [int(h) for h in CONFIG["hub_lesion"]["hub_counts"]]

@@ -13,7 +13,9 @@ import re
 from collections import OrderedDict
 from pathlib import Path
 
-from common import SCALES, Table, np, pd
+import numpy as np
+import pandas as pd
+from common import SCALES, Table
 
 from sections.s10_s11_fmt import f2, pf, tex_esc
 

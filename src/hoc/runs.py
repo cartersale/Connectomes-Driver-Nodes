@@ -62,9 +62,6 @@ class RunConflictError(RuntimeError):
     """Raised when a stage would overwrite or mix outputs in a run directory."""
 
 
-# --------------------------------------------------------------------------- paths
-
-
 def runs_root() -> Path:
     """Directory that holds all run directories (``$HOC_RUNS_ROOT`` or ``runs/``)."""
     root = os.environ.get(RUNS_ROOT_ENV)
@@ -98,11 +95,7 @@ def config_variant(config: dict) -> str | None:
     return str(value) if value else None
 
 
-# --------------------------------------------------------------------------- helpers
-
-
 def sha256_file(path: str | Path, chunk_size: int = 1 << 20) -> str:
-    """SHA-256 of one file."""
     digest = hashlib.sha256()
     with Path(path).open("rb") as handle:
         for chunk in iter(lambda: handle.read(chunk_size), b""):
@@ -204,9 +197,6 @@ def _script_record(argv: list[str]) -> dict | None:
     return {"path": _relative(path), "sha256": sha256_file(path)}
 
 
-# --------------------------------------------------------------------------- manifest
-
-
 def read_manifest(run_dir: str | Path) -> dict | None:
     path = Path(run_dir) / MANIFEST_NAME
     if not path.exists():
@@ -249,19 +239,16 @@ class RunContext:
             from .config import active_config_path
 
             self.config_path = active_config_path()
-        if self.config_path is not None:
-            self.config_path = Path(self.config_path)
-            if not self.config_path.is_absolute():
-                self.config_path = REPO_ROOT / self.config_path
-            if not self.config:
-                from .config import load_config
+        self.config_path = Path(self.config_path)
+        if not self.config_path.is_absolute():
+            self.config_path = REPO_ROOT / self.config_path
+        if not self.config:
+            from .config import load_config
 
-                self.config = load_config(self.config_path)
+            self.config = load_config(self.config_path)
         if self.variant is None:
             self.variant = config_variant(self.config)
         self.root = resolve_run_dir(self.run, variant=self.variant, subject_limit=self.subject_limit)
-
-    # ------------------------------------------------------------------ constructors
 
     @classmethod
     def from_args(cls, stage: str, args: argparse.Namespace, *, config_path: str | Path | None = None) -> "RunContext":
@@ -272,8 +259,6 @@ class RunContext:
             subject_limit=getattr(args, "subject_limit", None),
             overwrite=bool(getattr(args, "overwrite", False)),
         )
-
-    # ------------------------------------------------------------------ properties
 
     @property
     def name(self) -> str:
@@ -291,8 +276,6 @@ class RunContext:
         target = self.root.joinpath(*parts)
         target.parent.mkdir(parents=True, exist_ok=True)
         return target
-
-    # ------------------------------------------------------------------ lifecycle
 
     def _check_compatible(self, manifest: dict, subject_ids: list | None) -> None:
         problems = []
@@ -405,9 +388,6 @@ class RunContext:
         }
         record.update({"status": "complete", "finished": _now(), **extra})
         _write_manifest(self.root, manifest)
-
-
-# --------------------------------------------------------------------------- CLI glue
 
 
 def add_run_arguments(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:

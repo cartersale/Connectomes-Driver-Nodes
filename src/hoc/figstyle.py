@@ -21,9 +21,9 @@ import numpy as np
 from matplotlib.collections import LineCollection, PolyCollection
 from matplotlib.colors import LinearSegmentedColormap
 
-from hoc import config as hoc_config  # noqa: E402
-from hoc.atlas import EXCLUDED_LABELS, SCALE_TO_RESOLUTION  # noqa: E402
-from hoc.paths import REPO_ROOT as REPO_ROOT  # noqa: E402
+from hoc import config as hoc_config
+from hoc.atlas import EXCLUDED_LABELS, SCALE_TO_RESOLUTION
+from hoc.paths import REPO_ROOT as REPO_ROOT
 
 ATLAS_DIR = REPO_ROOT / "data" / "external" / "atlas_cache" / "atl-cammoun2012" / "fsaverage5"
 
@@ -31,16 +31,14 @@ ATLAS_DIR = REPO_ROOT / "data" / "external" / "atlas_cache" / "atl-cammoun2012" 
 ONE_COL = 3.4
 FULL = 7.0
 
-# Ink and surfaces
 INK, INK2, MUTED, GRID = "#0b0b0b", "#0b0b0b", "#8a8984", "#e4e3df"  # INK2 = INK: all text black
 WALL = "#cfcec9"  # medial wall / unlabelled vertices
 RANDOM = "#b4b2ab"  # random driver sets
 
 # Categorical: hub-oriented, betweenness, cycle / spread-out (validated colorblind-safe; always direct-labelled)
 HUB, MID, SPREAD = "#eb6834", "#1baf7a", "#2a78d6"
-# Ordered scales: light to dark purple
 SCALES = hoc_config.scales()
-SCALE_COLORS = {68: "#b3a6d6", 114: "#7a64b5", 219: "#3f1f7a"}
+SCALE_COLORS = {68: "#b3a6d6", 114: "#7a64b5", 219: "#3f1f7a"}  # light to dark purple
 SCALE_MARKERS = {68: "o", 114: "s", 219: "D"}
 
 SEQ = LinearSegmentedColormap.from_list("seq_blue", ["#f0efec", "#9ec5f4", "#3987e5", "#1c5cab", "#0d366b"])
@@ -112,10 +110,11 @@ def panel_label(ax, letter: str, title: str = "", x: float = -0.02, y: float = 1
 
 def reference_lines(ax, labels: bool = True) -> None:
     """Dotted verticals at the primary damping (c = 0.1) and the nctpy default (c = 1)."""
-    for c, name in ((C_PRIMARY, "c = 0.1"), (C_NCTPY, "nctpy")):
+    # c = 0.1 is labelled on the left of its line and nctpy on the right, so the labels never collide
+    for c, name, ha in ((C_PRIMARY, "c = 0.1 ", "right"), (C_NCTPY, " nctpy", "left")):
         ax.axvline(c, color=MUTED, lw=0.6, ls=":", zorder=0)
         if labels:
-            ax.text(c, 1.0, f" {name}", transform=ax.get_xaxis_transform(), fontsize=6, color=INK2, ha="left", va="top")
+            ax.text(c, 1.0, name, transform=ax.get_xaxis_transform(), fontsize=6, color=INK2, ha=ha, va="top")
 
 
 def save(fig, run_root: Path, name: str) -> list[Path]:
@@ -137,9 +136,6 @@ CRITERION_ROWS = ("degree_strength", "eigenvector_centrality", "top_avg_ctrl", "
                   "top_modal_gu", "low_perron")
 
 
-# ------------------------------------------------------------------------------------------- run handling
-
-
 def open_run(stage: str, requires: tuple[str, ...] = ()):
     """Start a figure stage after checking its upstream stages. Returns (ctx, run_root)."""
     from hoc.runs import stage_from_argv
@@ -154,8 +150,6 @@ def open_run(stage: str, requires: tuple[str, ...] = ()):
 def finish(fig, ctx, name: str) -> None:
     ctx.finish(outputs=save(fig, ctx.root, name))
 
-
-# ------------------------------------------------------------------------------------------- brain surfaces
 
 # (hemi, view name, viewer direction along x, sign of y on the horizontal image axis)
 VIEWS = {

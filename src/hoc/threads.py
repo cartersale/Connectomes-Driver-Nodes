@@ -13,6 +13,8 @@ from __future__ import annotations
 
 import os
 
+from threadpoolctl import threadpool_info, threadpool_limits
+
 THREAD_ENV_VARS = (
     "OMP_NUM_THREADS",
     "OPENBLAS_NUM_THREADS",
@@ -40,18 +42,10 @@ def pin_threads(n: int | None = None) -> None:
     n = blas_threads() if n is None else n
     for name, value in thread_env(n).items():
         os.environ.setdefault(name, value)
-    try:
-        from threadpoolctl import threadpool_limits
-    except ImportError:  # pragma: no cover - threadpoolctl is a dependency
-        return
     _limiter = threadpool_limits(limits=n)
 
 
 def threadpool_record() -> list[dict]:
     """The BLAS/OpenMP pools actually in use (for the run manifest)."""
-    try:
-        from threadpoolctl import threadpool_info
-    except ImportError:  # pragma: no cover
-        return []
     keys = ("user_api", "internal_api", "version", "num_threads")
     return [{k: pool.get(k) for k in keys} for pool in threadpool_info()]

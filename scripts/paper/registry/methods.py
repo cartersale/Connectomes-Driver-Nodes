@@ -13,12 +13,10 @@ import numpy as np
 import pandas as pd
 from scipy.sparse.csgraph import connected_components
 
+from .record import Number
+
 SCALES = (68, 114, 219)
 
-
-from .record import Number  # noqa: E402
-
-# ----------------------------------------------------------------------------- helpers
 
 def fx(x: float, d: int = 2) -> str:
     s = f"{x:.{d}f}"
@@ -46,16 +44,13 @@ def _mk(name, value, computed, printed, source, locus, context, bound=None):
     return Number(name, float(value), computed, source, tuple(locus), ctx)
 
 
-# ----------------------------------------------------------------------------- collect
-
 def collect(run: Path) -> list[Number]:
     run = Path(run)
-    rev = run
     out: list[Number] = []
 
-    # ---- subsec:model: "All connectomes were connected except that of one subject, which contained a
-    #      single isolated region at each scale"; subsec:perron: "(excluding the single zero-strength region)"
-    #      Recomputed from processed/ (connected components of A > 0).
+    # subsec:model: "All connectomes were connected except that of one subject, which contained a
+    #  single isolated region at each scale"; subsec:perron: "(excluding the single zero-strength region)"
+    #  Recomputed from processed/ (connected components of A > 0).
     n_disc, n_iso, comp = {}, {}, {}
     for s in SCALES:
         A = np.load(run / "processed" / f"connectomes_scale-{s}.npz")["adjacency"]
@@ -82,8 +77,18 @@ def collect(run: Path) -> list[Number]:
                    ("subsec:model", "subsec:perron"),
                    {"stat": "number of isolated (zero-strength) regions in the disconnected subject, each scale"}))
 
-    # ---- methods:gramian: "This solution agreed with a direct Lyapunov solver to within 10^{-13}."
-    v = json.loads((rev / "sensitivity" / "validation.json").read_text())["library_vs_eigbasis"]
+    # subsec:model: "At c=0.1, the decay ratio d was about 0.16 to 0.19 across scales" (the "five to six times"
+    #  in the same sentence is MDecayRatioCTenthLow/High of main_core_divisions)
+    ss = pd.read_csv(run / "mechanisms" / "second_subspace_subjects.csv")
+    d = {s: 0.1 / (0.1 + g) for s, g in ss.groupby("scale").gap.median().items()}
+    src = ("mechanisms/05_second_subspace: mechanisms/second_subspace_subjects.csv | d = c / (c + gap) at c = 0.1 and the "
+           f"median gap over 70 subjects per scale; {{}} over scales {', '.join(f'{s}: {v:.3f}' for s, v in d.items())}")
+    for nm, val, ms in (("MDecayRatioDMin", min(d.values()), "0.16"), ("MDecayRatioDMax", max(d.values()), "0.19")):
+        out.append(_mk(nm, val, fx(val), ms, src.format("min" if nm.endswith("Min") else "max"), ("subsec:model",),
+                       {"c": 0.1, "stat": "d at the median gap"}))
+
+    # methods:gramian: "This solution agreed with a direct Lyapunov solver to within 10^{-13}."
+    v = json.loads((run / "sensitivity" / "validation.json").read_text())["library_vs_eigbasis"]
     worst = max(v["max_abs_W"], v["rel_W"])
     out.append(_mk("MLyapunovAgreement", worst, pow10_ceil(worst), "10^{-13}",
                    f"sensitivity/00_validate: sensitivity/validation.json | library_vs_eigbasis max(max_abs_W="
@@ -91,8 +96,8 @@ def collect(run: Path) -> list[Number]:
                    ("methods:gramian",), {"comparison": "closed-form eigenbasis Gramian vs scipy Lyapunov solver"},
                    bound=(worst <= 1e-13, "<=")))
 
-    # ---- subsec:nulls: "mean correlation with the original strengths 0.998 to 0.999"
-    nf = pd.read_csv(rev / "null_models" / "null_fidelity.csv")
+    # subsec:nulls: "mean correlation with the original strengths 0.998 to 0.999"
+    nf = pd.read_csv(run / "null_models" / "null_fidelity.csv")
     sr = nf[nf.null == "strength"].set_index("scale").strength_r
     src = ("null_models/02_analyze: null_models/null_fidelity.csv | null == 'strength', strength_r "
            "(mean over subjects x 50 nulls of corr(null, real strengths)), {} over scales, 3 dp")
@@ -100,7 +105,7 @@ def collect(run: Path) -> list[Number]:
         out.append(_mk(nm, val, fx(val, 3), ms, src.format("min" if nm.endswith("Min") else "max"), ("subsec:nulls",),
                        {"null": "strength", "stat": "mean over subjects and nulls", "per_scale": sr.round(4).to_dict()}))
 
-    # ---- subsec:nulls: "mean connection length within 1\% of the original"
+    # subsec:nulls: "mean connection length within 1\% of the original"
     real = nf[nf.null == "real"].set_index("scale").mean_edge_length
     geo = nf[nf.null == "geometric"].set_index("scale").mean_edge_length
     rel = float((100 * (geo / real - 1)).abs().max())
@@ -110,8 +115,8 @@ def collect(run: Path) -> list[Number]:
                    ("subsec:nulls",), {"null": "geometric", "stat": "cohort-mean edge length, max over scales"},
                    bound=(rel < 1, "<")))
 
-    # ---- subsec:nulls: "(median Pearson r = 0.998; minimum 0.95)" -- r_W vs s'A0 s across strength nulls
-    ps = pd.read_csv(rev / "null_models" / "rayleigh" / "per_subject.csv")
+    # subsec:nulls: "(median Pearson r = 0.998; minimum 0.95)" -- r_W vs s'A0 s across strength nulls
+    ps = pd.read_csv(run / "null_models" / "rayleigh" / "per_subject.csv")
     pr = ps[ps.null == "strength"].pearson_rW_sTWs
     src = ("null_models/04_rayleigh_bound: null_models/rayleigh/per_subject.csv | null == 'strength', "
            "pearson_rW_sTWs, {} over all subjects x scales (as scripts/paper/sections/s8.py inline_values)")
@@ -119,6 +124,4 @@ def collect(run: Path) -> list[Number]:
                    ("subsec:nulls",), {"null": "strength", "stat": "median over 70 subjects x 3 scales"}))
     out.append(_mk("MAssortRayleighPearsonMin", pr.min(), fx(pr.min(), 2), "0.95", src.format("min"),
                    ("subsec:nulls",), {"null": "strength", "stat": "minimum over 70 subjects x 3 scales"}))
-    names = [n.name for n in out]
-    assert len(names) == len(set(names))
     return out

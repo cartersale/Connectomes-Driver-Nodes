@@ -4,9 +4,10 @@ Subject-level quantities are averaged over k in {1,2,3,5} first, then summarized
 Outputs
   csweep_cycle_minus_degree.csv  (ER, PR; Holm family = 13 c x 3 scales per metric)
   csweep_vs_random.csv           (method - random-mean ER/PR, percentile; Holm family = 13 c x 3 scales per method x metric)
-  csweep_signflip.csv                   (interpolated zero crossing of mean / median diff, and of n_positive = 35)
-  task3_perron.csv                     (Perron loading, Perron trace fraction per method; Spearman summaries)
-  fig_csweep_diagnostic.png
+  csweep_signflip.csv            (interpolated zero crossing of mean / median diff, and of n_positive = 35)
+  perron_by_method.csv           (Perron loading, Perron trace fraction, ER, log10 lambda_max per method)
+  perron_spearman.csv            (Spearman(Perron loading, ER) summaries across subjects)
+  fig_csweep_diagnostic.png, fig_perron_diagnostic.png
 Outputs go to runs/<name>/sensitivity/ (choose the run with ``--run <name>``).
 """
 from __future__ import annotations
@@ -19,7 +20,7 @@ import numpy as np
 import pandas as pd
 from scipy.stats import spearmanr
 
-from hoc import config as hoc_config  # noqa: E402
+from hoc import config as hoc_config
 from hoc.analysis.sensitivity import holm, out_dir, paired_stats
 from hoc.runs import stage_from_argv
 
@@ -33,7 +34,7 @@ m = pd.read_csv(OUT_DIR / "csweep_sets_methods.csv")
 sp = pd.read_csv(OUT_DIR / "csweep_spearman.csv")
 SCALES = hoc_config.scales()
 
-# ---------- c sweep: cycle - degree ----------
+# c sweep: cycle - degree
 sub = m.groupby(["scale", "c", "subject_id", "method"], as_index=False).mean(numeric_only=True)
 wide = sub.pivot_table(index=["scale", "c", "subject_id"], columns="method", values=["effective_rank", "participation_ratio", "perron_loading", "perron_trace_fraction"])
 diff = pd.DataFrame({
@@ -48,7 +49,7 @@ for (scale, c), g in diff.groupby(["scale", "c"]):
 t1 = holm(pd.DataFrame(rows), ["metric"])
 t1.to_csv(OUT_DIR / "csweep_cycle_minus_degree.csv", index=False)
 
-# ---------- sign flip ----------
+# sign flip
 def crossing(cs, ys, level=0.0):
     x = np.log10(np.asarray(cs, dtype=float))
     y = np.asarray(ys) - level
@@ -70,7 +71,7 @@ for (metric, scale), g in t1.groupby(["metric", "scale"]):
 flip = pd.DataFrame(flip)
 flip.to_csv(OUT_DIR / "csweep_signflip.csv", index=False)
 
-# ---------- c sweep: each method vs random ----------
+# c sweep: each method vs random
 rows = []
 meth = m[m["method"] != "random_mean"]
 subm = meth.groupby(["scale", "c", "subject_id", "method"], as_index=False)[["er_minus_random", "pr_minus_random", "er_percentile_vs_random", "pr_percentile_vs_random"]].mean()
@@ -81,7 +82,7 @@ for (method, scale, c), g in subm.groupby(["method", "scale", "c"]):
 t1r = holm(pd.DataFrame(rows), ["method", "metric"])
 t1r.to_csv(OUT_DIR / "csweep_vs_random.csv", index=False)
 
-# ---------- Perron loading by method ----------
+# Perron loading by method
 rows = []
 for (method, scale, c), g in sub[sub["method"].isin(["degree_strength", "cycle_participation", "eigenvector_centrality", "betweenness",
                                                       "participation_coefficient", "triangle_participation", "random_mean"])].groupby(["method", "scale", "c"]):
@@ -105,7 +106,6 @@ for (scale, c), g in sp.groupby(["scale", "c"]):
 t3s = pd.DataFrame(rows)
 t3s.to_csv(OUT_DIR / "perron_spearman.csv", index=False)
 
-# ---------- figure ----------
 COL = {68: "#2a78d6", 114: "#eb6834", 219: "#1baf7a"}
 MCOL = {"cycle_participation": "#2a78d6", "degree_strength": "#eb6834", "eigenvector_centrality": "#1baf7a"}
 MLAB = {"cycle_participation": "Cycle participation", "degree_strength": "Degree", "eigenvector_centrality": "Eigenvector centrality"}
