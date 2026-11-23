@@ -83,16 +83,17 @@ which is stored in the file together with the run and commit it came from.
 the run does not generate, number macros the text uses that the registry does not define, numbers whose
 computed text differs from what the documents print, and printed numbers not found in the section or caption
 that their registry entry names. `scripts/paper/sync.py --manuscript <folder>` lists (and
-with `--apply` copies) the generated tables and `numbers.tex` into the manuscript folder, and the figures with
-`--figures`; see
+with `--apply` copies) the generated tables and `numbers.tex` into the manuscript folder. It never copies figures,
+which are finished by hand; `scripts/paper/figure_sources.py` reports finished figures whose run figure has
+changed since they were recorded with `--mark`. See
 [paper_map.md](paper_map.md) for the table layout and `scripts/paper/publish_tables.py`.
 
 ## Smoke run
 
 `config/smoke.toml` points the pipeline at synthetic connectomes, labels and gradients
 (`src/hoc/synthetic.py`): eight subjects at all three scales, with small ensembles (`[sampling]`). It needs no
-downloads and runs every step except those that need external atlas data or the real cortical anatomy (target
-states, the core-cut analysis, the brain-surface figures, and the paper steps that depend on them):
+downloads and runs every step except those that need external atlas data or the real cortical anatomy (the
+target-state steps, the core-cut analysis, the brain-surface figures, and the paper steps that depend on them):
 
 ```bash
 uv run python scripts/reproduce.py --smoke      # into runs/smoke/

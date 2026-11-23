@@ -45,18 +45,7 @@ uv run python -c "from netneurotools.datasets import fetch_cammoun2012; fetch_ca
 They give region labels, the parcel centroids used by the geometry-preserving nulls, and the brain surfaces
 in the figures (drawn on nilearn's packaged fsaverage5 mesh).
 
-## Yeo (2011) resting-state networks
+## Inputs of the target-state analyses
 
-The 7- and 17-network parcellations on fsaverage5 (Yeo et al., 2011; Computational Brain Imaging Group):
-
-```text
-data/external/yeo2011_fsaverage5/{lh,rh}.Yeo2011_{7,17}Networks_N1000.annot
-```
-
-Used only by the target-state analyses (`scripts/analysis/target_states/`).
-
-## Margulies (2016) gradients
-
-The first two functional gradients (`fcgradient01`, `fcgradient02`, fsLR 32k) and the fsLR / fsaverage surface
-atlases are downloaded by neuromaps the first time the target-state analyses run, into `$NEUROMAPS_DATA`
-(default `~/neuromaps-data`). `reference/inputs.sha256` lists them with the prefix `$NEUROMAPS_DATA/`.
+The Yeo (2011) network annotations and the neuromaps downloads (gradient maps and surface atlases) are
+also needed by the full run; see [preprint_analyses.md](preprint_analyses.md).

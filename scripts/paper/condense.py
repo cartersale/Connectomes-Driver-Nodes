@@ -4,7 +4,7 @@
     python scripts/paper/condense.py --manuscript PATH
 
 Reads the full tables in PATH/full_tables/ (written by scripts/paper/tables.py, copied by sync.py) and writes
-the tables the supplement inputs to PATH/supp_tables/: C_<name>.tex, and S_canonical.tex copied unchanged. Every cell is copied from a full table, never recomputed, so the supplement and the full
+the tables the supplement inputs to PATH/supp_tables/: C_<name>.tex, and the tables in COPIED copied unchanged. Every cell is copied from a full table, never recomputed, so the supplement and the full
 tables cannot disagree. Each short table keeps the primary settings (c = 0.1, epsilon = 1e-5, k-averaged) and
 the three scales side by side; the full tables keep every setting.
 """
@@ -278,7 +278,7 @@ BUILDERS = {"C_eps": c_eps, "C_horizon": c_horizon, "C_criteria": c_criteria, "C
             "C_gapcorr": c_gapcorr, "C_nullspec": c_nullspec, "C_nullq1": c_nullq1, "C_corecut": c_corecut}
 
 
-COPIED = ("S_canonical",)  # printed in the supplement as is
+COPIED = ("S_canonical", "S9_6", "S9_7", "S9_8")  # printed in the supplement as is
 SUPPLEMENT_TABLES = (*BUILDERS, *COPIED, "C_scales")  # every table supp_mat.tex inputs (C_scales: scale_table.py)
 
 

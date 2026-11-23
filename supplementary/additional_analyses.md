@@ -25,21 +25,16 @@ Rank divergence is degree rank minus cycle-participation rank, computed on the s
 correlated across parcels with the principal and second cortical gradients of Margulies et al. (2016), with
 spin-test p-values from 10,000 rotations, and averaged within the seven resting-state networks of Yeo et al.
 (2011), with spin tests for enrichment.
-Tables: `S3_spin` (correlations), `additional_rankdiv` (network enrichment).
+Tables: `additional_spin` (correlations), `additional_rankdiv` (network enrichment).
 
-## Cycle-participation representatives and perturbed connectomes
+## Cycle-participation representatives
 
 The four representative conventions are described in Section S3 of the Supporting Information. Each convention's
 top-$k$ set is compared with three random baselines: uniform random sets, and random sets whose members are
 matched in strength rank to the convention's drivers.
 
-Rankings and Gramians are recomputed on perturbed connectomes: multiplicative Gaussian noise on existing edge
-weights ($\sigma = 0.05$, 0.10, 0.20) and random removal of existing edges ($p = 0.05$, 0.10, 0.20), with 50
-perturbations per level, subject and scale. When a perturbed weight exceeds 1, the matrix is renormalized by its
-maximum. Rank stability is the Spearman correlation between perturbed and unperturbed rankings, compared with the
-correlation between different subjects' rankings; top-set stability is the Jaccard index of the top-$k$ sets.
-Tables: `additional_rep_pr`, `additional_rep_null`, `additional_perturb_rho`, `additional_perturb_jac`,
-`additional_perturb_er`.
+Tables: `additional_rep_pr`, `additional_rep_null`. The perturbed-connectome analyses are in Section S3 of the
+Supporting Information (`S3_perturb_rho`, `S3_perturb_jac`, `S3_perturb_er`).
 
 ## Single-region measures, set-level predictors and the driver Gram matrix
 

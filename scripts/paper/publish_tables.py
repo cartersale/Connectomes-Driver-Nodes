@@ -1,10 +1,12 @@
 #!/usr/bin/env python
 """Publish every full table in supplementary/ as CSV, with an index.
 
-    python scripts/paper/publish_tables.py --manuscript PATH            # list what would change
-    python scripts/paper/publish_tables.py --manuscript PATH --apply    # write supplementary/
+    python scripts/paper/publish_tables.py --run paper --manuscript PATH            # list what would change
+    python scripts/paper/publish_tables.py --run paper --manuscript PATH --apply    # write supplementary/
 
 PATH is the manuscript folder holding full_tables/, the .tex tabulars written by scripts/paper/tables.py.
+tables/quoted_numbers.csv is the run's number registry (<run>/paper/numbers.csv): every number the paper quotes,
+with its exact value and the run output it is computed from.
 Groups and captions come from scripts/paper/table_catalog.py. LaTeX markup is converted to plain text; the
 values are not changed. supplementary/additional_analyses.md (methods for the analyses outside the paper) is
 written by hand and left alone.
@@ -23,6 +25,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from condense import RULES, _group_label
 from table_catalog import GROUPS
+
+from hoc.runs import reader_run_dir
 
 REPO = Path(__file__).resolve().parents[2]
 OUT = REPO / "supplementary"
@@ -107,7 +111,20 @@ def caption_text(caption: str, names: dict[str, str]) -> str:
     return s.replace("Table ", "")
 
 
-def build(manuscript: Path) -> dict[Path, bytes]:
+def quoted_numbers(run: Path) -> bytes:
+    """The registry as published: where each number is printed, the printed text, the exact value, its source."""
+    with (run / "paper" / "numbers.csv").open(newline="") as handle:
+        rows = list(csv.DictReader(handle))
+    buf = io.StringIO()
+    w = csv.writer(buf, lineterminator="\n")
+    w.writerow(["name", "document", "locus", "printed", "text", "value", "source", "context"])
+    for r in rows:
+        doc = "main text" if r["name"].startswith("M") else "supplement"
+        w.writerow([r["name"], doc, r["locus"], r["printed"], r["text"], r["value"], r["source"], r["context"]])
+    return buf.getvalue().encode()
+
+
+def build(manuscript: Path, run: Path) -> dict[Path, bytes]:
     names = {slug: csv_name(key, slug, sup) for key, _, sup, tabs in GROUPS for slug, _, _ in tabs}
     files: dict[Path, bytes] = {}
     index = [
@@ -124,6 +141,12 @@ def build(manuscript: Path) -> dict[Path, bytes]:
         "",
         "**Additional analyses.** The files `additional_*.csv` hold analyses that are not part of the paper. "
         "Their methods are described in [`additional_analyses.md`](additional_analyses.md).",
+        "",
+        "**Numbers quoted in the paper.** [`quoted_numbers.csv`](tables/quoted_numbers.csv) lists every number "
+        "the main text and the Supporting Information quote: `locus` is the section, figure or table label in the "
+        "LaTeX source; `printed` is the text as printed (empty for values that appear only in Table S1, "
+        "`S1_scales.csv`); `value` is the unrounded value; `source` names the analysis output and the selection "
+        "or formula it is computed from. `scripts/paper/validate.py` checks that every printed value matches.",
         "",
         "**Reproducing.** `python scripts/reproduce.py --run paper` runs every analysis and writes the full tables "
         "to `runs/paper/paper/tables/`. `scripts/paper/publish_tables.py` converts them to the CSV files here. "
@@ -144,16 +167,18 @@ def build(manuscript: Path) -> dict[Path, bytes]:
             files[OUT / "tables" / names[slug]] = buf.getvalue().encode()
             desc = caption_text(caption, names).replace("|", "/")
             index.append(f"| [`{names[slug].removesuffix('.csv')}`](tables/{names[slug]}) | {desc} |")
+    files[OUT / "tables" / "quoted_numbers.csv"] = quoted_numbers(run)
     files[OUT / "README.md"] = ("\n".join(index) + "\n").encode()
     return files
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser.add_argument("--run", default=None)
     parser.add_argument("--manuscript", type=Path, required=True)
     parser.add_argument("--apply", action="store_true", help="Write the files (default: only list changes).")
     args = parser.parse_args()
-    files = build(args.manuscript)
+    files = build(args.manuscript, reader_run_dir(["--run", args.run] if args.run else []))
     keep = set(files) | {OUT / "additional_analyses.md"}
     stale = [p for p in OUT.rglob("*") if p.is_file() and p not in keep] if OUT.exists() else []
     changed = [p for p, b in files.items() if not p.exists() or p.read_bytes() != b]

@@ -1,0 +1,42 @@
+Row,Quantity,68,114,219
+Energy floor,Gramian eigenvalues below eps (%; range over criteria),86-87,92,95-96
+Combining hubs,"q_1, single degree-strength driver (%)",89,87,86
+,"q_1, single random driver (%)",95,95,96
+,"q_1, hub-oriented sets, k = 2-5 (%; range over criteria)",73-78,74-78,67-76
+,"q_1, random sets, k = 2-5 (%)",39,37,36
+,Percentile of hub-oriented sets among random sets (range over criteria),99-100,100,99-100
+,"Excess q_1, two degree-strength drivers (percentage points)",28,27,23
+,"Excess q_1, five degree-strength drivers (percentage points)",38,43,38
+,"lambda_max, hub-oriented over random sets, k = 2-5 (median ratio; range over criteria)",4.6-6.1,5.0-7.4,4.9-8.7
+,"Controllability outside v_1, hub-oriented over random sets, k = 2-5 (%; range over criteria)",80-99,84-96,94-111
+,"q_1, betweenness and cycle criticality (%)",54-60,57-61,50-54
+,"q_1, remaining criteria (%)",35-49,35-44,34-39
+,"Cycle participation below degree strength in q_1, k = 2-5 (percentage points)",24,30,28
+Leading mode,Squared weight of v_1 on the top 20% of regions (%),93,96,98
+,Median correlation of subject v_1 with the group mean,0.90,0.92,0.89
+,Cosine similarity of strength and v_1,0.82,0.76,0.69
+,"Median Spearman rho, strength vs neighbours' loading",0.59,0.54,0.43
+,"Loading L_S, hub-oriented sets (range over criteria)",0.45-0.52,0.41-0.45,0.32-0.40
+,"Loading L_S, random sets",0.04,0.02,0.01
+,"Share of average controllability from v_1, top five regions (%)",62,68,65
+,"Cosine of Gramian top eigenvector with v_1, hub-oriented, k = 2-5",0.97-0.98,0.98-0.99,0.98
+,"Cosine of Gramian top eigenvector with v_1, random, k = 2-5",0.34,0.27,0.17
+,"Cosine of Gramian top eigenvector with v_1, single hubs",0.91-0.96,0.94-0.96,0.87-0.95
+Spectral gap,Squared weight of v_2 on the core (%),83,89,95
+,Degree minus cycle q_1 difference removed with v_1 (%),52,68,69
+,"Excess q_1 of degree-strength sets, c = 1e-5",0.04,0.08,0.16
+,"Excess q_1 of degree-strength sets, c = 0.01",0.43,0.49,0.52
+,"Excess q_1 of degree-strength sets, c = 0.1",0.34,0.37,0.31
+,"Excess q_1 of degree-strength sets, c = 1",0.10,0.10,0.06
+,"Excess q_1, single degree-strength driver, c = 0.1",-0.06,-0.08,-0.10
+,"Spearman rho, gap vs excess q_1",0.58,0.72,0.70
+,"Partial Spearman rho, gap vs excess q_1",0.58,0.85,0.75
+Null networks,"Spectral gap, human",0.43,0.54,0.44
+,"Spectral gap, nulls (range over models)",0.23-0.27,0.21-0.23,0.19-0.22
+,"q_1 of degree-strength sets, human",0.73,0.74,0.67
+,"q_1 of degree-strength sets, nulls, same c (range over models)",0.63-0.65,0.57-0.59,0.53
+,"q_1 of degree-strength sets, nulls, gap-matched c (range over models)",0.72-0.75,0.71-0.73,0.63-0.65
+,"Human minus null q_1, gap-matched c (range over models)",-0.02 to 0.00,0.00-0.03,0.02-0.04
+,"Strength assortativity, human",0.40,0.46,0.37
+,"Strength assortativity, nulls (range over models)",0.06-0.26,0.03-0.15,0.00-0.14
+,"Spearman rho, excess assortativity vs excess gap",0.31,0.47,0.41

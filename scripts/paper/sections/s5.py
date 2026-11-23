@@ -113,8 +113,8 @@ q1 is NOT in these files; it is in S5b(ii) from a different c grid."""
                   ["& \\multicolumn{3}{c}{Cycle $-$ degree $q_1$} & \\multicolumn{3}{c}{Degree $-$ random $q_1$} & \\multicolumn{3}{c}{Cycle $-$ degree ER} \\\\",
                    "\\cmidrule(lr){2-4}\\cmidrule(lr){5-7}\\cmidrule(lr){8-10}",
                    "$c$ & 68 & 114 & 219 & 68 & 114 & 219 & 68 & 114 & 219 \\\\"], rows)
-    note = """S5b(ii). Full c sweep for q1 (lead metric) on the 25-point log grid c = 10^-2.5 ... 10^0.5 (eps = 1e-5 for ER; q1 uses raw W).
-Entries: mean over 70 subjects (subjects with a positive difference). k-averaged over {1,2,3,5}.
+    note = """S5b(ii). Full c sweep for q1 (lead metric) on the 45-point log grid c = 10^-5 ... 10^0.5 (eps = 1e-5 for ER; q1 uses raw W).
+Entries: mean over 70 subjects (subjects with a positive difference). k-averaged over {2,3,5}.
 Source: <run>/concentration/decay_curves.csv.gz (per-subject rows; columns cd_q1 = q1(cycle) - q1(degree), dr_q1 = q1(degree) - mean q1 of
 the 100 primary random sets, cd_er = ER(cycle) - ER(degree)). Means and counts computed here with read-only pandas (no Wilcoxon tests are
 saved for this grid). PR is not saved on this grid. The ER column reproduces S5b(i) at the shared c values (0.01, 0.1, 1).

@@ -8,10 +8,18 @@ Unless a description says otherwise: scales are 68, 114 and 219 regions; $c = 0.
 
 **Additional analyses.** The files `additional_*.csv` hold analyses that are not part of the paper. Their methods are described in [`additional_analyses.md`](additional_analyses.md).
 
+**Numbers quoted in the paper.** [`quoted_numbers.csv`](tables/quoted_numbers.csv) lists every number the main text and the Supporting Information quote: `locus` is the section, figure or table label in the LaTeX source; `printed` is the text as printed (empty for values that appear only in Table S1, `S1_scales.csv`); `value` is the unrounded value; `source` names the analysis output and the selection or formula it is computed from. `scripts/paper/validate.py` checks that every printed value matches.
+
 **Reproducing.** `python scripts/reproduce.py --run paper` runs every analysis and writes the full tables to `runs/paper/paper/tables/`. `scripts/paper/publish_tables.py` converts them to the CSV files here. [`docs/paper_map.md`](../docs/paper_map.md) maps each table to the code and outputs it is built from.
 
 
 ## Tables for the Supporting Information
+
+### S1. Main-text Results values at each scale
+
+| Table | Description |
+| --- | --- |
+| [`S1_scales`](tables/S1_scales.csv) | Main-text Results values at each scale (c = 0.1 unless stated). Each row is a value quoted in the Results at 114 regions. A cell gives a range when several values share a scale (criteria, driver-set sizes, or null models; the row says which). |
 
 ### S2. Regularization and dynamical robustness
 
@@ -39,10 +47,12 @@ Unless a description says otherwise: scales are 68, 114 and 219 regions; $c = 0.
 | [`S3_matched_q1`](tables/S3_matched_q1.csv) | Matched and residualized controls, q_1 (c = 0.1). Mean paired difference (first set minus second set, or minus the mean of the matched or random sets), the number of subjects with a positive difference, and Holm-corrected Wilcoxon p. Spatially matched sets are defined only for k >= 2, so their averages use k = 2, 3, 5. Degree-residualized cycle participation: cycle participation after regressing out degree strength. |
 | [`S3_matched_er`](tables/S3_matched_er.csv) | Matched and residualized controls, effective rank (c = 0.1, eps = 1e-5). Columns as in S3_matched_q1. |
 | [`S3_matched_pr`](tables/S3_matched_pr.csv) | Matched and residualized controls, participation ratio (c = 0.1, eps = 1e-5). Columns as in S3_matched_q1. |
-| [`S3_spin`](tables/S3_spin.csv) | Spin tests for the correlations between node rankings and cortical gradients. Spearman correlations across parcels of the subject-averaged connectome, with parametric p-values and two-sided spin-test p-values from 10,000 rotations (Vasa method, primary; Alexander-Bloch method, secondary). G1 and G2 are the first and second gradients of Margulies et al. (2016), resampled from fsLR to fsaverage5 through the registered sphere. Rank divergence is degree rank minus cycle-participation rank. |
 | [`S3_rep_agree`](tables/S3_rep_agree.csv) | Agreement of the four representative conventions with degree strength and with Ripser cocycles. Median within-subject Spearman correlations across regions (interquartile range), and the mean number of regions shared with the degree-strength set of the same size. |
 | [`S3_rep_er`](tables/S3_rep_er.csv) | Cycle-minus-degree effective rank under each representative convention, by k and averaged over k = 1, 2, 3, 5 (c = 0.1, eps = 1e-5). Mean paired difference (number of subjects with a positive difference). |
 | [`S3_rep_dist`](tables/S3_rep_dist.csv) | Does distance from the degree set explain the differences between conventions? Regression of the cycle-minus-degree effective-rank difference on the Jaccard overlap J with the degree set, across 4 conventions and 70 subjects. beta: slope per standard deviation of J. R^2_J: variance explained by J. R^2_var/J and p: additional variance explained by convention identity. Last column: median within-subject correlation. |
+| [`S3_perturb_rho`](tables/S3_perturb_rho.csv) | Stability of node rankings under edge-weight perturbation. Each connectome was perturbed 50 times per level by multiplicative Gaussian noise on existing edges (standard deviation sigma) or by removing each edge with probability p, and all rankings were recomputed. Entries: median across 70 subjects of the per-subject mean Spearman rho between perturbed and unperturbed node scores [interquartile range]. Between-subject reference: median Spearman rho between the unperturbed scores of two different subjects. Columns: cycle participation under the four representative conventions (the main text uses Ripser cocycles) and degree strength. |
+| [`S3_perturb_jac`](tables/S3_perturb_jac.csv) | Stability of the highest-ranked regions under edge-weight perturbation: mean across 70 subjects of the per-subject mean Jaccard overlap between perturbed and unperturbed top-k sets, for k = 1 / 5 / 15. Perturbations and columns as in S3_perturb_rho. |
+| [`S3_perturb_er`](tables/S3_perturb_er.csv) | Cycle-minus-degree effective rank on perturbed connectomes (Ripser cocycles; c = 0.1, eps = 1e-5), with rankings and Gramians recomputed for each perturbation. Mean across 70 subjects of the per-subject mean difference over 50 perturbations (number of subjects with a positive mean). The unperturbed row repeats the main-analysis value. |
 
 ### S4. Structural eigenmodes and hub concentration
 
@@ -87,17 +97,15 @@ Unless a description says otherwise: scales are 68, 114 and 219 regions; $c = 0.
 
 | Table | Description |
 | --- | --- |
+| [`additional_spin`](tables/additional_spin.csv) | Spin tests for the correlations between node rankings and cortical gradients. Spearman correlations across parcels of the subject-averaged connectome, with parametric p-values and two-sided spin-test p-values from 10,000 rotations (Vasa method, primary; Alexander-Bloch method, secondary). G1 and G2 are the first and second gradients of Margulies et al. (2016), resampled from fsLR to fsaverage5 through the registered sphere. Rank divergence is degree rank minus cycle-participation rank. |
 | [`additional_rankdiv`](tables/additional_rankdiv.csv) | Mean rank divergence (degree rank minus cycle-participation rank; positive values mean higher priority under cycle participation) within each of the seven resting-state networks, with the number of parcels and the uncorrected spin-test p-value. |
 
-### Cycle-participation representatives and perturbed connectomes
+### Cycle-participation representatives
 
 | Table | Description |
 | --- | --- |
 | [`additional_rep_pr`](tables/additional_rep_pr.csv) | Cycle-minus-degree participation ratio under each representative convention. Columns as in S3_rep_er. |
 | [`additional_rep_null`](tables/additional_rep_null.csv) | Effective rank of each convention's top-k set relative to three random baselines: uniform random sets, random sets sharing as many regions with the degree set as the convention does (overlap-matched), and random sets matched to the convention's drivers in strength rank within +/-5% of N (strength-matched). Cells: mean difference from the null mean / mean percentile within the null / number of subjects above the null mean. The degree row compares the degree-strength set with uniform random sets. |
-| [`additional_perturb_rho`](tables/additional_perturb_rho.csv) | Rank stability under perturbation: median Spearman correlation between perturbed and unperturbed rankings (interquartile range), with the median correlation between the unperturbed rankings of different subjects as a reference. |
-| [`additional_perturb_jac`](tables/additional_perturb_jac.csv) | Stability of the highest-ranked regions under perturbation: mean Jaccard overlap between perturbed and unperturbed top-k sets for k = 2 / 3 / 5. |
-| [`additional_perturb_er`](tables/additional_perturb_er.csv) | Cycle-minus-degree effective rank (Ripser cocycles) recomputed on perturbed connectomes, with rankings and Gramians recomputed for each perturbation. Mean difference (number of subjects with a positive difference). |
 
 ### Single-region measures, set-level predictors, and the driver Gram matrix
 

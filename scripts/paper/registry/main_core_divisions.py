@@ -178,6 +178,15 @@ def collect(run: Path) -> list[Number]:
                     "concentration/03_decay_collapse: concentration/decay_gap_partial_correlations.csv | controls == "
                     "'strength+density+cv', c == 0.1, curve == 'dr_q1', column partial_rho_gap",
                     LOC, {"c": 0.1, "stat": "partial Spearman across subjects", "set": "3 scales"})
+    # "remained significantly positive (p < 0.05) for all c from 0.013 to 3.2" (114 regions, 45-value c grid)
+    g = gc[(gc.curve == "dr_q1") & (gc.scale == 114)].sort_values("c", ascending=False)
+    upward = ((g.rho_gap > 0) & (g.p < 0.05)).cumprod().astype(bool)  # every larger c also significant
+    src = ("concentration/03_decay_collapse: concentration/decay_gap_correlations.csv | scale == 114, curve == 'dr_q1'; "
+           "c range over which rho_gap > 0 with p < 0.05 at that c and at every larger c on the grid; ")
+    ctx = {"scale": 114, "stat": "Spearman across subjects", "grid": "45 c values, 1e-5 to 10^0.5"}
+    lo, hi = float(g.c[upward].min()), float(g.c[upward].max())
+    out.append(Number("MGapRhoSignificantCLow", lo, f"{lo:.2g}", src + "lowest c", LOC, ctx))
+    out.append(Number("MGapRhoSignificantCHigh", hi, f"{hi:.2g}", src + "highest c (the grid maximum)", LOC, ctx))
     return out
 
 
@@ -197,6 +206,8 @@ PRINTED = {
     "MDegExcessQOneCTinyOneFourteen": "0.08",
     "MDegExcessQOneSingleCTenthOneFourteen": "-0.08",
     "MGapRhoDegExcessOneFourteen": "0.72",
+    "MGapRhoSignificantCLow": "0.013",
+    "MGapRhoSignificantCHigh": "3.2",
     "MGapPartialRhoDegExcessOneFourteen": "0.85",
     "MDecayRatioCTenthOneFourteen": "six",
 }

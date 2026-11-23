@@ -71,12 +71,12 @@ def energy_floor(run: Path) -> list[Number]:
             "degree_strength, eigenvector_centrality, betweenness, cycle_participation, random_mean (mean of the 100 "
             "random sets); mean over subjects and k in {1,2,3,5} per (scale, method); ")
 
-    # "Most eigenvalues of the controllability Gramian (86--96\%) fell below the regularization threshold"
+    # all-scale range: Methods "most eigenvalues of W fall below eps (86--96\%; Results)"; the Results quote 114 regions
     fb = g["fraction_below_eps"]
     out.append(N("MFracBelowEpsMin", fb.min(), pc(fb.min()), tsrc + "fraction_below_eps, min over scales x methods (x100)",
-                 loc, eps=1e-5, stat="min over scale x method of cohort mean"))
+                 "subsec:gramian", eps=1e-5, stat="min over scale x method of cohort mean"))
     out.append(N("MFracBelowEpsMax", fb.max(), pc(fb.max()), tsrc + "fraction_below_eps, max over scales x methods (x100)",
-                 loc, eps=1e-5, stat="max over scale x method of cohort mean"))
+                 "subsec:gramian", eps=1e-5, stat="max over scale x method of cohort mean"))
     out += scale_siblings("MFracBelowEps", list(fb.items()), pc, tsrc + "fraction_below_eps (x100)", loc,
                           {"eps": 1e-5, "stat": "cohort mean, over methods"})
     return out
@@ -102,14 +102,15 @@ def hub_concentration(run: Path) -> list[Number]:
     h = p1rows(run, HUB3, "avg2+")
     s = P1SRC.format(m="q1", k="avg2+") + f"families {HUB3}, all scales; "
     ctx = dict(c=0.1, k="avg2+ (2,3,5)", criterion="hub3", stat="mean over subjects")
-    out.append(N("MQOneHubTwoFiveMin", h.value_mean.min(), pc(h.value_mean.min()), s + "value_mean x100, min", loc, **ctx))
-    out.append(N("MQOneHubTwoFiveMax", h.value_mean.max(), pc(h.value_mean.max()), s + "value_mean x100, max", loc, **ctx))
+    # all-scale range: the abstract; the Results quote the 114-region range
+    out.append(N("MQOneHubTwoFiveMin", h.value_mean.min(), pc(h.value_mean.min()), s + "value_mean x100, min", "abstract", **ctx))
+    out.append(N("MQOneHubTwoFiveMax", h.value_mean.max(), pc(h.value_mean.max()), s + "value_mean x100, max", "abstract", **ctx))
     out += sib("MQOneHubTwoFive", h, "value_mean", pc, s + "value_mean x100", loc, **ctx)
     # "compared with 36--39\% for random sets"
     out.append(N("MQOneRandomTwoFiveMin", h.random_mean.min(), pc(h.random_mean.min()),
-                 s + "random_mean x100 (mean of each subject's 100 random sets), min over scales", loc, **ctx))
+                 s + "random_mean x100 (mean of each subject's 100 random sets), min over scales", "abstract", **ctx))
     out.append(N("MQOneRandomTwoFiveMax", h.random_mean.max(), pc(h.random_mean.max()),
-                 s + "random_mean x100, max over scales", loc, **ctx))
+                 s + "random_mean x100, max over scales", "abstract", **ctx))
     out += sib("MQOneRandomTwoFive", h, "random_mean", pc, s + "random_mean x100", loc, **ctx)
     # "All three exceeded the random mean in every subject at every spatial scale"
     npos = h.n_positive.min()
@@ -160,6 +161,8 @@ PRINTED = {
     "MHubAboveRandomEvery": "every", "MHubErPrLowerMinN": "65",
     # 114-region values quoted in the Results (ranges over scales: Supplementary Table C_scales)
     "MFracBelowEpsOneFourteen": "92",
+    "MFracBelowEpsMin": "86", "MFracBelowEpsMax": "96",
+    "MQOneHubTwoFiveMin": "67", "MQOneHubTwoFiveMax": "78", "MQOneRandomTwoFiveMin": "36", "MQOneRandomTwoFiveMax": "39",
     "MQOneHubTwoFiveOneFourteenMin": "74", "MQOneHubTwoFiveOneFourteenMax": "78",
     "MQOneRandomTwoFiveOneFourteen": "37",
     "MHubPctTwoFiveOneFourteen": "100",

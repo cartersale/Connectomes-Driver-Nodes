@@ -55,3 +55,11 @@ def test_paper_numbers_match_manuscript() -> None:
     differ = [f"{k}: computed {v['text']}, printed {v['context']['printed']}" for k, v in numbers.items()
               if v["context"].get("printed") is not None and v["context"]["printed"] != v["text"]]
     assert not differ, "computed numbers differ from the manuscript: " + "; ".join(differ)
+
+
+def test_abstract_locus() -> None:
+    main = "\\begin{abstract}With two to five hubs, 67--78\\% of controllability.\\end{abstract}\n\\section{Results}\\label{sec:r} 74\\%"
+    number = {"value": 0.67, "text": "67", "locus": ["abstract"], "context": {"printed": "67"}}
+    assert validate.anchored_check({"X": number}, main, "")["missing"] == []
+    wrong = {**number, "context": {"printed": "74"}}
+    assert validate.anchored_check({"X": wrong}, main, "")["missing"] == [("X", "74", "abstract", True)]

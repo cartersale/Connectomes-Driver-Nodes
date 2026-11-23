@@ -1,6 +1,6 @@
 """Every full table published in supplementary/: its group, source table, and caption (LaTeX).
 
-Groups S2-S6 hold the full results behind the corresponding sections of the Supporting Information; the other
+Group S1 is supplement Table S1 (from supp_tables/); groups S2-S6 hold the full results behind the corresponding sections of the Supporting Information; the other
 groups hold analyses that are not part of the paper. scripts/paper/publish_tables.py reads this list.
 """
 
@@ -8,6 +8,10 @@ from __future__ import annotations
 
 # (key, title, supports a supplement section, [(slug, source table id, caption), ...])
 GROUPS: list[tuple[str, str, bool, list[tuple[str, str, str]]]] = [
+    ('S1', 'Main-text Results values at each scale', True, [
+        ('scales', 'C_scales',
+         'Main-text Results values at each scale ($c = 0.1$ unless stated). Each row is a value quoted in the Results at 114 regions. A cell gives a range when several values share a scale (criteria, driver-set sizes, or null models; the row says which).'),
+    ]),
     ('S2', 'Regularization and dynamical robustness', True, [
         ('eps_energy', 'S4_1',
          "Average control energy across the $\\epsilon$ sweep ($c = 0.1$, $k$-averaged). ``Frac.\\ eig.\\ numerically 0'': fraction of eigenvalues of $W$ that are zero to numerical precision. The last three columns give the cycle-minus-degree difference in $\\log_{10}E_{\\mathrm{avg}}$ ($\\times10^{-3}$), the number of subjects with a positive difference, and Holm-corrected Wilcoxon $p$-values across the 7 $\\epsilon$ values and 3 scales."),
@@ -45,14 +49,18 @@ GROUPS: list[tuple[str, str, bool, list[tuple[str, str, str]]]] = [
          'Matched and residualized controls, effective rank ($c = 0.1$, $\\epsilon = 10^{-5}$). Columns as in Table~\\ref{tab:matched_q1}.'),
         ('matched_pr', 'S6_6', 
          'Matched and residualized controls, participation ratio ($c = 0.1$, $\\epsilon = 10^{-5}$). Columns as in Table~\\ref{tab:matched_q1}.'),
-        ('spin', 'S10_9',
-         'Spin tests for the correlations between node rankings and cortical gradients. Spearman correlations across parcels of the subject-averaged connectome, with parametric $p$-values and two-sided spin-test $p$-values from 10,000 rotations (Vasa method, primary; Alexander-Bloch method, secondary). G1 and G2 are the first and second gradients of Margulies et al. (2016), resampled from fsLR to fsaverage5 through the registered sphere. Rank divergence is degree rank minus cycle-participation rank.'),
         ('rep_agree', 'S9_1',
          'Agreement of the four representative conventions with degree strength and with Ripser cocycles. Median within-subject Spearman correlations across regions (interquartile range), and the mean number of regions shared with the degree-strength set of the same size.'),
         ('rep_er', 'S9_2',
          'Cycle-minus-degree effective rank under each representative convention, by $k$ and averaged over $k = 1$, 2, 3, 5 ($c = 0.1$, $\\epsilon = 10^{-5}$). Mean paired difference (number of subjects with a positive difference).'),
         ('rep_dist', 'S9_5',
          'Does distance from the degree set explain the differences between conventions? Regression of the cycle-minus-degree effective-rank difference on the Jaccard overlap $J$ with the degree set, across 4 conventions and 70 subjects. $\\beta$: slope per standard deviation of $J$. $R^2_J$: variance explained by $J$. $R^2_{\\mathrm{var}|J}$ and $p$: additional variance explained by convention identity. Last column: median within-subject correlation.'),
+        ('perturb_rho', 'S9_6',
+         'Stability of node rankings under edge-weight perturbation. Each connectome was perturbed 50 times per level by multiplicative Gaussian noise on existing edges (standard deviation $\\sigma$) or by removing each edge with probability $p$, and all rankings were recomputed. Entries: median across 70 subjects of the per-subject mean Spearman $\\rho$ between perturbed and unperturbed node scores [interquartile range]. Between-subject reference: median Spearman $\\rho$ between the unperturbed scores of two different subjects. Columns: cycle participation under the four representative conventions (the main text uses Ripser cocycles) and degree strength.'),
+        ('perturb_jac', 'S9_7',
+         'Stability of the highest-ranked regions under edge-weight perturbation: mean across 70 subjects of the per-subject mean Jaccard overlap between perturbed and unperturbed top-$k$ sets, for $k = 1$ / 5 / 15. Perturbations and columns as in Table~\\ref{tab:perturb_rho}.'),
+        ('perturb_er', 'S9_8',
+         'Cycle-minus-degree effective rank on perturbed connectomes (Ripser cocycles; $c = 0.1$, $\\epsilon = 10^{-5}$), with rankings and Gramians recomputed for each perturbation. Mean across 70 subjects of the per-subject mean difference over 50 perturbations (number of subjects with a positive mean). The unperturbed row repeats the main-analysis value.'),
     ]),
     ('S4', 'Structural eigenmodes and hub concentration', True, [
         ('gapcorr', 'S5_9',
@@ -89,20 +97,16 @@ GROUPS: list[tuple[str, str, bool, list[tuple[str, str, str]]]] = [
          'Decay-ratio collapse (curves averaged over $k = 2$, 3, 5). $D$ is the between-scale variance of the three scale-mean curves divided by the total variance across subjects, averaged over the grid (smaller values mean a tighter collapse), on the full range of each axis and on matched windows.'),
     ]),
     ('gradients', 'Rank divergence and resting-state networks', False, [
+        ('spin', 'S10_9',
+         'Spin tests for the correlations between node rankings and cortical gradients. Spearman correlations across parcels of the subject-averaged connectome, with parametric $p$-values and two-sided spin-test $p$-values from 10,000 rotations (Vasa method, primary; Alexander-Bloch method, secondary). G1 and G2 are the first and second gradients of Margulies et al. (2016), resampled from fsLR to fsaverage5 through the registered sphere. Rank divergence is degree rank minus cycle-participation rank.'),
         ('rankdiv', 'S10_10',
          'Mean rank divergence (degree rank minus cycle-participation rank; positive values mean higher priority under cycle participation) within each of the seven resting-state networks, with the number of parcels and the uncorrected spin-test $p$-value.'),
     ]),
-    ('representatives', 'Cycle-participation representatives and perturbed connectomes', False, [
+    ('representatives', 'Cycle-participation representatives', False, [
         ('rep_pr', 'S9_3',
          'Cycle-minus-degree participation ratio under each representative convention. Columns as in Table~\\ref{tab:rep_er}.'),
         ('rep_null', 'S9_4', 
          "Effective rank of each convention's top-$k$ set relative to three random baselines: uniform random sets, random sets sharing as many regions with the degree set as the convention does (overlap-matched), and random sets matched to the convention's drivers in strength rank within $\\pm5\\%$ of $N$ (strength-matched). Cells: mean difference from the null mean / mean percentile within the null / number of subjects above the null mean. The degree row compares the degree-strength set with uniform random sets."),
-        ('perturb_rho', 'S9_6',
-         'Rank stability under perturbation: median Spearman correlation between perturbed and unperturbed rankings (interquartile range), with the median correlation between the unperturbed rankings of different subjects as a reference.'),
-        ('perturb_jac', 'S9_7',
-         'Stability of the highest-ranked regions under perturbation: mean Jaccard overlap between perturbed and unperturbed top-$k$ sets for $k = 2$ / 3 / 5.'),
-        ('perturb_er', 'S9_8',
-         'Cycle-minus-degree effective rank (Ripser cocycles) recomputed on perturbed connectomes, with rankings and Gramians recomputed for each perturbation. Mean difference (number of subjects with a positive difference).'),
     ]),
     ('setlevel', 'Single-region measures, set-level predictors, and the driver Gram matrix', False, [
         ('nodelevel_corr', 'S7_1',

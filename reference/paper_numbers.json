@@ -1,0 +1,2441 @@
+{
+ "meta": {
+  "created": "2026-11-22",
+  "run": "release",
+  "commit": "761bd0ea33a374e6d69a1a4bbc405acdec4b6616",
+  "reason": "First release reference: full run of the release code (runs/release, nulls reused from nulls-2026-10); tables, numbers and figure PNGs identical to runs/paper; all printed numbers match paper/paper",
+  "replaces": null
+ },
+ "numbers": {
+  "MFracBelowEpsMin": {
+   "value": 0.8601365546218488,
+   "text": "86",
+   "source": "sensitivity/04_energy_floor: sensitivity/energy_floor_driver_sets.csv | c = 0.1, eps == 1e-5, methods degree_strength, eigenvector_centrality, betweenness, cycle_participation, random_mean (mean of the 100 random sets); mean over subjects and k in {1,2,3,5} per (scale, method); fraction_below_eps, min over scales x methods (x100)",
+   "locus": [
+    "subsec:gramian"
+   ]
+  },
+  "MFracBelowEpsMax": {
+   "value": 0.9604667318982387,
+   "text": "96",
+   "source": "sensitivity/04_energy_floor: sensitivity/energy_floor_driver_sets.csv | c = 0.1, eps == 1e-5, methods degree_strength, eigenvector_centrality, betweenness, cycle_participation, random_mean (mean of the 100 random sets); mean over subjects and k in {1,2,3,5} per (scale, method); fraction_below_eps, max over scales x methods (x100)",
+   "locus": [
+    "subsec:gramian"
+   ]
+  },
+  "MFracBelowEpsOneFourteen": {
+   "value": 0.9150689223057644,
+   "text": "92",
+   "source": "sensitivity/04_energy_floor: sensitivity/energy_floor_driver_sets.csv | c = 0.1, eps == 1e-5, methods degree_strength, eigenvector_centrality, betweenness, cycle_participation, random_mean (mean of the 100 random sets); mean over subjects and k in {1,2,3,5} per (scale, method); fraction_below_eps (x100) | scale == 114",
+   "locus": [
+    "subsec:energy_floor"
+   ]
+  },
+  "MQOneHubTwoFiveMin": {
+   "value": 0.6711821119488864,
+   "text": "67",
+   "source": "concentration/02_tables: concentration/q1_vs_random.csv | c == 0.1, metric == 'q1', k == 'avg2+'; families ('degree_strength', 'eigenvector_centrality', 'top_avg_ctrl'), all scales; value_mean x100, min",
+   "locus": [
+    "abstract"
+   ]
+  },
+  "MQOneHubTwoFiveMax": {
+   "value": 0.7796444964517077,
+   "text": "78",
+   "source": "concentration/02_tables: concentration/q1_vs_random.csv | c == 0.1, metric == 'q1', k == 'avg2+'; families ('degree_strength', 'eigenvector_centrality', 'top_avg_ctrl'), all scales; value_mean x100, max",
+   "locus": [
+    "abstract"
+   ]
+  },
+  "MQOneHubTwoFiveOneFourteenMin": {
+   "value": 0.7389706357191407,
+   "text": "74",
+   "source": "concentration/02_tables: concentration/q1_vs_random.csv | c == 0.1, metric == 'q1', k == 'avg2+'; families ('degree_strength', 'eigenvector_centrality', 'top_avg_ctrl'), all scales; value_mean x100 | scale == 114 | min",
+   "locus": [
+    "subsec:hub_concentration"
+   ]
+  },
+  "MQOneHubTwoFiveOneFourteenMax": {
+   "value": 0.7796444964517077,
+   "text": "78",
+   "source": "concentration/02_tables: concentration/q1_vs_random.csv | c == 0.1, metric == 'q1', k == 'avg2+'; families ('degree_strength', 'eigenvector_centrality', 'top_avg_ctrl'), all scales; value_mean x100 | scale == 114 | max",
+   "locus": [
+    "subsec:hub_concentration"
+   ]
+  },
+  "MQOneRandomTwoFiveMin": {
+   "value": 0.3605712336075814,
+   "text": "36",
+   "source": "concentration/02_tables: concentration/q1_vs_random.csv | c == 0.1, metric == 'q1', k == 'avg2+'; families ('degree_strength', 'eigenvector_centrality', 'top_avg_ctrl'), all scales; random_mean x100 (mean of each subject's 100 random sets), min over scales",
+   "locus": [
+    "abstract"
+   ]
+  },
+  "MQOneRandomTwoFiveMax": {
+   "value": 0.3900206047713679,
+   "text": "39",
+   "source": "concentration/02_tables: concentration/q1_vs_random.csv | c == 0.1, metric == 'q1', k == 'avg2+'; families ('degree_strength', 'eigenvector_centrality', 'top_avg_ctrl'), all scales; random_mean x100, max over scales",
+   "locus": [
+    "abstract"
+   ]
+  },
+  "MQOneRandomTwoFiveOneFourteen": {
+   "value": 0.373944173461065,
+   "text": "37",
+   "source": "concentration/02_tables: concentration/q1_vs_random.csv | c == 0.1, metric == 'q1', k == 'avg2+'; families ('degree_strength', 'eigenvector_centrality', 'top_avg_ctrl'), all scales; random_mean x100 | scale == 114",
+   "locus": [
+    "subsec:hub_concentration"
+   ]
+  },
+  "MHubAboveRandomEvery": {
+   "value": 70.0,
+   "text": "every",
+   "source": "concentration/02_tables: concentration/q1_vs_random.csv | c == 0.1, metric == 'q1', k == 'avg2+'; families ('degree_strength', 'eigenvector_centrality', 'top_avg_ctrl'), all scales; min n_positive over families x scales (word 'every' when == n = 70)",
+   "locus": [
+    "subsec:hub_concentration"
+   ]
+  },
+  "MHubPctTwoFiveMin": {
+   "value": 0.9901666666666668,
+   "text": "99",
+   "source": "concentration/02_tables: concentration/q1_vs_random.csv | c == 0.1, metric == 'q1', k == 'avg2+'; families ('degree_strength', 'eigenvector_centrality', 'top_avg_ctrl'), all scales; pct_mean x100, min",
+   "locus": [
+    "subsec:hub_concentration"
+   ]
+  },
+  "MHubPctTwoFiveMax": {
+   "value": 1.0,
+   "text": "100",
+   "source": "concentration/02_tables: concentration/q1_vs_random.csv | c == 0.1, metric == 'q1', k == 'avg2+'; families ('degree_strength', 'eigenvector_centrality', 'top_avg_ctrl'), all scales; pct_mean x100, max",
+   "locus": [
+    "subsec:hub_concentration"
+   ]
+  },
+  "MHubPctTwoFiveOneFourteen": {
+   "value": 0.998190476190476,
+   "text": "100",
+   "source": "concentration/02_tables: concentration/q1_vs_random.csv | c == 0.1, metric == 'q1', k == 'avg2+'; families ('degree_strength', 'eigenvector_centrality', 'top_avg_ctrl'), all scales; pct_mean x100 | scale == 114",
+   "locus": [
+    "subsec:hub_concentration"
+   ]
+  },
+  "MHubErPrLowerMinN": {
+   "value": 65.0,
+   "text": "65",
+   "source": "concentration/02_tables: concentration/q1_vs_random.csv | c == 0.1, metric == 'er|pr', k == 'avg2+'; families ('degree_strength', 'eigenvector_centrality', 'top_avg_ctrl'); min over metric x family x scale of n - n_positive (subjects whose criterion ER/PR is not above the random mean; no exact ties assumed); lower bound",
+   "locus": [
+    "subsec:hub_concentration"
+   ]
+  },
+  "MQOneIntermediateMin": {
+   "value": 0.4962079226968449,
+   "text": "50",
+   "source": "concentration/02_tables: concentration/q1_vs_random.csv | c == 0.1, metric == 'q1', k == 'avg2+'; families betweenness, cycle_criticality, all scales; value_mean x100, min",
+   "locus": [
+    "subsec:hub_concentration"
+   ]
+  },
+  "MQOneIntermediateMax": {
+   "value": 0.6126102188438463,
+   "text": "61",
+   "source": "concentration/02_tables: concentration/q1_vs_random.csv | c == 0.1, metric == 'q1', k == 'avg2+'; families betweenness, cycle_criticality, all scales; value_mean x100, max",
+   "locus": [
+    "subsec:hub_concentration"
+   ]
+  },
+  "MQOneIntermediateOneFourteenMin": {
+   "value": 0.5727535240280037,
+   "text": "57",
+   "source": "concentration/02_tables: concentration/q1_vs_random.csv | c == 0.1, metric == 'q1', k == 'avg2+'; families betweenness, cycle_criticality, all scales; value_mean x100 | scale == 114 | min",
+   "locus": [
+    "subsec:hub_concentration"
+   ]
+  },
+  "MQOneIntermediateOneFourteenMax": {
+   "value": 0.6126102188438463,
+   "text": "61",
+   "source": "concentration/02_tables: concentration/q1_vs_random.csv | c == 0.1, metric == 'q1', k == 'avg2+'; families betweenness, cycle_criticality, all scales; value_mean x100 | scale == 114 | max",
+   "locus": [
+    "subsec:hub_concentration"
+   ]
+  },
+  "MQOneNonHubMin": {
+   "value": 0.3447771010303453,
+   "text": "34",
+   "source": "concentration/02_tables: concentration/q1_vs_random.csv | c == 0.1, metric == 'q1', k == 'avg2+'; families ('participation_coefficient', 'cycle_participation', 'triangle_participation', 'cycle_resid', 'top_modal_gu', 'low_perron') (remaining Fig. 2C rows), all scales; value_mean x100, min",
+   "locus": [
+    "subsec:hub_concentration"
+   ]
+  },
+  "MQOneNonHubMax": {
+   "value": 0.4903444020259235,
+   "text": "49",
+   "source": "concentration/02_tables: concentration/q1_vs_random.csv | c == 0.1, metric == 'q1', k == 'avg2+'; families ('participation_coefficient', 'cycle_participation', 'triangle_participation', 'cycle_resid', 'top_modal_gu', 'low_perron') (remaining Fig. 2C rows), all scales; value_mean x100, max",
+   "locus": [
+    "subsec:hub_concentration"
+   ]
+  },
+  "MQOneNonHubOneFourteenMin": {
+   "value": 0.3450670100796823,
+   "text": "35",
+   "source": "concentration/02_tables: concentration/q1_vs_random.csv | c == 0.1, metric == 'q1', k == 'avg2+'; families ('participation_coefficient', 'cycle_participation', 'triangle_participation', 'cycle_resid', 'top_modal_gu', 'low_perron') (remaining Fig. 2C rows), all scales; value_mean x100 | scale == 114 | min",
+   "locus": [
+    "subsec:hub_concentration"
+   ]
+  },
+  "MQOneNonHubOneFourteenMax": {
+   "value": 0.443227591881059,
+   "text": "44",
+   "source": "concentration/02_tables: concentration/q1_vs_random.csv | c == 0.1, metric == 'q1', k == 'avg2+'; families ('participation_coefficient', 'cycle_participation', 'triangle_participation', 'cycle_resid', 'top_modal_gu', 'low_perron') (remaining Fig. 2C rows), all scales; value_mean x100 | scale == 114 | max",
+   "locus": [
+    "subsec:hub_concentration"
+   ]
+  },
+  "MQOneSingleDegreePctMin": {
+   "value": 0.8597301352267221,
+   "text": "86",
+   "source": "concentration/02_tables: concentration/q1_vs_random.csv | c == 0.1, metric == 'q1', family == 'degree_strength', k == '1', column value_mean x 100 | min over [68, 114, 219] (at 219)",
+   "locus": [
+    "subsec:hub_concentration"
+   ]
+  },
+  "MQOneSingleDegreePctMax": {
+   "value": 0.8857482098610978,
+   "text": "89",
+   "source": "concentration/02_tables: concentration/q1_vs_random.csv | c == 0.1, metric == 'q1', family == 'degree_strength', k == '1', column value_mean x 100 | max over [68, 114, 219] (at 68)",
+   "locus": [
+    "subsec:hub_concentration"
+   ]
+  },
+  "MQOneSingleDegreePctOneFourteen": {
+   "value": 0.8727726926653919,
+   "text": "87",
+   "source": "concentration/02_tables: concentration/q1_vs_random.csv | c == 0.1, metric == 'q1', family == 'degree_strength', k == '1', column value_mean x 100 | scale == 114",
+   "locus": [
+    "subsec:hub_concentration"
+   ]
+  },
+  "MQOneSingleRandomPctMin": {
+   "value": 0.9492234215484048,
+   "text": "95",
+   "source": "concentration/02_tables: concentration/q1_vs_random.csv | c == 0.1, metric == 'q1', family == 'degree_strength', k == '1', column random_mean (mean of each subject's 100 random single regions) x 100 | min over [68, 114, 219] (at 68)",
+   "locus": [
+    "subsec:hub_concentration"
+   ]
+  },
+  "MQOneSingleRandomPctMax": {
+   "value": 0.9639760437403996,
+   "text": "96",
+   "source": "concentration/02_tables: concentration/q1_vs_random.csv | c == 0.1, metric == 'q1', family == 'degree_strength', k == '1', column random_mean (mean of each subject's 100 random single regions) x 100 | max over [68, 114, 219] (at 219)",
+   "locus": [
+    "subsec:hub_concentration"
+   ]
+  },
+  "MQOneSingleRandomPctOneFourteen": {
+   "value": 0.9546372817106168,
+   "text": "95",
+   "source": "concentration/02_tables: concentration/q1_vs_random.csv | c == 0.1, metric == 'q1', family == 'degree_strength', k == '1', column random_mean (mean of each subject's 100 random single regions) x 100 | scale == 114",
+   "locus": [
+    "subsec:hub_concentration"
+   ]
+  },
+  "MSingleHubBelowRandomAllN": {
+   "value": 70.0,
+   "text": "every",
+   "source": "concentration/02_tables: concentration/q1_vs_random.csv | c == 0.1, metric == 'q1', family == '{degree_strength, eigenvector_centrality, top_avg_ctrl}', k == '1', column n - n_positive (subjects whose single hub q1 is not above its random mean); min over 3 criteria x 3 scales; word 'every' when == n = 70",
+   "locus": [
+    "subsec:hub_concentration"
+   ]
+  },
+  "MExcessTwoDegreePtsMin": {
+   "value": 0.2316239743898664,
+   "text": "23",
+   "source": "concentration/02_tables: concentration/q1_vs_random.csv | c == 0.1, metric == 'q1', family == 'degree_strength', k == '2', column mean (mean over subjects of q1 - random mean) x 100 = points | min over [68, 114, 219] (at 219)",
+   "locus": [
+    "subsec:hub_concentration"
+   ]
+  },
+  "MExcessTwoDegreePtsMax": {
+   "value": 0.2760329659909313,
+   "text": "28",
+   "source": "concentration/02_tables: concentration/q1_vs_random.csv | c == 0.1, metric == 'q1', family == 'degree_strength', k == '2', column mean (mean over subjects of q1 - random mean) x 100 = points | max over [68, 114, 219] (at 68)",
+   "locus": [
+    "subsec:hub_concentration"
+   ]
+  },
+  "MExcessTwoDegreePtsOneFourteen": {
+   "value": 0.2747759200452664,
+   "text": "27",
+   "source": "concentration/02_tables: concentration/q1_vs_random.csv | c == 0.1, metric == 'q1', family == 'degree_strength', k == '2', column mean (mean over subjects of q1 - random mean) x 100 = points | scale == 114",
+   "locus": [
+    "subsec:hub_concentration"
+   ]
+  },
+  "MExcessFiveDegreePtsMin": {
+   "value": 0.3752381937379241,
+   "text": "38",
+   "source": "concentration/02_tables: concentration/q1_vs_random.csv | c == 0.1, metric == 'q1', family == 'degree_strength', k == '5', column mean (mean over subjects of q1 - random mean) x 100 = points | min over [68, 114, 219] (at 219)",
+   "locus": [
+    "subsec:hub_concentration"
+   ]
+  },
+  "MExcessFiveDegreePtsMax": {
+   "value": 0.4336736644013182,
+   "text": "43",
+   "source": "concentration/02_tables: concentration/q1_vs_random.csv | c == 0.1, metric == 'q1', family == 'degree_strength', k == '5', column mean (mean over subjects of q1 - random mean) x 100 = points | max over [68, 114, 219] (at 114)",
+   "locus": [
+    "subsec:hub_concentration"
+   ]
+  },
+  "MExcessFiveDegreePtsOneFourteen": {
+   "value": 0.4336736644013182,
+   "text": "43",
+   "source": "concentration/02_tables: concentration/q1_vs_random.csv | c == 0.1, metric == 'q1', family == 'degree_strength', k == '5', column mean (mean over subjects of q1 - random mean) x 100 = points | scale == 114",
+   "locus": [
+    "subsec:hub_concentration"
+   ]
+  },
+  "MCycleBelowDegreePtsMin": {
+   "value": 0.2370286854951208,
+   "text": "24",
+   "source": "concentration/02_tables: concentration/q1_matched.csv | comparison == 'cycle - degree', c == 0.1, k == 'avg2+', metric == 'q1', column mean sign flipped, x 100 = points | min over [68, 114, 219] (at 68)",
+   "locus": [
+    "subsec:hub_concentration"
+   ]
+  },
+  "MCycleBelowDegreePtsMax": {
+   "value": 0.2957430438380815,
+   "text": "30",
+   "source": "concentration/02_tables: concentration/q1_matched.csv | comparison == 'cycle - degree', c == 0.1, k == 'avg2+', metric == 'q1', column mean sign flipped, x 100 = points | max over [68, 114, 219] (at 114)",
+   "locus": [
+    "subsec:hub_concentration"
+   ]
+  },
+  "MCycleBelowDegreePtsOneFourteen": {
+   "value": 0.2957430438380815,
+   "text": "30",
+   "source": "concentration/02_tables: concentration/q1_matched.csv | comparison == 'cycle - degree', c == 0.1, k == 'avg2+', metric == 'q1', column mean sign flipped, x 100 = points | scale == 114",
+   "locus": [
+    "subsec:hub_concentration"
+   ]
+  },
+  "MCycleResidQOneWithin": {
+   "value": 0.013479041569613,
+   "text": "0.014",
+   "source": "concentration/02_tables: concentration/q1_matched.csv | comparison == 'cycle_resid - random', c == 0.1, k == 'avg', metric == 'q1', column mean | max over scales of |mean| (68: -0.0135, 114: -0.0036, 219: -0.0059); rounded UP (bound)",
+   "locus": [
+    "subsec:hub_concentration"
+   ]
+  },
+  "MVOneConsistencyMedianMin": {
+   "value": 0.8890066476145438,
+   "text": "0.89",
+   "source": "mechanisms/04_leading_eigenvectors: mechanisms/eigvec_subjects.csv | column v1_consistency (Pearson r of subject v1 with group-mean v1), median over 70 subjects per scale (as fig3.py panel_subjects) | min over [68, 114, 219] (at 219)",
+   "locus": [
+    "subsec:leading_mode"
+   ]
+  },
+  "MVOneConsistencyMedianMax": {
+   "value": 0.9213464447805416,
+   "text": "0.92",
+   "source": "mechanisms/04_leading_eigenvectors: mechanisms/eigvec_subjects.csv | column v1_consistency (Pearson r of subject v1 with group-mean v1), median over 70 subjects per scale (as fig3.py panel_subjects) | max over [68, 114, 219] (at 114)",
+   "locus": [
+    "subsec:leading_mode"
+   ]
+  },
+  "MVOneConsistencyMedianOneFourteen": {
+   "value": 0.9213464447805416,
+   "text": "0.92",
+   "source": "mechanisms/04_leading_eigenvectors: mechanisms/eigvec_subjects.csv | column v1_consistency (Pearson r of subject v1 with group-mean v1), median over 70 subjects per scale (as fig3.py panel_subjects) | scale == 114",
+   "locus": [
+    "subsec:leading_mode"
+   ]
+  },
+  "MFigThreeOmittedRegions": {
+   "value": 1.0,
+   "text": "one",
+   "source": "mechanisms/08_gramian_alignment: mechanisms/node_v1_strength.csv | scale == 114, rows failing strength > 0 & m > 0 (the filter of fig3.py panel_strength); printed as a word",
+   "locus": [
+    "fig:midline_core"
+   ]
+  },
+  "MRhoStrengthMMin": {
+   "value": 0.43284986347070054,
+   "text": "0.43",
+   "source": "mechanisms/08_gramian_alignment: mechanisms/node_v1_strength.csv | strength > 0 & m > 0; within-subject Spearman rho(strength, m), median over subjects (fig3.py panel_strength) | min over [68, 114, 219] (at 219)",
+   "locus": [
+    "subsec:leading_mode"
+   ]
+  },
+  "MRhoStrengthMMax": {
+   "value": 0.5879680879490017,
+   "text": "0.59",
+   "source": "mechanisms/08_gramian_alignment: mechanisms/node_v1_strength.csv | strength > 0 & m > 0; within-subject Spearman rho(strength, m), median over subjects (fig3.py panel_strength) | max over [68, 114, 219] (at 68)",
+   "locus": [
+    "subsec:leading_mode"
+   ]
+  },
+  "MRhoStrengthMOneFourteen": {
+   "value": 0.5406127862943237,
+   "text": "0.54",
+   "source": "mechanisms/08_gramian_alignment: mechanisms/node_v1_strength.csv | strength > 0 & m > 0; within-subject Spearman rho(strength, m), median over subjects (fig3.py panel_strength) | scale == 114",
+   "locus": [
+    "subsec:leading_mode"
+   ]
+  },
+  "MCosStrengthVOneMin": {
+   "value": 0.6867337637349834,
+   "text": "0.69",
+   "source": "mechanisms/01_hub_loading: mechanisms/hub_loading.csv.gz | null == 'real', column cos_s_v1, mean over 70 subjects (medians give the same rounded range) | min over [68, 114, 219] (at 219)",
+   "locus": [
+    "subsec:leading_mode"
+   ]
+  },
+  "MCosStrengthVOneMax": {
+   "value": 0.8154352443393079,
+   "text": "0.82",
+   "source": "mechanisms/01_hub_loading: mechanisms/hub_loading.csv.gz | null == 'real', column cos_s_v1, mean over 70 subjects (medians give the same rounded range) | max over [68, 114, 219] (at 68)",
+   "locus": [
+    "subsec:leading_mode"
+   ]
+  },
+  "MCosStrengthVOneOneFourteen": {
+   "value": 0.7637330866498954,
+   "text": "0.76",
+   "source": "mechanisms/01_hub_loading: mechanisms/hub_loading.csv.gz | null == 'real', column cos_s_v1, mean over 70 subjects (medians give the same rounded range) | scale == 114",
+   "locus": [
+    "subsec:leading_mode"
+   ]
+  },
+  "MAvgCtrlVOneShareMin": {
+   "value": 0.6224384622287837,
+   "text": "62",
+   "source": "mechanisms/08_gramian_alignment: mechanisms/node_v1_strength.csv | per subject, the 5 regions with largest avg_ctrl (c = 0.1); mean of avg_ctrl_v1 / avg_ctrl over them; median over subjects; x 100 | min over [68, 114, 219] (at 68)",
+   "locus": [
+    "subsec:leading_mode"
+   ]
+  },
+  "MAvgCtrlVOneShareMax": {
+   "value": 0.6779631503803056,
+   "text": "68",
+   "source": "mechanisms/08_gramian_alignment: mechanisms/node_v1_strength.csv | per subject, the 5 regions with largest avg_ctrl (c = 0.1); mean of avg_ctrl_v1 / avg_ctrl over them; median over subjects; x 100 | max over [68, 114, 219] (at 114)",
+   "locus": [
+    "subsec:leading_mode"
+   ]
+  },
+  "MAvgCtrlVOneShareOneFourteen": {
+   "value": 0.6779631503803056,
+   "text": "68",
+   "source": "mechanisms/08_gramian_alignment: mechanisms/node_v1_strength.csv | per subject, the 5 regions with largest avg_ctrl (c = 0.1); mean of avg_ctrl_v1 / avg_ctrl over them; median over subjects; x 100 | scale == 114",
+   "locus": [
+    "subsec:leading_mode"
+   ]
+  },
+  "MVOneTopTwentyShareMin": {
+   "value": 0.9303927612293528,
+   "text": "93",
+   "source": "mechanisms/04_leading_eigenvectors: mechanisms/eigvec_regions.csv | column v1_mean (group-mean v1); share of sum v1_mean^2 on the ceil(0.2 N) regions with largest loading (CORE_FRAC set of 04_leading_eigenvectors.py); x 100. Recomputed (no saved column). NOTE: the per-subject version (node_v1_strength.csv v1) gives median 95/98/99%, i.e. 95--99 | min over [68, 114, 219] (at 68)",
+   "locus": [
+    "subsec:leading_mode"
+   ]
+  },
+  "MVOneTopTwentyShareMax": {
+   "value": 0.977435689443577,
+   "text": "98",
+   "source": "mechanisms/04_leading_eigenvectors: mechanisms/eigvec_regions.csv | column v1_mean (group-mean v1); share of sum v1_mean^2 on the ceil(0.2 N) regions with largest loading (CORE_FRAC set of 04_leading_eigenvectors.py); x 100. Recomputed (no saved column). NOTE: the per-subject version (node_v1_strength.csv v1) gives median 95/98/99%, i.e. 95--99 | max over [68, 114, 219] (at 219)",
+   "locus": [
+    "subsec:leading_mode"
+   ]
+  },
+  "MVOneTopTwentyShareOneFourteen": {
+   "value": 0.9618621269070945,
+   "text": "96",
+   "source": "mechanisms/04_leading_eigenvectors: mechanisms/eigvec_regions.csv | column v1_mean (group-mean v1); share of sum v1_mean^2 on the ceil(0.2 N) regions with largest loading (CORE_FRAC set of 04_leading_eigenvectors.py); x 100. Recomputed (no saved column). NOTE: the per-subject version (node_v1_strength.csv v1) gives median 95/98/99%, i.e. 95--99 | scale == 114",
+   "locus": [
+    "subsec:leading_mode"
+   ]
+  },
+  "MLoadingHubMin": {
+   "value": 0.32131479638751687,
+   "text": "0.32",
+   "source": "mechanisms/08_gramian_alignment: mechanisms/gramian_alignment.csv | column loading (L_S), mean over draws, then k in {1,2,3,5}, then subjects; identical to concentration/set_q1.csv.gz loading; 3 hub criteria x 3 scales | min over [('degree_strength', 68), ('degree_strength', 114), ('degree_strength', 219), ('eigenvector_centrality', 68), ('eigenvector_centrality', 114), ('eigenvector_centrality', 219), ('top_avg_ctrl', 68), ('top_avg_ctrl', 114), ('top_avg_ctrl', 219)] (at ('degree_strength', np.int64(219)))",
+   "locus": [
+    "subsec:leading_mode"
+   ]
+  },
+  "MLoadingHubMax": {
+   "value": 0.5237401963612118,
+   "text": "0.52",
+   "source": "mechanisms/08_gramian_alignment: mechanisms/gramian_alignment.csv | column loading (L_S), mean over draws, then k in {1,2,3,5}, then subjects; identical to concentration/set_q1.csv.gz loading; 3 hub criteria x 3 scales | max over [('degree_strength', 68), ('degree_strength', 114), ('degree_strength', 219), ('eigenvector_centrality', 68), ('eigenvector_centrality', 114), ('eigenvector_centrality', 219), ('top_avg_ctrl', 68), ('top_avg_ctrl', 114), ('top_avg_ctrl', 219)] (at ('eigenvector_centrality', np.int64(68)))",
+   "locus": [
+    "subsec:leading_mode"
+   ]
+  },
+  "MLoadingHubOneFourteenMin": {
+   "value": 0.41048805569901864,
+   "text": "0.41",
+   "source": "mechanisms/08_gramian_alignment: mechanisms/gramian_alignment.csv | column loading (L_S), mean over draws, then k in {1,2,3,5}, then subjects; identical to concentration/set_q1.csv.gz loading; 3 hub criteria x 3 scales | scale == 114 | min",
+   "locus": [
+    "subsec:leading_mode"
+   ]
+  },
+  "MLoadingHubOneFourteenMax": {
+   "value": 0.4496474746687182,
+   "text": "0.45",
+   "source": "mechanisms/08_gramian_alignment: mechanisms/gramian_alignment.csv | column loading (L_S), mean over draws, then k in {1,2,3,5}, then subjects; identical to concentration/set_q1.csv.gz loading; 3 hub criteria x 3 scales | scale == 114 | max",
+   "locus": [
+    "subsec:leading_mode"
+   ]
+  },
+  "MLoadingRandomMin": {
+   "value": 0.012705229313930146,
+   "text": "0.01",
+   "source": "mechanisms/08_gramian_alignment: mechanisms/gramian_alignment.csv | column loading (L_S), mean over draws, then k in {1,2,3,5}, then subjects; identical to concentration/set_q1.csv.gz loading; family == 'random', over scales | min over [68, 114, 219] (at 219)",
+   "locus": [
+    "subsec:leading_mode"
+   ]
+  },
+  "MLoadingRandomMax": {
+   "value": 0.04068766808709109,
+   "text": "0.04",
+   "source": "mechanisms/08_gramian_alignment: mechanisms/gramian_alignment.csv | column loading (L_S), mean over draws, then k in {1,2,3,5}, then subjects; identical to concentration/set_q1.csv.gz loading; family == 'random', over scales | max over [68, 114, 219] (at 68)",
+   "locus": [
+    "subsec:leading_mode"
+   ]
+  },
+  "MLoadingRandomOneFourteen": {
+   "value": 0.024463693571118186,
+   "text": "0.02",
+   "source": "mechanisms/08_gramian_alignment: mechanisms/gramian_alignment.csv | column loading (L_S), mean over draws, then k in {1,2,3,5}, then subjects; identical to concentration/set_q1.csv.gz loading; family == 'random', over scales | scale == 114",
+   "locus": [
+    "subsec:leading_mode"
+   ]
+  },
+  "MCosHubTwoFiveMin": {
+   "value": 0.9695299857176104,
+   "text": "0.97",
+   "source": "mechanisms/08_gramian_alignment: mechanisms/gramian_alignment.csv | column cos_top_v1, mean over draws, then k in {2,3,5}, then subjects; 3 hub criteria x 3 scales | min over [('degree_strength', 68), ('degree_strength', 114), ('degree_strength', 219), ('eigenvector_centrality', 68), ('eigenvector_centrality', 114), ('eigenvector_centrality', 219), ('top_avg_ctrl', 68), ('top_avg_ctrl', 114), ('top_avg_ctrl', 219)] (at ('degree_strength', np.int64(68)))",
+   "locus": [
+    "subsec:leading_mode"
+   ]
+  },
+  "MCosHubTwoFiveMax": {
+   "value": 0.9867469653989634,
+   "text": "0.99",
+   "source": "mechanisms/08_gramian_alignment: mechanisms/gramian_alignment.csv | column cos_top_v1, mean over draws, then k in {2,3,5}, then subjects; 3 hub criteria x 3 scales | max over [('degree_strength', 68), ('degree_strength', 114), ('degree_strength', 219), ('eigenvector_centrality', 68), ('eigenvector_centrality', 114), ('eigenvector_centrality', 219), ('top_avg_ctrl', 68), ('top_avg_ctrl', 114), ('top_avg_ctrl', 219)] (at ('degree_strength', np.int64(114)))",
+   "locus": [
+    "subsec:leading_mode"
+   ]
+  },
+  "MCosHubTwoFiveOneFourteenMin": {
+   "value": 0.982577360342006,
+   "text": "0.98",
+   "source": "mechanisms/08_gramian_alignment: mechanisms/gramian_alignment.csv | column cos_top_v1, mean over draws, then k in {2,3,5}, then subjects; 3 hub criteria x 3 scales | scale == 114 | min",
+   "locus": [
+    "subsec:leading_mode"
+   ]
+  },
+  "MCosHubTwoFiveOneFourteenMax": {
+   "value": 0.9867469653989634,
+   "text": "0.99",
+   "source": "mechanisms/08_gramian_alignment: mechanisms/gramian_alignment.csv | column cos_top_v1, mean over draws, then k in {2,3,5}, then subjects; 3 hub criteria x 3 scales | scale == 114 | max",
+   "locus": [
+    "subsec:leading_mode"
+   ]
+  },
+  "MCosRandomTwoFiveMin": {
+   "value": 0.17253159194312134,
+   "text": "0.17",
+   "source": "mechanisms/08_gramian_alignment: mechanisms/gramian_alignment.csv | column cos_top_v1, mean over draws, then k in {2,3,5}, then subjects; family == 'random', over scales | min over [68, 114, 219] (at 219)",
+   "locus": [
+    "subsec:leading_mode"
+   ]
+  },
+  "MCosRandomTwoFiveMax": {
+   "value": 0.33884830780922276,
+   "text": "0.34",
+   "source": "mechanisms/08_gramian_alignment: mechanisms/gramian_alignment.csv | column cos_top_v1, mean over draws, then k in {2,3,5}, then subjects; family == 'random', over scales | max over [68, 114, 219] (at 68)",
+   "locus": [
+    "subsec:leading_mode"
+   ]
+  },
+  "MCosRandomTwoFiveOneFourteen": {
+   "value": 0.26561863902632116,
+   "text": "0.27",
+   "source": "mechanisms/08_gramian_alignment: mechanisms/gramian_alignment.csv | column cos_top_v1, mean over draws, then k in {2,3,5}, then subjects; family == 'random', over scales | scale == 114",
+   "locus": [
+    "subsec:leading_mode"
+   ]
+  },
+  "MCosHubSingleMin": {
+   "value": 0.8652764583764802,
+   "text": "0.87",
+   "source": "mechanisms/08_gramian_alignment: mechanisms/gramian_alignment.csv | k == 1, column cos_top_v1, mean over subjects; 3 hub criteria x 3 scales | min over [('degree_strength', 68), ('degree_strength', 114), ('degree_strength', 219), ('eigenvector_centrality', 68), ('eigenvector_centrality', 114), ('eigenvector_centrality', 219), ('top_avg_ctrl', 68), ('top_avg_ctrl', 114), ('top_avg_ctrl', 219)] (at ('degree_strength', np.int64(219)))",
+   "locus": [
+    "subsec:leading_mode"
+   ]
+  },
+  "MCosHubSingleMax": {
+   "value": 0.956083439260266,
+   "text": "0.96",
+   "source": "mechanisms/08_gramian_alignment: mechanisms/gramian_alignment.csv | k == 1, column cos_top_v1, mean over subjects; 3 hub criteria x 3 scales | max over [('degree_strength', 68), ('degree_strength', 114), ('degree_strength', 219), ('eigenvector_centrality', 68), ('eigenvector_centrality', 114), ('eigenvector_centrality', 219), ('top_avg_ctrl', 68), ('top_avg_ctrl', 114), ('top_avg_ctrl', 219)] (at ('eigenvector_centrality', np.int64(114)))",
+   "locus": [
+    "subsec:leading_mode"
+   ]
+  },
+  "MCosHubSingleOneFourteenMin": {
+   "value": 0.9431995171092187,
+   "text": "0.94",
+   "source": "mechanisms/08_gramian_alignment: mechanisms/gramian_alignment.csv | k == 1, column cos_top_v1, mean over subjects; 3 hub criteria x 3 scales | scale == 114 | min",
+   "locus": [
+    "subsec:leading_mode"
+   ]
+  },
+  "MCosHubSingleOneFourteenMax": {
+   "value": 0.956083439260266,
+   "text": "0.96",
+   "source": "mechanisms/08_gramian_alignment: mechanisms/gramian_alignment.csv | k == 1, column cos_top_v1, mean over subjects; 3 hub criteria x 3 scales | scale == 114 | max",
+   "locus": [
+    "subsec:leading_mode"
+   ]
+  },
+  "MAbsSetLeadMin": {
+   "value": 4.594163522015456,
+   "text": "4.6",
+   "source": "mechanisms/08_gramian_alignment: mechanisms/gramian_alignment.csv | columns lam1, trace, tr_perp; per subject, set / mean of its 100 random sets; median over subjects (abs_reach); 3 hub criteria, 3 scales, k in {2,3,5}; lam1 | min over [('degree_strength', 68, 2), ('degree_strength', 68, 3), ('degree_strength', 68, 5), ('degree_strength', 114, 2), ('degree_strength', 114, 3), ('degree_strength', 114, 5), ('degree_strength', 219, 2), ('degree_strength', 219, 3), ('degree_strength', 219, 5), ('eigenvector_centrality', 68, 2), ('eigenvector_centrality', 68, 3), ('eigenvector_centrality', 68, 5), ('eigenvector_centrality', 114, 2), ('eigenvector_centrality', 114, 3), ('eigenvector_centrality', 114, 5), ('eigenvector_centrality', 219, 2), ('eigenvector_centrality', 219, 3), ('eigenvector_centrality', 219, 5), ('top_avg_ctrl', 68, 2), ('top_avg_ctrl', 68, 3), ('top_avg_ctrl', 68, 5), ('top_avg_ctrl', 114, 2), ('top_avg_ctrl', 114, 3), ('top_avg_ctrl', 114, 5), ('top_avg_ctrl', 219, 2), ('top_avg_ctrl', 219, 3), ('top_avg_ctrl', 219, 5)] (at ('degree_strength', np.int64(68), np.int64(2)))",
+   "locus": [
+    "subsec:hub_concentration"
+   ]
+  },
+  "MAbsSetLeadMax": {
+   "value": 8.739167897284597,
+   "text": "8.7",
+   "source": "mechanisms/08_gramian_alignment: mechanisms/gramian_alignment.csv | columns lam1, trace, tr_perp; per subject, set / mean of its 100 random sets; median over subjects (abs_reach); 3 hub criteria, 3 scales, k in {2,3,5}; lam1 | max over [('degree_strength', 68, 2), ('degree_strength', 68, 3), ('degree_strength', 68, 5), ('degree_strength', 114, 2), ('degree_strength', 114, 3), ('degree_strength', 114, 5), ('degree_strength', 219, 2), ('degree_strength', 219, 3), ('degree_strength', 219, 5), ('eigenvector_centrality', 68, 2), ('eigenvector_centrality', 68, 3), ('eigenvector_centrality', 68, 5), ('eigenvector_centrality', 114, 2), ('eigenvector_centrality', 114, 3), ('eigenvector_centrality', 114, 5), ('eigenvector_centrality', 219, 2), ('eigenvector_centrality', 219, 3), ('eigenvector_centrality', 219, 5), ('top_avg_ctrl', 68, 2), ('top_avg_ctrl', 68, 3), ('top_avg_ctrl', 68, 5), ('top_avg_ctrl', 114, 2), ('top_avg_ctrl', 114, 3), ('top_avg_ctrl', 114, 5), ('top_avg_ctrl', 219, 2), ('top_avg_ctrl', 219, 3), ('top_avg_ctrl', 219, 5)] (at ('eigenvector_centrality', np.int64(219), np.int64(5)))",
+   "locus": [
+    "subsec:hub_concentration"
+   ]
+  },
+  "MAbsSetLeadOneFourteenMin": {
+   "value": 5.049908257285465,
+   "text": "5.0",
+   "source": "mechanisms/08_gramian_alignment: mechanisms/gramian_alignment.csv | columns lam1, trace, tr_perp; per subject, set / mean of its 100 random sets; median over subjects (abs_reach); 3 hub criteria, 3 scales, k in {2,3,5}; lam1 | scale == 114 | min",
+   "locus": [
+    "subsec:hub_concentration"
+   ]
+  },
+  "MAbsSetLeadOneFourteenMax": {
+   "value": 7.431953064633072,
+   "text": "7.4",
+   "source": "mechanisms/08_gramian_alignment: mechanisms/gramian_alignment.csv | columns lam1, trace, tr_perp; per subject, set / mean of its 100 random sets; median over subjects (abs_reach); 3 hub criteria, 3 scales, k in {2,3,5}; lam1 | scale == 114 | max",
+   "locus": [
+    "subsec:hub_concentration"
+   ]
+  },
+  "MAbsSetPerpMin": {
+   "value": 0.8001852662704944,
+   "text": "80",
+   "source": "mechanisms/08_gramian_alignment: mechanisms/gramian_alignment.csv | columns lam1, trace, tr_perp; per subject, set / mean of its 100 random sets; median over subjects (abs_reach); 3 hub criteria, 3 scales, k in {2,3,5}; tr_perp = trace - L_S/2c; x 100 | min over [('degree_strength', 68, 2), ('degree_strength', 68, 3), ('degree_strength', 68, 5), ('degree_strength', 114, 2), ('degree_strength', 114, 3), ('degree_strength', 114, 5), ('degree_strength', 219, 2), ('degree_strength', 219, 3), ('degree_strength', 219, 5), ('eigenvector_centrality', 68, 2), ('eigenvector_centrality', 68, 3), ('eigenvector_centrality', 68, 5), ('eigenvector_centrality', 114, 2), ('eigenvector_centrality', 114, 3), ('eigenvector_centrality', 114, 5), ('eigenvector_centrality', 219, 2), ('eigenvector_centrality', 219, 3), ('eigenvector_centrality', 219, 5), ('top_avg_ctrl', 68, 2), ('top_avg_ctrl', 68, 3), ('top_avg_ctrl', 68, 5), ('top_avg_ctrl', 114, 2), ('top_avg_ctrl', 114, 3), ('top_avg_ctrl', 114, 5), ('top_avg_ctrl', 219, 2), ('top_avg_ctrl', 219, 3), ('top_avg_ctrl', 219, 5)] (at ('eigenvector_centrality', np.int64(68), np.int64(2)))",
+   "locus": [
+    "subsec:hub_concentration"
+   ]
+  },
+  "MAbsSetPerpMax": {
+   "value": 1.1119605563096893,
+   "text": "111",
+   "source": "mechanisms/08_gramian_alignment: mechanisms/gramian_alignment.csv | columns lam1, trace, tr_perp; per subject, set / mean of its 100 random sets; median over subjects (abs_reach); 3 hub criteria, 3 scales, k in {2,3,5}; tr_perp = trace - L_S/2c; x 100 | max over [('degree_strength', 68, 2), ('degree_strength', 68, 3), ('degree_strength', 68, 5), ('degree_strength', 114, 2), ('degree_strength', 114, 3), ('degree_strength', 114, 5), ('degree_strength', 219, 2), ('degree_strength', 219, 3), ('degree_strength', 219, 5), ('eigenvector_centrality', 68, 2), ('eigenvector_centrality', 68, 3), ('eigenvector_centrality', 68, 5), ('eigenvector_centrality', 114, 2), ('eigenvector_centrality', 114, 3), ('eigenvector_centrality', 114, 5), ('eigenvector_centrality', 219, 2), ('eigenvector_centrality', 219, 3), ('eigenvector_centrality', 219, 5), ('top_avg_ctrl', 68, 2), ('top_avg_ctrl', 68, 3), ('top_avg_ctrl', 68, 5), ('top_avg_ctrl', 114, 2), ('top_avg_ctrl', 114, 3), ('top_avg_ctrl', 114, 5), ('top_avg_ctrl', 219, 2), ('top_avg_ctrl', 219, 3), ('top_avg_ctrl', 219, 5)] (at ('degree_strength', np.int64(219), np.int64(5)))",
+   "locus": [
+    "subsec:hub_concentration"
+   ]
+  },
+  "MAbsSetPerpOneFourteenMin": {
+   "value": 0.8435389434851742,
+   "text": "84",
+   "source": "mechanisms/08_gramian_alignment: mechanisms/gramian_alignment.csv | columns lam1, trace, tr_perp; per subject, set / mean of its 100 random sets; median over subjects (abs_reach); 3 hub criteria, 3 scales, k in {2,3,5}; tr_perp = trace - L_S/2c; x 100 | scale == 114 | min",
+   "locus": [
+    "subsec:hub_concentration"
+   ]
+  },
+  "MAbsSetPerpOneFourteenMax": {
+   "value": 0.9558481805251213,
+   "text": "96",
+   "source": "mechanisms/08_gramian_alignment: mechanisms/gramian_alignment.csv | columns lam1, trace, tr_perp; per subject, set / mean of its 100 random sets; median over subjects (abs_reach); 3 hub criteria, 3 scales, k in {2,3,5}; tr_perp = trace - L_S/2c; x 100 | scale == 114 | max",
+   "locus": [
+    "subsec:hub_concentration"
+   ]
+  },
+  "MAbsSetPerpWithinAllScales": {
+   "value": 0.19981473372950564,
+   "text": "20",
+   "source": "mechanisms/08_gramian_alignment: mechanisms/gramian_alignment.csv | columns lam1, trace, tr_perp; per subject, set / mean of its 100 random sets; median over subjects (abs_reach); 3 hub criteria, 3 scales, k in {2,3,5}; max |tr_perp ratio - 1| x 100 (at ('eigenvector_centrality', np.int64(68), np.int64(2)); ratios 0.8002--1.1120); rounded UP (bound)",
+   "locus": [
+    "subsec:hub_concentration"
+   ]
+  },
+  "MVTwoOnCorePctMin": {
+   "value": 0.8287680064650528,
+   "text": "83",
+   "source": "mechanisms/04_leading_eigenvectors: mechanisms/eigvec_subjects.csv | column v2_on_v1set (sum of v2(i)^2 over the subject's top 20% regions by v1), median over 70 subjects per scale, as % | min over the set (at 68); values: 68: 0.8288, 114: 0.885, 219: 0.9462",
+   "locus": [
+    "subsec:core_divisions"
+   ]
+  },
+  "MVTwoOnCorePctMax": {
+   "value": 0.9462447656641478,
+   "text": "95",
+   "source": "mechanisms/04_leading_eigenvectors: mechanisms/eigvec_subjects.csv | column v2_on_v1set (sum of v2(i)^2 over the subject's top 20% regions by v1), median over 70 subjects per scale, as % | max over the set (at 219); values: 68: 0.8288, 114: 0.885, 219: 0.9462",
+   "locus": [
+    "subsec:core_divisions"
+   ]
+  },
+  "MVTwoOnCorePctOneFourteen": {
+   "value": 0.8850277988184165,
+   "text": "89",
+   "source": "mechanisms/04_leading_eigenvectors: mechanisms/eigvec_subjects.csv | column v2_on_v1set (sum of v2(i)^2 over the subject's top 20% regions by v1), median over 70 subjects per scale, as % | scale == 114",
+   "locus": [
+    "subsec:core_divisions"
+   ]
+  },
+  "MLTwoLThreeMedianMin": {
+   "value": 0.1466742307939845,
+   "text": "0.15",
+   "source": "mechanisms/04_leading_eigenvectors: mechanisms/eigvec_subjects.csv | column l2_l3 (l2 - l3 of A0), median over 70 subjects per scale | min over the set (at 114); values: 68: 0.1762, 114: 0.1467, 219: 0.1569",
+   "locus": [
+    "subsec:core_methods"
+   ]
+  },
+  "MLTwoLThreeMedianMax": {
+   "value": 0.1762261806435692,
+   "text": "0.18",
+   "source": "mechanisms/04_leading_eigenvectors: mechanisms/eigvec_subjects.csv | column l2_l3 (l2 - l3 of A0), median over 70 subjects per scale | max over the set (at 68); values: 68: 0.1762, 114: 0.1467, 219: 0.1569",
+   "locus": [
+    "subsec:core_methods"
+   ]
+  },
+  "MLTwoLThreeMedianOneFourteen": {
+   "value": 0.1466742307939845,
+   "text": "0.15",
+   "source": "mechanisms/04_leading_eigenvectors: mechanisms/eigvec_subjects.csv | column l2_l3 (l2 - l3 of A0), median over 70 subjects per scale | scale == 114",
+   "locus": [
+    "subsec:core_methods"
+   ]
+  },
+  "MPerpFractionRemovedQOneKTwoPlusPctMin": {
+   "value": 0.5185233607607254,
+   "text": "52",
+   "source": "concentration/02_tables: concentration/q1_perp.csv | metric == 'q1', c == 0.1, k == 'avg2+' (k in 2,3,5), column fraction_removed = 1 - perp_mean/full_mean (cycle - degree, mean over subjects), as % | min over the set (at 68); values: 68: 0.5185, 114: 0.6754, 219: 0.6887",
+   "locus": [
+    "subsec:core_divisions"
+   ]
+  },
+  "MPerpFractionRemovedQOneKTwoPlusPctMax": {
+   "value": 0.6887029673652187,
+   "text": "69",
+   "source": "concentration/02_tables: concentration/q1_perp.csv | metric == 'q1', c == 0.1, k == 'avg2+' (k in 2,3,5), column fraction_removed = 1 - perp_mean/full_mean (cycle - degree, mean over subjects), as % | max over the set (at 219); values: 68: 0.5185, 114: 0.6754, 219: 0.6887",
+   "locus": [
+    "subsec:core_divisions"
+   ]
+  },
+  "MPerpFractionRemovedQOneKTwoPlusPctOneFourteen": {
+   "value": 0.6753859155870605,
+   "text": "68",
+   "source": "concentration/02_tables: concentration/q1_perp.csv | metric == 'q1', c == 0.1, k == 'avg2+' (k in 2,3,5), column fraction_removed = 1 - perp_mean/full_mean (cycle - degree, mean over subjects), as % | scale == 114",
+   "locus": [
+    "subsec:core_divisions"
+   ]
+  },
+  "MPerpDegreeExcessNPositive": {
+   "value": 70.0,
+   "text": "70",
+   "source": "concentration/02_tables: concentration/q1_vs_random.csv | family == 'degree_strength', metric == 'q1_perp', c == 0.1, k == 'avg2+' (k in 2,3,5); column n_positive, min over scales (68: 70, 114: 70, 219: 70); text 'in all 70 subjects'",
+   "locus": [
+    "subsec:core_divisions"
+   ]
+  },
+  "MDecayRatioCTenthLow": {
+   "value": 5.285637632741747,
+   "text": "five",
+   "source": "mechanisms/05_second_subspace: mechanisms/second_subspace_subjects.csv | column gap = l1 - l2 of A0, median over 70 subjects per scale (identical to concentration/decay_flips.csv gap) | decay-rate ratio (c + gap_median) / c at c = 0.1; per scale: 68: 5.29, 114: 6.31, 219: 5.41; min, spelled-out rounded integer",
+   "locus": [
+    "subsec:core_divisions"
+   ]
+  },
+  "MDecayRatioCTenthHigh": {
+   "value": 6.307555430411321,
+   "text": "six",
+   "source": "mechanisms/05_second_subspace: mechanisms/second_subspace_subjects.csv | column gap = l1 - l2 of A0, median over 70 subjects per scale (identical to concentration/decay_flips.csv gap) | decay-rate ratio (c + gap_median) / c at c = 0.1; per scale: 68: 5.29, 114: 6.31, 219: 5.41; max, spelled-out rounded integer",
+   "locus": [
+    "subsec:core_divisions"
+   ]
+  },
+  "MDecayRatioCTenthOneFourteen": {
+   "value": 6.307555430411321,
+   "text": "six",
+   "source": "mechanisms/05_second_subspace: mechanisms/second_subspace_subjects.csv | column gap = l1 - l2 of A0, median over 70 subjects per scale (identical to concentration/decay_flips.csv gap) | decay-rate ratio (c + gap_median) / c at c = 0.1; per scale: 68: 5.29, 114: 6.31, 219: 5.41; scale 114, spelled-out rounded integer",
+   "locus": [
+    "subsec:core_divisions"
+   ]
+  },
+  "MDecayRatioCOne": {
+   "value": 1.466612253464583,
+   "text": "1.5",
+   "source": "mechanisms/05_second_subspace: mechanisms/second_subspace_subjects.csv | column gap = l1 - l2 of A0, median over 70 subjects per scale (identical to concentration/decay_flips.csv gap) | decay-rate ratio (c + gap_median) / c at c = 1; per scale: 68: 1.43, 114: 1.53, 219: 1.44; text gives one approximate value: mean over scales, 1 decimal (per-scale 1.43-1.53)",
+   "locus": [
+    "subsec:core_divisions"
+   ]
+  },
+  "MDegExcessQOneCHundredthMin": {
+   "value": 0.4342940151580945,
+   "text": "0.43",
+   "source": "concentration/02_tables: concentration/q1_vs_random.csv | family == 'degree_strength', metric == 'q1', k == 'avg' (k == 'avg2+': mean over k in 2,3,5 of criterion q1 minus the subject's random mean), c == 0.01; column 'mean' (over 70 subjects). Matches decay_curves.csv.gz dr_q1 means plotted in Fig. 4C | min over the set (at 68); values: 68: 0.4343, 114: 0.4852, 219: 0.5172",
+   "locus": [
+    "subsec:core_divisions"
+   ]
+  },
+  "MDegExcessQOneCHundredthMax": {
+   "value": 0.517162217471543,
+   "text": "0.52",
+   "source": "concentration/02_tables: concentration/q1_vs_random.csv | family == 'degree_strength', metric == 'q1', k == 'avg' (k == 'avg2+': mean over k in 2,3,5 of criterion q1 minus the subject's random mean), c == 0.01; column 'mean' (over 70 subjects). Matches decay_curves.csv.gz dr_q1 means plotted in Fig. 4C | max over the set (at 219); values: 68: 0.4343, 114: 0.4852, 219: 0.5172",
+   "locus": [
+    "subsec:core_divisions"
+   ]
+  },
+  "MDegExcessQOneCHundredthOneFourteen": {
+   "value": 0.4852377085057578,
+   "text": "0.49",
+   "source": "concentration/02_tables: concentration/q1_vs_random.csv | family == 'degree_strength', metric == 'q1', k == 'avg' (k == 'avg2+': mean over k in 2,3,5 of criterion q1 minus the subject's random mean), c == 0.01; column 'mean' (over 70 subjects). Matches decay_curves.csv.gz dr_q1 means plotted in Fig. 4C | scale == 114",
+   "locus": [
+    "subsec:core_divisions"
+   ]
+  },
+  "MDegExcessQOneCTenthMin": {
+   "value": 0.3106108783413048,
+   "text": "0.31",
+   "source": "concentration/02_tables: concentration/q1_vs_random.csv | family == 'degree_strength', metric == 'q1', k == 'avg' (k == 'avg2+': mean over k in 2,3,5 of criterion q1 minus the subject's random mean), c == 0.1; column 'mean' (over 70 subjects). Matches decay_curves.csv.gz dr_q1 means plotted in Fig. 4C | min over the set (at 219); values: 68: 0.3374, 114: 0.365, 219: 0.3106",
+   "locus": [
+    "subsec:core_divisions"
+   ]
+  },
+  "MDegExcessQOneCTenthMax": {
+   "value": 0.3650264622580754,
+   "text": "0.37",
+   "source": "concentration/02_tables: concentration/q1_vs_random.csv | family == 'degree_strength', metric == 'q1', k == 'avg' (k == 'avg2+': mean over k in 2,3,5 of criterion q1 minus the subject's random mean), c == 0.1; column 'mean' (over 70 subjects). Matches decay_curves.csv.gz dr_q1 means plotted in Fig. 4C | max over the set (at 114); values: 68: 0.3374, 114: 0.365, 219: 0.3106",
+   "locus": [
+    "subsec:core_divisions"
+   ]
+  },
+  "MDegExcessQOneCTenthOneFourteen": {
+   "value": 0.3650264622580754,
+   "text": "0.37",
+   "source": "concentration/02_tables: concentration/q1_vs_random.csv | family == 'degree_strength', metric == 'q1', k == 'avg' (k == 'avg2+': mean over k in 2,3,5 of criterion q1 minus the subject's random mean), c == 0.1; column 'mean' (over 70 subjects). Matches decay_curves.csv.gz dr_q1 means plotted in Fig. 4C | scale == 114",
+   "locus": [
+    "subsec:core_divisions"
+   ]
+  },
+  "MDegExcessQOneCOneMin": {
+   "value": 0.0623741708472239,
+   "text": "0.06",
+   "source": "concentration/02_tables: concentration/q1_vs_random.csv | family == 'degree_strength', metric == 'q1', k == 'avg' (k == 'avg2+': mean over k in 2,3,5 of criterion q1 minus the subject's random mean), c == 1.0; column 'mean' (over 70 subjects). Matches decay_curves.csv.gz dr_q1 means plotted in Fig. 4C | min over the set (at 219); values: 68: 0.09962, 114: 0.1019, 219: 0.06237",
+   "locus": [
+    "subsec:core_divisions"
+   ]
+  },
+  "MDegExcessQOneCOneMax": {
+   "value": 0.101937905393583,
+   "text": "0.10",
+   "source": "concentration/02_tables: concentration/q1_vs_random.csv | family == 'degree_strength', metric == 'q1', k == 'avg' (k == 'avg2+': mean over k in 2,3,5 of criterion q1 minus the subject's random mean), c == 1.0; column 'mean' (over 70 subjects). Matches decay_curves.csv.gz dr_q1 means plotted in Fig. 4C | max over the set (at 114); values: 68: 0.09962, 114: 0.1019, 219: 0.06237",
+   "locus": [
+    "subsec:core_divisions"
+   ]
+  },
+  "MDegExcessQOneCOneOneFourteen": {
+   "value": 0.101937905393583,
+   "text": "0.10",
+   "source": "concentration/02_tables: concentration/q1_vs_random.csv | family == 'degree_strength', metric == 'q1', k == 'avg' (k == 'avg2+': mean over k in 2,3,5 of criterion q1 minus the subject's random mean), c == 1.0; column 'mean' (over 70 subjects). Matches decay_curves.csv.gz dr_q1 means plotted in Fig. 4C | scale == 114",
+   "locus": [
+    "subsec:core_divisions"
+   ]
+  },
+  "MDegExcessQOneCTinyMin": {
+   "value": 0.04150943661904057,
+   "text": "0.04",
+   "source": "concentration/03_decay_collapse: concentration/decay_curves.csv.gz | c == 1e-5, column dr_q1 (mean over k in 2,3,5 of degree q1 minus the subject's random mean); mean over 70 subjects | min over the set (at 68); values: 68: 0.04151, 114: 0.08145, 219: 0.1631",
+   "locus": [
+    "subsec:core_divisions"
+   ]
+  },
+  "MDegExcessQOneCTinyMax": {
+   "value": 0.16311030048193564,
+   "text": "0.16",
+   "source": "concentration/03_decay_collapse: concentration/decay_curves.csv.gz | c == 1e-5, column dr_q1 (mean over k in 2,3,5 of degree q1 minus the subject's random mean); mean over 70 subjects | max over the set (at 219); values: 68: 0.04151, 114: 0.08145, 219: 0.1631",
+   "locus": [
+    "subsec:core_divisions"
+   ]
+  },
+  "MDegExcessQOneCTinyOneFourteen": {
+   "value": 0.08145108759223246,
+   "text": "0.08",
+   "source": "concentration/03_decay_collapse: concentration/decay_curves.csv.gz | c == 1e-5, column dr_q1 (mean over k in 2,3,5 of degree q1 minus the subject's random mean); mean over 70 subjects | scale == 114",
+   "locus": [
+    "subsec:core_divisions"
+   ]
+  },
+  "MDegExcessQOneSingleCTenthMin": {
+   "value": -0.1042459085136776,
+   "text": "-0.10",
+   "source": "concentration/02_tables: concentration/q1_vs_random.csv | family == 'degree_strength', metric == 'q1', k == '1', c == 0.1; column 'mean' (degree q1 minus the subject's random mean, over 70 subjects) | min over the set (at 219); values: 68: -0.06348, 114: -0.08186, 219: -0.1042",
+   "locus": [
+    "subsec:core_divisions"
+   ]
+  },
+  "MDegExcessQOneSingleCTenthMax": {
+   "value": -0.0634752116873068,
+   "text": "-0.06",
+   "source": "concentration/02_tables: concentration/q1_vs_random.csv | family == 'degree_strength', metric == 'q1', k == '1', c == 0.1; column 'mean' (degree q1 minus the subject's random mean, over 70 subjects) | max over the set (at 68); values: 68: -0.06348, 114: -0.08186, 219: -0.1042",
+   "locus": [
+    "subsec:core_divisions"
+   ]
+  },
+  "MDegExcessQOneSingleCTenthOneFourteen": {
+   "value": -0.0818645890452246,
+   "text": "-0.08",
+   "source": "concentration/02_tables: concentration/q1_vs_random.csv | family == 'degree_strength', metric == 'q1', k == '1', c == 0.1; column 'mean' (degree q1 minus the subject's random mean, over 70 subjects) | scale == 114",
+   "locus": [
+    "subsec:core_divisions"
+   ]
+  },
+  "MDegExcessQOneCOneNPosMin": {
+   "value": 68.0,
+   "text": "68",
+   "source": "concentration/02_tables: concentration/q1_vs_random.csv | family == 'degree_strength', metric == 'q1', k == 'avg' (k == 'avg2+': mean over k in 2,3,5 of criterion q1 minus the subject's random mean), c == 1.0; column n_positive. Matches decay_curves.csv.gz dr_q1 means plotted in Fig. 4C | min over the set (at 219); values: 68: 70, 114: 70, 219: 68",
+   "locus": [
+    "subsec:core_divisions"
+   ]
+  },
+  "MDegExcessQOneCOneNPosMax": {
+   "value": 70.0,
+   "text": "70",
+   "source": "concentration/02_tables: concentration/q1_vs_random.csv | family == 'degree_strength', metric == 'q1', k == 'avg' (k == 'avg2+': mean over k in 2,3,5 of criterion q1 minus the subject's random mean), c == 1.0; column n_positive. Matches decay_curves.csv.gz dr_q1 means plotted in Fig. 4C | max over the set (at 68); values: 68: 70, 114: 70, 219: 68",
+   "locus": [
+    "subsec:core_divisions"
+   ]
+  },
+  "MDegExcessQOneCOneNPosOneFourteen": {
+   "value": 70.0,
+   "text": "70",
+   "source": "concentration/02_tables: concentration/q1_vs_random.csv | family == 'degree_strength', metric == 'q1', k == 'avg' (k == 'avg2+': mean over k in 2,3,5 of criterion q1 minus the subject's random mean), c == 1.0; column n_positive. Matches decay_curves.csv.gz dr_q1 means plotted in Fig. 4C | scale == 114",
+   "locus": [
+    "subsec:core_divisions"
+   ]
+  },
+  "MGapRhoDegExcessMin": {
+   "value": 0.5814539410375296,
+   "text": "0.58",
+   "source": "concentration/03_decay_collapse: concentration/decay_gap_correlations.csv | c == 0.1, curve == 'dr_q1', column rho_gap (Spearman across 70 subjects, gap vs k-averaged degree - random q1); equals the rho printed in Fig. 4D (fig4.py recomputes it from decay_curves.csv.gz) | min over the set (at 68); values: 68: 0.5815, 114: 0.7162, 219: 0.6972",
+   "locus": [
+    "subsec:core_divisions"
+   ]
+  },
+  "MGapRhoDegExcessMax": {
+   "value": 0.7162452978742017,
+   "text": "0.72",
+   "source": "concentration/03_decay_collapse: concentration/decay_gap_correlations.csv | c == 0.1, curve == 'dr_q1', column rho_gap (Spearman across 70 subjects, gap vs k-averaged degree - random q1); equals the rho printed in Fig. 4D (fig4.py recomputes it from decay_curves.csv.gz) | max over the set (at 114); values: 68: 0.5815, 114: 0.7162, 219: 0.6972",
+   "locus": [
+    "subsec:core_divisions"
+   ]
+  },
+  "MGapRhoDegExcessOneFourteen": {
+   "value": 0.7162452978742017,
+   "text": "0.72",
+   "source": "concentration/03_decay_collapse: concentration/decay_gap_correlations.csv | c == 0.1, curve == 'dr_q1', column rho_gap (Spearman across 70 subjects, gap vs k-averaged degree - random q1); equals the rho printed in Fig. 4D (fig4.py recomputes it from decay_curves.csv.gz) | scale == 114",
+   "locus": [
+    "subsec:core_divisions"
+   ]
+  },
+  "MGapPartialRhoDegExcessMin": {
+   "value": 0.579772334748589,
+   "text": "0.58",
+   "source": "concentration/03_decay_collapse: concentration/decay_gap_partial_correlations.csv | controls == 'strength+density+cv', c == 0.1, curve == 'dr_q1', column partial_rho_gap | min over the set (at 68); values: 68: 0.5798, 114: 0.8467, 219: 0.7485",
+   "locus": [
+    "subsec:core_divisions"
+   ]
+  },
+  "MGapPartialRhoDegExcessMax": {
+   "value": 0.8467409090396648,
+   "text": "0.85",
+   "source": "concentration/03_decay_collapse: concentration/decay_gap_partial_correlations.csv | controls == 'strength+density+cv', c == 0.1, curve == 'dr_q1', column partial_rho_gap | max over the set (at 114); values: 68: 0.5798, 114: 0.8467, 219: 0.7485",
+   "locus": [
+    "subsec:core_divisions"
+   ]
+  },
+  "MGapPartialRhoDegExcessOneFourteen": {
+   "value": 0.8467409090396648,
+   "text": "0.85",
+   "source": "concentration/03_decay_collapse: concentration/decay_gap_partial_correlations.csv | controls == 'strength+density+cv', c == 0.1, curve == 'dr_q1', column partial_rho_gap | scale == 114",
+   "locus": [
+    "subsec:core_divisions"
+   ]
+  },
+  "MGapRhoSignificantCLow": {
+   "value": 0.0133352143216332,
+   "text": "0.013",
+   "source": "concentration/03_decay_collapse: concentration/decay_gap_correlations.csv | scale == 114, curve == 'dr_q1'; c range over which rho_gap > 0 with p < 0.05 at that c and at every larger c on the grid; lowest c",
+   "locus": [
+    "subsec:core_divisions"
+   ]
+  },
+  "MGapRhoSignificantCHigh": {
+   "value": 3.1622776601683795,
+   "text": "3.2",
+   "source": "concentration/03_decay_collapse: concentration/decay_gap_correlations.csv | scale == 114, curve == 'dr_q1'; c range over which rho_gap > 0 with p < 0.05 at that c and at every larger c on the grid; highest c (the grid maximum)",
+   "locus": [
+    "subsec:core_divisions"
+   ]
+  },
+  "MGapRealMin": {
+   "value": 0.4318792360324129,
+   "text": "0.43",
+   "source": "null_models/02_analyze: null_models/network_inference.csv | stat == 'gap', real_mean (mean over 70 subjects of l1 - l2 of A0) over scales | min",
+   "locus": [
+    "subsec:nulls_results"
+   ]
+  },
+  "MGapRealMax": {
+   "value": 0.5384749127118281,
+   "text": "0.54",
+   "source": "null_models/02_analyze: null_models/network_inference.csv | stat == 'gap', real_mean (mean over 70 subjects of l1 - l2 of A0) over scales | max",
+   "locus": [
+    "subsec:nulls_results"
+   ]
+  },
+  "MGapRealOneFourteen": {
+   "value": 0.5384749127118281,
+   "text": "0.54",
+   "source": "null_models/02_analyze: null_models/network_inference.csv | stat == 'gap', real_mean (mean over 70 subjects of l1 - l2 of A0) over scales | scale == 114",
+   "locus": [
+    "subsec:nulls_results"
+   ]
+  },
+  "MGapNullMin": {
+   "value": 0.1862859617359061,
+   "text": "0.19",
+   "source": "null_models/02_analyze: null_models/network_inference.csv | stat == 'gap', null_mean over 3 nulls x 3 scales | min",
+   "locus": [
+    "subsec:nulls_results"
+   ]
+  },
+  "MGapNullMax": {
+   "value": 0.2704208777333556,
+   "text": "0.27",
+   "source": "null_models/02_analyze: null_models/network_inference.csv | stat == 'gap', null_mean over 3 nulls x 3 scales | max",
+   "locus": [
+    "subsec:nulls_results"
+   ]
+  },
+  "MGapNullOneFourteenMin": {
+   "value": 0.2068920474028796,
+   "text": "0.21",
+   "source": "null_models/02_analyze: null_models/network_inference.csv | stat == 'gap', null_mean over 3 nulls x 3 scales | scale == 114 | min",
+   "locus": [
+    "subsec:nulls_results"
+   ]
+  },
+  "MGapNullOneFourteenMax": {
+   "value": 0.2280099103692463,
+   "text": "0.23",
+   "source": "null_models/02_analyze: null_models/network_inference.csv | stat == 'gap', null_mean over 3 nulls x 3 scales | scale == 114 | max",
+   "locus": [
+    "subsec:nulls_results"
+   ]
+  },
+  "MGapRatioWord": {
+   "value": 2.141664596029743,
+   "text": "twice",
+   "source": "null_models/02_analyze: null_models/network_inference.csv | stat == 'gap', real_mean / null_mean, mean over 3 nulls x 3 scales (range 1.60-2.60); text is the word 'twice' ('approximately twice')",
+   "locus": [
+    "subsec:nulls_results",
+    "abstract"
+   ]
+  },
+  "MNullRealQOneMin": {
+   "value": 0.6711821119488864,
+   "text": "0.67",
+   "source": "null_models/02_analyze: null_models/inference.csv | stat == 'degree_q1', c_ref == 0.1, k == 'avg2+' (mean over k in {2,3,5}), c_mode == 'fixed', real_mean over scales | min",
+   "locus": [
+    "subsec:nulls_results"
+   ]
+  },
+  "MNullRealQOneMax": {
+   "value": 0.7389706357191407,
+   "text": "0.74",
+   "source": "null_models/02_analyze: null_models/inference.csv | stat == 'degree_q1', c_ref == 0.1, k == 'avg2+' (mean over k in {2,3,5}), c_mode == 'fixed', real_mean over scales | max",
+   "locus": [
+    "subsec:nulls_results"
+   ]
+  },
+  "MNullRealQOneOneFourteen": {
+   "value": 0.7389706357191407,
+   "text": "0.74",
+   "source": "null_models/02_analyze: null_models/inference.csv | stat == 'degree_q1', c_ref == 0.1, k == 'avg2+' (mean over k in {2,3,5}), c_mode == 'fixed', real_mean over scales | scale == 114",
+   "locus": [
+    "subsec:nulls_results"
+   ]
+  },
+  "MNullFixedQOneMin": {
+   "value": 0.5288537880251015,
+   "text": "0.53",
+   "source": "null_models/02_analyze: null_models/inference.csv | stat == 'degree_q1', c_ref == 0.1, k == 'avg2+' (mean over k in {2,3,5}), c_mode == 'fixed', null_mean over 3 nulls x 3 scales | min",
+   "locus": [
+    "subsec:nulls_results"
+   ]
+  },
+  "MNullFixedQOneMax": {
+   "value": 0.6536828485123255,
+   "text": "0.65",
+   "source": "null_models/02_analyze: null_models/inference.csv | stat == 'degree_q1', c_ref == 0.1, k == 'avg2+' (mean over k in {2,3,5}), c_mode == 'fixed', null_mean over 3 nulls x 3 scales | max",
+   "locus": [
+    "subsec:nulls_results"
+   ]
+  },
+  "MNullFixedQOneOneFourteenMin": {
+   "value": 0.5688916416052257,
+   "text": "0.57",
+   "source": "null_models/02_analyze: null_models/inference.csv | stat == 'degree_q1', c_ref == 0.1, k == 'avg2+' (mean over k in {2,3,5}), c_mode == 'fixed', null_mean over 3 nulls x 3 scales | scale == 114 | min",
+   "locus": [
+    "subsec:nulls_results"
+   ]
+  },
+  "MNullFixedQOneOneFourteenMax": {
+   "value": 0.5907331862234377,
+   "text": "0.59",
+   "source": "null_models/02_analyze: null_models/inference.csv | stat == 'degree_q1', c_ref == 0.1, k == 'avg2+' (mean over k in {2,3,5}), c_mode == 'fixed', null_mean over 3 nulls x 3 scales | scale == 114 | max",
+   "locus": [
+    "subsec:nulls_results"
+   ]
+  },
+  "MNullGapQOneMin": {
+   "value": 0.6311539954923816,
+   "text": "0.63",
+   "source": "null_models/02_analyze: null_models/inference.csv | stat == 'degree_q1', c_ref == 0.1, k == 'avg2+' (mean over k in {2,3,5}), c_mode == 'gap', null_mean over 3 nulls x 3 scales | min",
+   "locus": [
+    "subsec:nulls_results"
+   ]
+  },
+  "MNullGapQOneMax": {
+   "value": 0.7497582318565179,
+   "text": "0.75",
+   "source": "null_models/02_analyze: null_models/inference.csv | stat == 'degree_q1', c_ref == 0.1, k == 'avg2+' (mean over k in {2,3,5}), c_mode == 'gap', null_mean over 3 nulls x 3 scales | max",
+   "locus": [
+    "subsec:nulls_results"
+   ]
+  },
+  "MNullGapQOneOneFourteenMin": {
+   "value": 0.7074927896350082,
+   "text": "0.71",
+   "source": "null_models/02_analyze: null_models/inference.csv | stat == 'degree_q1', c_ref == 0.1, k == 'avg2+' (mean over k in {2,3,5}), c_mode == 'gap', null_mean over 3 nulls x 3 scales | scale == 114 | min",
+   "locus": [
+    "subsec:nulls_results"
+   ]
+  },
+  "MNullGapQOneOneFourteenMax": {
+   "value": 0.7341020340999385,
+   "text": "0.73",
+   "source": "null_models/02_analyze: null_models/inference.csv | stat == 'degree_q1', c_ref == 0.1, k == 'avg2+' (mean over k in {2,3,5}), c_mode == 'gap', null_mean over 3 nulls x 3 scales | scale == 114 | max",
+   "locus": [
+    "subsec:nulls_results"
+   ]
+  },
+  "MNullGapQOneDiffMin": {
+   "value": -0.0223851443354736,
+   "text": "-0.02",
+   "source": "null_models/02_analyze: null_models/inference.csv | stat == 'degree_q1', c_ref == 0.1, k == 'avg2+' (mean over k in {2,3,5}), c_mode == 'gap', delta_mean over 3 nulls x 3 scales | min",
+   "locus": [
+    "subsec:nulls_results"
+   ]
+  },
+  "MNullGapQOneDiffMax": {
+   "value": 0.0400281164565046,
+   "text": "0.04",
+   "source": "null_models/02_analyze: null_models/inference.csv | stat == 'degree_q1', c_ref == 0.1, k == 'avg2+' (mean over k in {2,3,5}), c_mode == 'gap', delta_mean over 3 nulls x 3 scales | max",
+   "locus": [
+    "subsec:nulls_results"
+   ]
+  },
+  "MNullGapQOneDiffOneFourteenMin": {
+   "value": 0.0048686016192021,
+   "text": "0.00",
+   "source": "null_models/02_analyze: null_models/inference.csv | stat == 'degree_q1', c_ref == 0.1, k == 'avg2+' (mean over k in {2,3,5}), c_mode == 'gap', delta_mean over 3 nulls x 3 scales | scale == 114 | min",
+   "locus": [
+    "subsec:nulls_results"
+   ]
+  },
+  "MNullGapQOneDiffOneFourteenMax": {
+   "value": 0.031477846084132,
+   "text": "0.03",
+   "source": "null_models/02_analyze: null_models/inference.csv | stat == 'degree_q1', c_ref == 0.1, k == 'avg2+' (mean over k in {2,3,5}), c_mode == 'gap', delta_mean over 3 nulls x 3 scales | scale == 114 | max",
+   "locus": [
+    "subsec:nulls_results"
+   ]
+  },
+  "MStrengthAssortRealMin": {
+   "value": 0.3688535126268765,
+   "text": "0.37",
+   "source": "null_models/04_rayleigh_bound: null_models/rayleigh/networks.csv.gz, per_subject.csv | scripts/paper/sections/s8.py inline_values()['rW_real_<scale>'] | min",
+   "locus": [
+    "subsec:nulls_results"
+   ]
+  },
+  "MStrengthAssortRealMax": {
+   "value": 0.455510568284765,
+   "text": "0.46",
+   "source": "null_models/04_rayleigh_bound: null_models/rayleigh/networks.csv.gz, per_subject.csv | scripts/paper/sections/s8.py inline_values()['rW_real_<scale>'] | max",
+   "locus": [
+    "subsec:nulls_results"
+   ]
+  },
+  "MStrengthAssortRealOneFourteen": {
+   "value": 0.455510568284765,
+   "text": "0.46",
+   "source": "null_models/04_rayleigh_bound: null_models/rayleigh/networks.csv.gz, per_subject.csv | scripts/paper/sections/s8.py inline_values()['rW_real_<scale>'] | scale == 114",
+   "locus": [
+    "subsec:nulls_results"
+   ]
+  },
+  "MStrengthAssortNullMin": {
+   "value": -0.0032439279769027195,
+   "text": "0.00",
+   "source": "null_models/04_rayleigh_bound: null_models/rayleigh/networks.csv.gz, per_subject.csv | scripts/paper/sections/s8.py inline_values()['rW_null_<null>_<scale>'] (min -0.003, strength/219, printed 0.00) | min",
+   "locus": [
+    "subsec:nulls_results"
+   ]
+  },
+  "MStrengthAssortNullMax": {
+   "value": 0.2584870684430601,
+   "text": "0.26",
+   "source": "null_models/04_rayleigh_bound: null_models/rayleigh/networks.csv.gz, per_subject.csv | scripts/paper/sections/s8.py inline_values()['rW_null_<null>_<scale>'] (min -0.003, strength/219, printed 0.00) | max",
+   "locus": [
+    "subsec:nulls_results"
+   ]
+  },
+  "MStrengthAssortNullOneFourteenMin": {
+   "value": 0.02651833295764325,
+   "text": "0.03",
+   "source": "null_models/04_rayleigh_bound: null_models/rayleigh/networks.csv.gz, per_subject.csv | scripts/paper/sections/s8.py inline_values()['rW_null_<null>_<scale>'] (min -0.003, strength/219, printed 0.00) | scale == 114 | min",
+   "locus": [
+    "subsec:nulls_results"
+   ]
+  },
+  "MStrengthAssortNullOneFourteenMax": {
+   "value": 0.14629331476054305,
+   "text": "0.15",
+   "source": "null_models/04_rayleigh_bound: null_models/rayleigh/networks.csv.gz, per_subject.csv | scripts/paper/sections/s8.py inline_values()['rW_null_<null>_<scale>'] (min -0.003, strength/219, printed 0.00) | scale == 114 | max",
+   "locus": [
+    "subsec:nulls_results"
+   ]
+  },
+  "MAssortGapExcessRhoMin": {
+   "value": 0.31299098941474934,
+   "text": "0.31",
+   "source": "null_models/04_rayleigh_bound: null_models/rayleigh/per_subject.csv | null == 'strength'; Spearman rho across subjects of d_r_W vs d_gap per scale (as fig5.py panel_assort) | min",
+   "locus": [
+    "subsec:nulls_results"
+   ]
+  },
+  "MAssortGapExcessRhoMax": {
+   "value": 0.4699676318782258,
+   "text": "0.47",
+   "source": "null_models/04_rayleigh_bound: null_models/rayleigh/per_subject.csv | null == 'strength'; Spearman rho across subjects of d_r_W vs d_gap per scale (as fig5.py panel_assort) | max",
+   "locus": [
+    "subsec:nulls_results"
+   ]
+  },
+  "MAssortGapExcessRhoOneFourteen": {
+   "value": 0.4699676318782258,
+   "text": "0.47",
+   "source": "null_models/04_rayleigh_bound: null_models/rayleigh/per_subject.csv | null == 'strength'; Spearman rho across subjects of d_r_W vs d_gap per scale (as fig5.py panel_assort) | scale == 114",
+   "locus": [
+    "subsec:nulls_results"
+   ]
+  },
+  "SCoreCrossWeightPctMin": {
+   "value": 0.050593342307213046,
+   "text": "5",
+   "source": "mechanisms/07_core_cut: mechanisms/core_cut_baseline.csv | partition == 'labels', median over subjects of w_cross_share, over scales | min",
+   "locus": [
+    "sec:core"
+   ]
+  },
+  "SCoreCrossWeightPctMax": {
+   "value": 0.0680312402964535,
+   "text": "7",
+   "source": "mechanisms/07_core_cut: mechanisms/core_cut_baseline.csv | partition == 'labels', median over subjects of w_cross_share, over scales | max",
+   "locus": [
+    "sec:core"
+   ]
+  },
+  "SCoreCrossWeightPctOneFourteen": {
+   "value": 0.0680312402964535,
+   "text": "7",
+   "source": "mechanisms/07_core_cut: mechanisms/core_cut_baseline.csv | partition == 'labels', median over subjects of w_cross_share, over scales | scale == 114",
+   "locus": [
+    "sec:core"
+   ]
+  },
+  "SCoreOtherMatchedGapRedMax": {
+   "value": 1.5269437644447403,
+   "text": "2",
+   "source": "mechanisms/07_core_cut: mechanisms/core_cut.csv.gz + core_cut_baseline.csv | alpha == 0.5, partition == 'labels', condition == 'other_matched', scale == 68/114/219; per subject mean over draws, gap reduction % = -100 dgap / baseline gap, median over subjects (as core_cut_summary.md 'Eigenvalue changes'); max over scales of the median reduction (+1.5, +1.1, -1.3); 'at most' bound rounded up",
+   "locus": [
+    "sec:core"
+   ]
+  },
+  "MDisconnectedSubjects": {
+   "value": 1.0,
+   "text": "one",
+   "source": "00_prepare_data: processed/connectomes_scale-<N>.npz['adjacency'] | subjects whose graph (A > 0) has >1 connected component per scale {68: 1, 114: 1, 219: 1}; components {68: [(8, [1, 67])], 114: [(8, [1, 113])], 219: [(8, [1, 218])]}",
+   "locus": [
+    "subsec:model"
+   ]
+  },
+  "MIsolatedRegionCount": {
+   "value": 1.0,
+   "text": "single",
+   "source": "00_prepare_data: processed/connectomes_scale-<N>.npz['adjacency'] | subjects whose graph (A > 0) has >1 connected component per scale {68: 1, 114: 1, 219: 1}; components {68: [(8, [1, 67])], 114: [(8, [1, 113])], 219: [(8, [1, 218])]}; zero-strength regions per scale {68: 1, 114: 1, 219: 1} (all in that subject)",
+   "locus": [
+    "subsec:model",
+    "subsec:perron"
+   ]
+  },
+  "MDecayRatioDMin": {
+   "value": 0.15854002569340706,
+   "text": "0.16",
+   "source": "mechanisms/05_second_subspace: mechanisms/second_subspace_subjects.csv | d = c / (c + gap) at c = 0.1 and the median gap over 70 subjects per scale; min over scales 68: 0.189, 114: 0.159, 219: 0.185",
+   "locus": [
+    "subsec:model"
+   ]
+  },
+  "MDecayRatioDMax": {
+   "value": 0.18919193283427632,
+   "text": "0.19",
+   "source": "mechanisms/05_second_subspace: mechanisms/second_subspace_subjects.csv | d = c / (c + gap) at c = 0.1 and the median gap over 70 subjects per scale; max over scales 68: 0.189, 114: 0.159, 219: 0.185",
+   "locus": [
+    "subsec:model"
+   ]
+  },
+  "MLyapunovAgreement": {
+   "value": 8.243182076571235e-14,
+   "text": "10^{-13}",
+   "source": "sensitivity/00_validate: sensitivity/validation.json | library_vs_eigbasis max(max_abs_W=6.1e-14, rel_W=8.2e-14); next power of ten",
+   "locus": [
+    "subsec:gramian"
+   ]
+  },
+  "MStrengthNullFidelityMin": {
+   "value": 0.9984836981760148,
+   "text": "0.998",
+   "source": "null_models/02_analyze: null_models/null_fidelity.csv | null == 'strength', strength_r (mean over subjects x 50 nulls of corr(null, real strengths)), min over scales, 3 dp",
+   "locus": [
+    "subsec:nulls"
+   ]
+  },
+  "MStrengthNullFidelityMax": {
+   "value": 0.9991396856344992,
+   "text": "0.999",
+   "source": "null_models/02_analyze: null_models/null_fidelity.csv | null == 'strength', strength_r (mean over subjects x 50 nulls of corr(null, real strengths)), max over scales, 3 dp",
+   "locus": [
+    "subsec:nulls"
+   ]
+  },
+  "MStrengthNullTopFiveKeptPctMin": {
+   "value": 98.94285714285715,
+   "text": "98.9",
+   "source": "null_models/02_analyze: null_models/networks.csv.gz | null == 'strength' (70 subjects x 50 nulls per scale); share of nulls with strength_top5_jaccard == 1, x 100, min over scales (per scale: 68: 98.9, 114: 99.9, 219: 99.8); text: 'almost always'",
+   "locus": [
+    "subsec:nulls",
+    "sec:nulls"
+   ]
+  },
+  "MGeomNullEdgeLengthBound": {
+   "value": 0.678715966862864,
+   "text": "1",
+   "source": "null_models/02_analyze: null_models/null_fidelity.csv | max over scales of 100*|geometric/real - 1| of mean_edge_length (cohort means), percent",
+   "locus": [
+    "subsec:nulls"
+   ]
+  },
+  "MAssortRayleighPearsonMedian": {
+   "value": 0.998318932210229,
+   "text": "0.998",
+   "source": "null_models/04_rayleigh_bound: null_models/rayleigh/per_subject.csv | null == 'strength', pearson_rW_sTWs, median over all subjects x scales (as scripts/paper/sections/s8.py inline_values)",
+   "locus": [
+    "subsec:nulls"
+   ]
+  },
+  "MAssortRayleighPearsonMin": {
+   "value": 0.945852558145038,
+   "text": "0.95",
+   "source": "null_models/04_rayleigh_bound: null_models/rayleigh/per_subject.csv | null == 'strength', pearson_rW_sTWs, min over all subjects x scales (as scripts/paper/sections/s8.py inline_values)",
+   "locus": [
+    "subsec:nulls"
+   ]
+  },
+  "SEpsBelowFloorMin": {
+   "value": 80.0,
+   "text": "80",
+   "source": "sensitivity/04_energy_floor: sensitivity/energy_floor_driver_sets.csv | eps in 1e-8, 1e-5, 1e-2; 5 set types; per-subject k-mean, subject mean, 2 dp as in Table S1; min over scale x eps x set type, x100",
+   "locus": [
+    "sec:robustness"
+   ]
+  },
+  "SEpsBelowFloorMax": {
+   "value": 98.0,
+   "text": "98",
+   "source": "sensitivity/04_energy_floor: sensitivity/energy_floor_driver_sets.csv | eps in 1e-8, 1e-5, 1e-2; 5 set types; per-subject k-mean, subject mean, 2 dp as in Table S1; max over scale x eps x set type, x100",
+   "locus": [
+    "sec:robustness"
+   ]
+  },
+  "SEpsEnergyWithinFloorAbout": {
+   "value": 0.10080260284151166,
+   "text": "0.1",
+   "source": "sensitivity/03_horizon_eps_largek: sensitivity/horizon_eps_largek_tidy.csv.gz | c == 0.1, T == inf, k in 1,2,3,5, degree/cycle; max over scale x eps x method of |log10(N/eps) - mean log10 E_avg| ('within about')",
+   "locus": [
+    "sec:robustness"
+   ]
+  },
+  "SEpsEnergyTenfoldSlope": {
+   "value": 0.9928555619059725,
+   "text": "one",
+   "source": "sensitivity/03_horizon_eps_largek: sensitivity/horizon_eps_largek_tidy.csv.gz | same cohort means; least-squares slope of mean log10 E_avg on -log10(eps) per scale x method (range 0.988 to 0.997)",
+   "locus": [
+    "sec:robustness"
+   ]
+  },
+  "SEpsEnergyCycleDegreeMaxAbs": {
+   "value": 0.0023875989496888,
+   "text": "2.4\\times10^{-3}",
+   "source": "sensitivity/03_horizon_eps_largek: sensitivity/epsilon_summary.csv | c == 0.1, metric == log10_average_energy; max |mean_diff| (cycle - degree, k-averaged) over 3 scales x 7 eps, rounded up",
+   "locus": [
+    "sec:robustness"
+   ]
+  },
+  "SCsweepPeakCLow": {
+   "value": 0.01,
+   "text": "0.01",
+   "source": "concentration/03_decay_collapse: concentration/decay_curves.csv.gz | mean over subjects per (scale, c); c of the largest dr_q1 and of the most negative cd_q1 at each scale (values 0.0178, 0.0178, 0.01, 0.0316, 0.0316, 0.0178); min, 2 decimals",
+   "locus": [
+    "sec:robustness"
+   ]
+  },
+  "SCsweepPeakCHigh": {
+   "value": 0.0316227766016837,
+   "text": "0.03",
+   "source": "concentration/03_decay_collapse: concentration/decay_curves.csv.gz | mean over subjects per (scale, c); c of the largest dr_q1 and of the most negative cd_q1 at each scale (values 0.0178, 0.0178, 0.01, 0.0316, 0.0316, 0.0178); max, 2 decimals",
+   "locus": [
+    "sec:robustness"
+   ]
+  },
+  "SCsweepQOneSignChangeSubjectsSixtyEight": {
+   "value": 6.0,
+   "text": "6",
+   "source": "concentration/03_decay_collapse: concentration/decay_flip_summary.csv | curve == cd_q1, axis == flip_c; n_flip_68",
+   "locus": [
+    "sec:robustness"
+   ]
+  },
+  "SCsweepQOneSignChangeSubjectsOneFourteen": {
+   "value": 3.0,
+   "text": "3",
+   "source": "concentration/03_decay_collapse: concentration/decay_flip_summary.csv | curve == cd_q1, axis == flip_c; n_flip_114",
+   "locus": [
+    "sec:robustness"
+   ]
+  },
+  "SCsweepQOneSignChangeSubjectsTwoNineteen": {
+   "value": 8.0,
+   "text": "8",
+   "source": "concentration/03_decay_collapse: concentration/decay_flip_summary.csv | curve == cd_q1, axis == flip_c; n_flip_219",
+   "locus": [
+    "sec:robustness"
+   ]
+  },
+  "SCsweepERFlipCSixtyEight": {
+   "value": 0.8763008448136591,
+   "text": "0.88",
+   "source": "sensitivity/05_summarize_csweep: sensitivity/csweep_signflip.csv | metric == effective_rank; c_flip_mean",
+   "locus": [
+    "sec:robustness"
+   ]
+  },
+  "SCsweepERFlipCOneFourteen": {
+   "value": 0.686442619211569,
+   "text": "0.69",
+   "source": "sensitivity/05_summarize_csweep: sensitivity/csweep_signflip.csv | metric == effective_rank; c_flip_mean",
+   "locus": [
+    "sec:robustness"
+   ]
+  },
+  "SCsweepERFlipCTwoNineteen": {
+   "value": 0.2925781056897148,
+   "text": "0.29",
+   "source": "sensitivity/05_summarize_csweep: sensitivity/csweep_signflip.csv | metric == effective_rank; c_flip_mean",
+   "locus": [
+    "sec:robustness"
+   ]
+  },
+  "SNctpyChecks": {
+   "value": 72.0,
+   "text": "72",
+   "source": "sensitivity/02_nctpy_equivalence: sensitivity/nctpy_equivalence_detail.csv | number of rows (subject x criterion x k checks)",
+   "locus": [
+    "sec:robustness"
+   ]
+  },
+  "SNctpyMaxGramianDiff": {
+   "value": 4.107825191113079e-15,
+   "text": "5\\times10^{-15}",
+   "source": "sensitivity/02_nctpy_equivalence: sensitivity/nctpy_equivalence_detail.csv | max of max_abs_W_diff = 4.11e-15; 1 significant figure rounded up",
+   "locus": [
+    "sec:robustness"
+   ]
+  },
+  "SNctpyMaxRescaledDiff": {
+   "value": 2.5313084961453572e-14,
+   "text": "3\\times10^{-14}",
+   "source": "sensitivity/02_nctpy_equivalence: sensitivity/nctpy_equivalence_detail.csv | max |d_er_eps_rescaled| = 2.53e-14; 1 significant figure rounded up",
+   "locus": [
+    "sec:robustness"
+   ]
+  },
+  "SCycleDegreeRhoSixtyEight": {
+   "value": 0.7504294384853226,
+   "text": "0.75",
+   "source": "target_states/05_spin_tests: target_states/spin_tests.csv | x == degree_strength, y == cycle_participation; spearman_rho",
+   "locus": [
+    "sec:criteria"
+   ]
+  },
+  "SCycleDegreeRhoOneFourteen": {
+   "value": 0.7060893866061846,
+   "text": "0.71",
+   "source": "target_states/05_spin_tests: target_states/spin_tests.csv | x == degree_strength, y == cycle_participation; spearman_rho",
+   "locus": [
+    "sec:criteria"
+   ]
+  },
+  "SCycleDegreeRhoTwoNineteen": {
+   "value": 0.6119186079723972,
+   "text": "0.61",
+   "source": "target_states/05_spin_tests: target_states/spin_tests.csv | x == degree_strength, y == cycle_participation; spearman_rho",
+   "locus": [
+    "sec:criteria"
+   ]
+  },
+  "SCycleDegreePspinMax": {
+   "value": 0.0001999800019998,
+   "text": "0.0002",
+   "source": "target_states/05_spin_tests: target_states/spin_tests.csv | same rows; max over scales of p_spin_vasa, rounded up",
+   "locus": [
+    "sec:criteria"
+   ]
+  },
+  "STopFifteenSharedSixtyEight": {
+   "value": 11.0,
+   "text": "11",
+   "source": "target_states/06_network_enrichment: target_states/top15_network_composition.csv | category == both; n",
+   "locus": [
+    "sec:criteria"
+   ]
+  },
+  "STopFifteenSharedOneFourteen": {
+   "value": 4.0,
+   "text": "4",
+   "source": "target_states/06_network_enrichment: target_states/top15_network_composition.csv | category == both; n",
+   "locus": [
+    "sec:criteria"
+   ]
+  },
+  "STopFifteenSharedTwoNineteen": {
+   "value": 5.0,
+   "text": "5",
+   "source": "target_states/06_network_enrichment: target_states/top15_network_composition.csv | category == both; n",
+   "locus": [
+    "sec:criteria"
+   ]
+  },
+  "SRepRhoRipserMin": {
+   "value": 0.403239518175055,
+   "text": "0.40",
+   "source": "topology/summarize_representatives: topology/tables/rep_agreement.csv | variant != ripser; min over scales of rho_ripser_median, 2 dp",
+   "locus": [
+    "sec:criteria"
+   ]
+  },
+  "SRepRhoRipserMax": {
+   "value": 0.6458779068093758,
+   "text": "0.65",
+   "source": "topology/summarize_representatives: topology/tables/rep_agreement.csv | variant != ripser; max over scales of rho_ripser_median, 2 dp",
+   "locus": [
+    "sec:criteria"
+   ]
+  },
+  "SRepRhoGeodesicDegreeMin": {
+   "value": 0.743271378683011,
+   "text": "0.74",
+   "source": "topology/summarize_representatives: topology/tables/rep_agreement.csv | variant in ['geodesic']; min over scales of rho_degree_median, 2 dp",
+   "locus": [
+    "sec:criteria"
+   ]
+  },
+  "SRepRhoGeodesicDegreeMax": {
+   "value": 0.784092276204839,
+   "text": "0.78",
+   "source": "topology/summarize_representatives: topology/tables/rep_agreement.csv | variant in ['geodesic']; max over scales of rho_degree_median, 2 dp",
+   "locus": [
+    "sec:criteria"
+   ]
+  },
+  "SRepRhoOthersDegreeMin": {
+   "value": 0.3675106662234089,
+   "text": "0.37",
+   "source": "topology/summarize_representatives: topology/tables/rep_agreement.csv | variant in ['ripser', 'gudhi', 'birth_edge']; min over scales of rho_degree_median, 2 dp",
+   "locus": [
+    "sec:criteria"
+   ]
+  },
+  "SRepRhoOthersDegreeMax": {
+   "value": 0.6034909313774808,
+   "text": "0.60",
+   "source": "topology/summarize_representatives: topology/tables/rep_agreement.csv | variant in ['ripser', 'gudhi', 'birth_edge']; max over scales of rho_degree_median, 2 dp",
+   "locus": [
+    "sec:criteria"
+   ]
+  },
+  "SRepERDiffMin": {
+   "value": 0.23338858269731938,
+   "text": "+0.23",
+   "source": "topology/run_representatives_all_scales: topology/representatives/per_subject_scale-<N>.csv | per-subject mean of er_diff_degree over k in 1,2,3,5, mean over subjects; min over 4 conventions x 3 scales",
+   "locus": [
+    "sec:criteria"
+   ]
+  },
+  "SRepERDiffMax": {
+   "value": 1.0539232018882572,
+   "text": "+1.05",
+   "source": "topology/run_representatives_all_scales: topology/representatives/per_subject_scale-<N>.csv | per-subject mean of er_diff_degree over k in 1,2,3,5, mean over subjects; max over 4 conventions x 3 scales",
+   "locus": [
+    "sec:criteria"
+   ]
+  },
+  "SRepOverlapRsqMin": {
+   "value": 25.32636280958004,
+   "text": "25",
+   "source": "topology/summarize_representatives: topology/tables/rep_distance_regressions.csv | k in 2,3,5, all scales; min jaccard_degree_partial_r2, %",
+   "locus": [
+    "sec:criteria"
+   ]
+  },
+  "SRepOverlapRsqMax": {
+   "value": 70.52675829964825,
+   "text": "71",
+   "source": "topology/summarize_representatives: topology/tables/rep_distance_regressions.csv | k in 2,3,5, all scales; max jaccard_degree_partial_r2, %",
+   "locus": [
+    "sec:criteria"
+   ]
+  },
+  "SPerturbCycleNoiseRhoMin": {
+   "value": 0.8026590628838994,
+   "text": "0.80",
+   "source": "topology/summarize_perturbation: topology/tables/perturb_rank_stability.csv | ranking == ripser, family in ['noise']; min over scales x levels of rho_median, 2 dp",
+   "locus": [
+    "sec:criteria"
+   ]
+  },
+  "SPerturbCycleNoiseRhoMax": {
+   "value": 0.9514434321485176,
+   "text": "0.95",
+   "source": "topology/summarize_perturbation: topology/tables/perturb_rank_stability.csv | ranking == ripser, family in ['noise']; max over scales x levels of rho_median, 2 dp",
+   "locus": [
+    "sec:criteria"
+   ]
+  },
+  "SPerturbCycleDropoutRhoMin": {
+   "value": 0.5633070579966802,
+   "text": "0.56",
+   "source": "topology/summarize_perturbation: topology/tables/perturb_rank_stability.csv | ranking == ripser, family in ['dropout']; min over scales x levels of rho_median, 2 dp",
+   "locus": [
+    "sec:criteria"
+   ]
+  },
+  "SPerturbCycleDropoutRhoMax": {
+   "value": 0.8527174286916499,
+   "text": "0.85",
+   "source": "topology/summarize_perturbation: topology/tables/perturb_rank_stability.csv | ranking == ripser, family in ['dropout']; max over scales x levels of rho_median, 2 dp",
+   "locus": [
+    "sec:criteria"
+   ]
+  },
+  "SPerturbDegreeRhoMin": {
+   "value": 0.9033881742184218,
+   "text": "0.90",
+   "source": "topology/summarize_perturbation: topology/tables/perturb_rank_stability.csv | ranking == degree, family in ['noise', 'dropout']; min over scales x levels of rho_median, 2 dp",
+   "locus": [
+    "sec:criteria"
+   ]
+  },
+  "SPerturbDegreeRhoMax": {
+   "value": 0.999408285443349,
+   "text": "1.00",
+   "source": "topology/summarize_perturbation: topology/tables/perturb_rank_stability.csv | ranking == degree, family in ['noise', 'dropout']; max over scales x levels of rho_median, 2 dp",
+   "locus": [
+    "sec:criteria"
+   ]
+  },
+  "SPerturbCycleTopFiveJacMin": {
+   "value": 0.1717335600907029,
+   "text": "0.17",
+   "source": "topology/summarize_perturbation: topology/tables/perturb_rank_stability.csv | ranking == ripser, family in ['noise', 'dropout']; min over scales x levels of j5, 2 dp",
+   "locus": [
+    "sec:criteria"
+   ]
+  },
+  "SPerturbCycleTopFiveJacMax": {
+   "value": 0.6853038548752833,
+   "text": "0.69",
+   "source": "topology/summarize_perturbation: topology/tables/perturb_rank_stability.csv | ranking == ripser, family in ['noise', 'dropout']; max over scales x levels of j5, 2 dp",
+   "locus": [
+    "sec:criteria"
+   ]
+  },
+  "SPerturbDegreeTopFiveJacMin": {
+   "value": 0.5746768707482992,
+   "text": "0.57",
+   "source": "topology/summarize_perturbation: topology/tables/perturb_rank_stability.csv | ranking == degree, family in ['noise', 'dropout']; min over scales x levels of j5, 2 dp",
+   "locus": [
+    "sec:criteria"
+   ]
+  },
+  "SPerturbDegreeTopFiveJacMax": {
+   "value": 0.956,
+   "text": "0.96",
+   "source": "topology/summarize_perturbation: topology/tables/perturb_rank_stability.csv | ranking == degree, family in ['noise', 'dropout']; max over scales x levels of j5, 2 dp",
+   "locus": [
+    "sec:criteria"
+   ]
+  },
+  "SPerturbBetweenRhoMin": {
+   "value": 0.2693434752195739,
+   "text": "0.27",
+   "source": "topology/summarize_perturbation: topology/tables/perturb_between_subject_reference.csv | ranking == ripser; min over scales of between_subject_spearman_median, 2 dp",
+   "locus": [
+    "sec:criteria"
+   ]
+  },
+  "SPerturbBetweenRhoMax": {
+   "value": 0.3915255602934004,
+   "text": "0.39",
+   "source": "topology/summarize_perturbation: topology/tables/perturb_between_subject_reference.csv | ranking == ripser; max over scales of between_subject_spearman_median, 2 dp",
+   "locus": [
+    "sec:criteria"
+   ]
+  },
+  "SPerturbERDiffMin": {
+   "value": 0.2712806287257918,
+   "text": "+0.27",
+   "source": "topology/summarize_perturbation: topology/tables/perturb_er_persistence.csv | variant == ripser, metric == er, k in 2,3,5; min over scales x families x levels of perturbed_mean, 2 dp",
+   "locus": [
+    "sec:criteria"
+   ]
+  },
+  "SModesPlaneAxisASixtyEight": {
+   "value": 0.7196350467327985,
+   "text": "0.72",
+   "source": "processed/connectomes_scale-<N>.npz (as mechanisms/05_second_subspace): eigenvalues of the mean projector onto each subject's v2-v3 plane; first",
+   "locus": [
+    "sec:modes"
+   ]
+  },
+  "SModesPlaneAxisBSixtyEight": {
+   "value": 0.4007190877924398,
+   "text": "0.40",
+   "source": "processed/connectomes_scale-<N>.npz (as mechanisms/05_second_subspace): eigenvalues of the mean projector onto each subject's v2-v3 plane; second",
+   "locus": [
+    "sec:modes"
+   ]
+  },
+  "SModesVTwoAloneSixtyEight": {
+   "value": 0.4775822420778859,
+   "text": "0.48",
+   "source": "processed/connectomes_scale-<N>.npz (as mechanisms/05_second_subspace): eigenvalues of the mean projector onto each subject's v2; largest",
+   "locus": [
+    "sec:modes"
+   ]
+  },
+  "SModesPlaneAxisAOneFourteen": {
+   "value": 0.6660655296081588,
+   "text": "0.67",
+   "source": "processed/connectomes_scale-<N>.npz (as mechanisms/05_second_subspace): eigenvalues of the mean projector onto each subject's v2-v3 plane; first",
+   "locus": [
+    "sec:modes"
+   ]
+  },
+  "SModesPlaneAxisBOneFourteen": {
+   "value": 0.3745904990083557,
+   "text": "0.37",
+   "source": "processed/connectomes_scale-<N>.npz (as mechanisms/05_second_subspace): eigenvalues of the mean projector onto each subject's v2-v3 plane; second",
+   "locus": [
+    "sec:modes"
+   ]
+  },
+  "SModesVTwoAloneOneFourteen": {
+   "value": 0.4412268457405416,
+   "text": "0.44",
+   "source": "processed/connectomes_scale-<N>.npz (as mechanisms/05_second_subspace): eigenvalues of the mean projector onto each subject's v2; largest",
+   "locus": [
+    "sec:modes"
+   ]
+  },
+  "SModesThirdAxisOneFourteen": {
+   "value": 0.38152314868080195,
+   "text": "0.38",
+   "source": "processed/connectomes_scale-<N>.npz (as mechanisms/05_second_subspace): eigenvalues of the mean projector onto each subject's v2-v4 span; third",
+   "locus": [
+    "sec:modes"
+   ]
+  },
+  "SModesPlaneAxisATwoNineteen": {
+   "value": 0.5969655472755977,
+   "text": "0.60",
+   "source": "processed/connectomes_scale-<N>.npz (as mechanisms/05_second_subspace): eigenvalues of the mean projector onto each subject's v2-v3 plane; first",
+   "locus": [
+    "sec:modes"
+   ]
+  },
+  "SModesPlaneAxisBTwoNineteen": {
+   "value": 0.3432595361938219,
+   "text": "0.34",
+   "source": "processed/connectomes_scale-<N>.npz (as mechanisms/05_second_subspace): eigenvalues of the mean projector onto each subject's v2-v3 plane; second",
+   "locus": [
+    "sec:modes"
+   ]
+  },
+  "SModesVTwoAloneTwoNineteen": {
+   "value": 0.40350876939519864,
+   "text": "0.40",
+   "source": "processed/connectomes_scale-<N>.npz (as mechanisms/05_second_subspace): eigenvalues of the mean projector onto each subject's v2; largest",
+   "locus": [
+    "sec:modes"
+   ]
+  },
+  "SModesThirdAxisTwoNineteen": {
+   "value": 0.3457120457278885,
+   "text": "0.35",
+   "source": "processed/connectomes_scale-<N>.npz (as mechanisms/05_second_subspace): eigenvalues of the mean projector onto each subject's v2-v4 span; third",
+   "locus": [
+    "sec:modes"
+   ]
+  },
+  "SModesHemiSecondAxisSixtyEight": {
+   "value": 0.7896066074097379,
+   "text": "0.79",
+   "source": "mechanisms/05_second_subspace: mechanisms/second_subspace_axes.csv | core = top 20% of regions by v1_mean; |Pearson r| across core regions between axis b and hemisphere (R = 1)",
+   "locus": [
+    "sec:modes"
+   ]
+  },
+  "SModesHemiSecondAxisOneFourteen": {
+   "value": 0.2584712644223494,
+   "text": "0.26",
+   "source": "mechanisms/05_second_subspace: mechanisms/second_subspace_axes.csv | core = top 20% of regions by v1_mean; |Pearson r| across core regions between axis b and hemisphere (R = 1)",
+   "locus": [
+    "sec:modes"
+   ]
+  },
+  "SModesHemiSecondAxisTwoNineteen": {
+   "value": 0.12858732750213822,
+   "text": "0.13",
+   "source": "mechanisms/05_second_subspace: mechanisms/second_subspace_axes.csv | core = top 20% of regions by v1_mean; |Pearson r| across core regions between axis b and hemisphere (R = 1)",
+   "locus": [
+    "sec:modes"
+   ]
+  },
+  "SModesHemiThirdAxisOneFourteen": {
+   "value": 0.6871991952731794,
+   "text": "0.69",
+   "source": "mechanisms/05_second_subspace: mechanisms/second_subspace_axes.csv | core = top 20% of regions by v1_mean; |Pearson r| across core regions between axis c and hemisphere (R = 1)",
+   "locus": [
+    "sec:modes"
+   ]
+  },
+  "SModesHemiThirdAxisTwoNineteen": {
+   "value": 0.6068643716177672,
+   "text": "0.61",
+   "source": "mechanisms/05_second_subspace: mechanisms/second_subspace_axes.csv | core = top 20% of regions by v1_mean; |Pearson r| across core regions between axis c and hemisphere (R = 1)",
+   "locus": [
+    "sec:modes"
+   ]
+  },
+  "SModelExcessQOneMin": {
+   "value": 0.1143331864759536,
+   "text": "0.11",
+   "source": "mechanisms/02_canonical_graphs: mechanisms/canonical_summary.csv | weighting == weighted, c == 0.1, kgrp == 2+ (mean over k in 2,3,5 and graphs); min over models ER, BA, WS, SBM, RGG x scales of deg_minus_rand_q1",
+   "locus": [
+    "sec:modes"
+   ]
+  },
+  "SModelExcessQOneMax": {
+   "value": 0.2828428922947684,
+   "text": "0.28",
+   "source": "mechanisms/02_canonical_graphs: mechanisms/canonical_summary.csv | weighting == weighted, c == 0.1, kgrp == 2+ (mean over k in 2,3,5 and graphs); max over models ER, BA, WS, SBM, RGG x scales of deg_minus_rand_q1",
+   "locus": [
+    "sec:modes"
+   ]
+  },
+  "SConnExcessQOneMin": {
+   "value": 0.3107475629217682,
+   "text": "0.31",
+   "source": "mechanisms/02_canonical_graphs: mechanisms/canonical_summary.csv | weighting == weighted, c == 0.1, kgrp == 2+ (mean over k in 2,3,5 and graphs); min over the connectomes (model CONN) x scales of deg_minus_rand_q1",
+   "locus": [
+    "sec:modes"
+   ]
+  },
+  "SConnExcessQOneMax": {
+   "value": 0.3651563118041042,
+   "text": "0.37",
+   "source": "mechanisms/02_canonical_graphs: mechanisms/canonical_summary.csv | weighting == weighted, c == 0.1, kgrp == 2+ (mean over k in 2,3,5 and graphs); max over the connectomes (model CONN) x scales of deg_minus_rand_q1",
+   "locus": [
+    "sec:modes"
+   ]
+  },
+  "SModelGapMin": {
+   "value": 0.1400004522049327,
+   "text": "0.14",
+   "source": "mechanisms/02_canonical_graphs: mechanisms/canonical_summary.csv | weighting == weighted, c == 0.1, kgrp == 2+; min over models x scales gap",
+   "locus": [
+    "sec:modes"
+   ]
+  },
+  "SModelGapMax": {
+   "value": 0.3181869834432879,
+   "text": "0.32",
+   "source": "mechanisms/02_canonical_graphs: mechanisms/canonical_summary.csv | weighting == weighted, c == 0.1, kgrp == 2+; max over models x scales gap",
+   "locus": [
+    "sec:modes"
+   ]
+  },
+  "SConnGapMin": {
+   "value": 0.4312495148245974,
+   "text": "0.43",
+   "source": "mechanisms/02_canonical_graphs: mechanisms/canonical_summary.csv | weighting == weighted, c == 0.1, kgrp == 2+; min over scales gap",
+   "locus": [
+    "sec:modes"
+   ]
+  },
+  "SConnGapMax": {
+   "value": 0.539620414772847,
+   "text": "0.54",
+   "source": "mechanisms/02_canonical_graphs: mechanisms/canonical_summary.csv | weighting == weighted, c == 0.1, kgrp == 2+; max over scales gap",
+   "locus": [
+    "sec:modes"
+   ]
+  },
+  "SNullStrengthCorrMin": {
+   "value": 0.9984836981760148,
+   "text": "0.998",
+   "source": "null_models/02_analyze: null_models/null_fidelity.csv | null == strength; min strength_r over scales",
+   "locus": [
+    "sec:nulls"
+   ]
+  },
+  "SNullStrengthCorrMax": {
+   "value": 0.9991396856344992,
+   "text": "0.999",
+   "source": "null_models/02_analyze: null_models/null_fidelity.csv | null == strength; max strength_r over scales",
+   "locus": [
+    "sec:nulls"
+   ]
+  },
+  "SNullStrengthMaxRelErrMin": {
+   "value": 0.1592888809671863,
+   "text": "0.16",
+   "source": "null_models/02_analyze: null_models/null_fidelity.csv | null == strength; min strength_max_rel_err over scales",
+   "locus": [
+    "sec:nulls"
+   ]
+  },
+  "SNullStrengthMaxRelErrMax": {
+   "value": 0.2748966010111313,
+   "text": "0.27",
+   "source": "null_models/02_analyze: null_models/null_fidelity.csv | null == strength; max strength_max_rel_err over scales",
+   "locus": [
+    "sec:nulls"
+   ]
+  },
+  "SNullGeomEdgeLengthWithinPct": {
+   "value": 0.678715966862872,
+   "text": "1",
+   "source": "null_models/02_analyze: null_models/null_fidelity.csv | max over scales of |geometric - real| / real mean_edge_length, % (0.68%)",
+   "locus": [
+    "sec:nulls"
+   ]
+  },
+  "SNullLambdaTwoZOneFourteenMin": {
+   "value": 0.601428122001346,
+   "text": "0.6",
+   "source": "null_models/03_gap_mediators: null_models/gap_split.csv | stat == lambda2, scale == 114, 3 nulls; min z_median",
+   "locus": [
+    "sec:nulls"
+   ]
+  },
+  "SNullLambdaTwoZOneFourteenMax": {
+   "value": 0.89684349509978,
+   "text": "0.9",
+   "source": "null_models/03_gap_mediators: null_models/gap_split.csv | stat == lambda2, scale == 114, 3 nulls; max z_median",
+   "locus": [
+    "sec:nulls"
+   ]
+  },
+  "SRayleighShareROneSixtyEight": {
+   "value": 60.298370204410446,
+   "text": "60",
+   "source": "null_models/04_rayleigh_bound: null_models/rayleigh/per_subject.csv | null == strength; scale == 68; median of d_R1/d_lambda1, %",
+   "locus": [
+    "sec:nulls"
+   ]
+  },
+  "SRayleighShareROneOneFourteen": {
+   "value": 43.04439071601951,
+   "text": "43",
+   "source": "null_models/04_rayleigh_bound: null_models/rayleigh/per_subject.csv | null == strength; scale == 114; median of d_R1/d_lambda1, %",
+   "locus": [
+    "sec:nulls"
+   ]
+  },
+  "SRayleighShareROneTwoNineteen": {
+   "value": 35.93755137763405,
+   "text": "36",
+   "source": "null_models/04_rayleigh_bound: null_models/rayleigh/per_subject.csv | null == strength; scale == 219; median of d_R1/d_lambda1, %",
+   "locus": [
+    "sec:nulls"
+   ]
+  },
+  "SRayleighShareRThreeMin": {
+   "value": 95.44785935797853,
+   "text": "95",
+   "source": "null_models/04_rayleigh_bound: null_models/rayleigh/per_subject.csv | null == strength; per-scale median of d_R3/d_lambda1; min, %",
+   "locus": [
+    "sec:nulls"
+   ]
+  },
+  "SRayleighShareRThreeMax": {
+   "value": 111.99096041492021,
+   "text": "112",
+   "source": "null_models/04_rayleigh_bound: null_models/rayleigh/per_subject.csv | null == strength; per-scale median of d_R3/d_lambda1; max, %",
+   "locus": [
+    "sec:nulls"
+   ]
+  },
+  "SRayleighRhoRWLambdaMin": {
+   "value": 0.6442737094837936,
+   "text": "0.64",
+   "source": "null_models/04_rayleigh_bound: null_models/rayleigh/per_subject.csv | null == strength; per-scale median of rho_rW_l1; min",
+   "locus": [
+    "sec:nulls"
+   ]
+  },
+  "SRayleighRhoRWLambdaMax": {
+   "value": 0.714045618247299,
+   "text": "0.71",
+   "source": "null_models/04_rayleigh_bound: null_models/rayleigh/per_subject.csv | null == strength; per-scale median of rho_rW_l1; max",
+   "locus": [
+    "sec:nulls"
+   ]
+  },
+  "SRayleighRhoBctLambdaMin": {
+   "value": 0.17027611044417762,
+   "text": "0.17",
+   "source": "null_models/04_rayleigh_bound: null_models/rayleigh/per_subject.csv | null == strength; per-scale median of rho_rbct_l1; min",
+   "locus": [
+    "sec:nulls"
+   ]
+  },
+  "SRayleighRhoBctLambdaMax": {
+   "value": 0.28960384153661456,
+   "text": "0.29",
+   "source": "null_models/04_rayleigh_bound: null_models/rayleigh/per_subject.csv | null == strength; per-scale median of rho_rbct_l1; max",
+   "locus": [
+    "sec:nulls"
+   ]
+  },
+  "SCoreFrontBackSixtyEightQuarter": {
+   "value": 10.869301169514264,
+   "text": "11",
+   "source": "mechanisms/07_core_cut: mechanisms/core_cut_first_order.csv | partition == labels, condition == cross, scale == 68, alpha == 0.25; -median_dgap_pct (gap reduction, % of the unperturbed gap)",
+   "locus": [
+    "sec:core"
+   ]
+  },
+  "SCoreFrontBackSixtyEightHalf": {
+   "value": 20.55137351421768,
+   "text": "21",
+   "source": "mechanisms/07_core_cut: mechanisms/core_cut_first_order.csv | partition == labels, condition == cross, scale == 68, alpha == 0.5; -median_dgap_pct (gap reduction, % of the unperturbed gap)",
+   "locus": [
+    "sec:core"
+   ]
+  },
+  "SCoreFrontBackSixtyEightThreeQuarters": {
+   "value": 29.47448532403378,
+   "text": "29",
+   "source": "mechanisms/07_core_cut: mechanisms/core_cut_first_order.csv | partition == labels, condition == cross, scale == 68, alpha == 0.75; -median_dgap_pct (gap reduction, % of the unperturbed gap)",
+   "locus": [
+    "sec:core"
+   ]
+  },
+  "SCoreFrontBackSixtyEightFull": {
+   "value": 35.110807085187915,
+   "text": "35",
+   "source": "mechanisms/07_core_cut: mechanisms/core_cut_first_order.csv | partition == labels, condition == cross, scale == 68, alpha == 1.0; -median_dgap_pct (gap reduction, % of the unperturbed gap)",
+   "locus": [
+    "sec:core"
+   ]
+  },
+  "SCoreFrontBackTwoNineteenQuarter": {
+   "value": 17.471276357480992,
+   "text": "17",
+   "source": "mechanisms/07_core_cut: mechanisms/core_cut_first_order.csv | partition == labels, condition == cross, scale == 219, alpha == 0.25; -median_dgap_pct (gap reduction, % of the unperturbed gap)",
+   "locus": [
+    "sec:core"
+   ]
+  },
+  "SCoreFrontBackTwoNineteenHalf": {
+   "value": 31.815574818308676,
+   "text": "32",
+   "source": "mechanisms/07_core_cut: mechanisms/core_cut_first_order.csv | partition == labels, condition == cross, scale == 219, alpha == 0.5; -median_dgap_pct (gap reduction, % of the unperturbed gap)",
+   "locus": [
+    "sec:core"
+   ]
+  },
+  "SCoreFrontBackTwoNineteenThreeQuarters": {
+   "value": 42.27342496076636,
+   "text": "42",
+   "source": "mechanisms/07_core_cut: mechanisms/core_cut_first_order.csv | partition == labels, condition == cross, scale == 219, alpha == 0.75; -median_dgap_pct (gap reduction, % of the unperturbed gap)",
+   "locus": [
+    "sec:core"
+   ]
+  },
+  "SCoreFrontBackTwoNineteenFull": {
+   "value": 46.7338649244826,
+   "text": "47",
+   "source": "mechanisms/07_core_cut: mechanisms/core_cut_first_order.csv | partition == labels, condition == cross, scale == 219, alpha == 1.0; -median_dgap_pct (gap reduction, % of the unperturbed gap)",
+   "locus": [
+    "sec:core"
+   ]
+  },
+  "SCoreWithinMatchedSixtyEightMin": {
+   "value": 3.190555987779055,
+   "text": "3",
+   "source": "mechanisms/07_core_cut: mechanisms/core_cut_first_order.csv | partition == labels, condition == within_matched, scale == 68, alpha in (0.25, 0.5, 0.75, 1.0); -median_dgap_pct (gap reduction, % of the unperturbed gap); min",
+   "locus": [
+    "sec:core"
+   ]
+  },
+  "SCoreWithinMatchedSixtyEightMax": {
+   "value": 12.945512548108717,
+   "text": "13",
+   "source": "mechanisms/07_core_cut: mechanisms/core_cut_first_order.csv | partition == labels, condition == within_matched, scale == 68, alpha in (0.25, 0.5, 0.75, 1.0); -median_dgap_pct (gap reduction, % of the unperturbed gap); max",
+   "locus": [
+    "sec:core"
+   ]
+  },
+  "SCoreWithinMatchedTwoNineteenMin": {
+   "value": 7.226465859651912,
+   "text": "7",
+   "source": "mechanisms/07_core_cut: mechanisms/core_cut_first_order.csv | partition == labels, condition == within_matched, scale == 219, alpha in (0.25, 0.5, 0.75, 1.0); -median_dgap_pct (gap reduction, % of the unperturbed gap); min",
+   "locus": [
+    "sec:core"
+   ]
+  },
+  "SCoreWithinMatchedTwoNineteenMax": {
+   "value": 25.741647855947505,
+   "text": "26",
+   "source": "mechanisms/07_core_cut: mechanisms/core_cut_first_order.csv | partition == labels, condition == within_matched, scale == 219, alpha in (0.25, 0.5, 0.75, 1.0); -median_dgap_pct (gap reduction, % of the unperturbed gap); max",
+   "locus": [
+    "sec:core"
+   ]
+  },
+  "SCoreFrontBackOneFourteenMin": {
+   "value": 4.63148177728927,
+   "text": "5",
+   "source": "mechanisms/07_core_cut: mechanisms/core_cut_first_order.csv | partition == labels, condition == cross, scale == 114, alpha in (0.25, 0.5, 0.75, 1.0); -median_dgap_pct (gap reduction, % of the unperturbed gap); min",
+   "locus": [
+    "sec:core"
+   ]
+  },
+  "SCoreFrontBackOneFourteenMax": {
+   "value": 12.24139590577394,
+   "text": "12",
+   "source": "mechanisms/07_core_cut: mechanisms/core_cut_first_order.csv | partition == labels, condition == cross, scale == 114, alpha in (0.25, 0.5, 0.75, 1.0); -median_dgap_pct (gap reduction, % of the unperturbed gap); max",
+   "locus": [
+    "sec:core"
+   ]
+  },
+  "SCoreWithinMatchedOneFourteenMin": {
+   "value": 6.737458757629705,
+   "text": "7",
+   "source": "mechanisms/07_core_cut: mechanisms/core_cut_first_order.csv | partition == labels, condition == within_matched, scale == 114, alpha in (0.25, 0.5, 0.75, 1.0); -median_dgap_pct (gap reduction, % of the unperturbed gap); min",
+   "locus": [
+    "sec:core"
+   ]
+  },
+  "SCoreWithinMatchedOneFourteenMax": {
+   "value": 25.271887719114616,
+   "text": "25",
+   "source": "mechanisms/07_core_cut: mechanisms/core_cut_first_order.csv | partition == labels, condition == within_matched, scale == 114, alpha in (0.25, 0.5, 0.75, 1.0); -median_dgap_pct (gap reduction, % of the unperturbed gap); max",
+   "locus": [
+    "sec:core"
+   ]
+  },
+  "SCoreWithinUniformSixtyEight": {
+   "value": 7.026402669185362,
+   "text": "7",
+   "source": "mechanisms/07_core_cut: mechanisms/core_cut_first_order.csv | partition == labels, condition == within_uniform, scale == 68, alpha == 0.5; -median_dgap_pct (gap reduction, % of the unperturbed gap)",
+   "locus": [
+    "sec:core"
+   ]
+  },
+  "SCoreWithinUniformOneFourteen": {
+   "value": 21.902438117848774,
+   "text": "22",
+   "source": "mechanisms/07_core_cut: mechanisms/core_cut_first_order.csv | partition == labels, condition == within_uniform, scale == 114, alpha == 0.5; -median_dgap_pct (gap reduction, % of the unperturbed gap)",
+   "locus": [
+    "sec:core"
+   ]
+  },
+  "SCoreWithinUniformTwoNineteen": {
+   "value": 15.844910342294057,
+   "text": "16",
+   "source": "mechanisms/07_core_cut: mechanisms/core_cut_first_order.csv | partition == labels, condition == within_uniform, scale == 219, alpha == 0.5; -median_dgap_pct (gap reduction, % of the unperturbed gap)",
+   "locus": [
+    "sec:core"
+   ]
+  },
+  "SCoreWithinMatchedHalfSixtyEight": {
+   "value": 6.257265465529736,
+   "text": "6",
+   "source": "mechanisms/07_core_cut: mechanisms/core_cut_first_order.csv | partition == labels, condition == within_matched, scale == 68, alpha == 0.5; -median_dgap_pct (gap reduction, % of the unperturbed gap)",
+   "locus": [
+    "sec:core"
+   ]
+  },
+  "SCoreWithinMatchedHalfOneFourteen": {
+   "value": 13.441664295774254,
+   "text": "13",
+   "source": "mechanisms/07_core_cut: mechanisms/core_cut_first_order.csv | partition == labels, condition == within_matched, scale == 114, alpha == 0.5; -median_dgap_pct (gap reduction, % of the unperturbed gap)",
+   "locus": [
+    "sec:core"
+   ]
+  },
+  "SCoreWithinMatchedHalfTwoNineteen": {
+   "value": 14.284230486277014,
+   "text": "14",
+   "source": "mechanisms/07_core_cut: mechanisms/core_cut_first_order.csv | partition == labels, condition == within_matched, scale == 219, alpha == 0.5; -median_dgap_pct (gap reduction, % of the unperturbed gap)",
+   "locus": [
+    "sec:core"
+   ]
+  },
+  "SCoreOutsideUniformMax": {
+   "value": 1.1823655139157636,
+   "text": "2",
+   "source": "mechanisms/07_core_cut: mechanisms/core_cut_first_order.csv | partition == labels, condition == other_uniform, alpha == 0.5; -median_dgap_pct (gap reduction, % of the unperturbed gap); max |change| over scales (1.18), rounded up",
+   "locus": [
+    "sec:core"
+   ]
+  },
+  "SCoreMedianSplitFrontBackSixtyEight": {
+   "value": 25.89599826854985,
+   "text": "26",
+   "source": "mechanisms/07_core_cut: mechanisms/core_cut_first_order.csv | partition == ycut, condition == cross, scale == 68, alpha == 0.5; -median_dgap_pct (gap reduction, % of the unperturbed gap)",
+   "locus": [
+    "sec:core"
+   ]
+  },
+  "SCoreMedianSplitWithinMatchedSixtyEight": {
+   "value": 10.087690531991685,
+   "text": "10",
+   "source": "mechanisms/07_core_cut: mechanisms/core_cut_first_order.csv | partition == ycut, condition == within_matched, scale == 68, alpha == 0.5; -median_dgap_pct (gap reduction, % of the unperturbed gap)",
+   "locus": [
+    "sec:core"
+   ]
+  },
+  "SCoreMedianSplitFrontBackOneFourteen": {
+   "value": 12.49982864354088,
+   "text": "12",
+   "source": "mechanisms/07_core_cut: mechanisms/core_cut_first_order.csv | partition == ycut, condition == cross, scale == 114, alpha == 0.5; -median_dgap_pct (gap reduction, % of the unperturbed gap)",
+   "locus": [
+    "sec:core"
+   ]
+  },
+  "SCoreMedianSplitWithinMatchedOneFourteen": {
+   "value": 17.40458907877364,
+   "text": "17",
+   "source": "mechanisms/07_core_cut: mechanisms/core_cut_first_order.csv | partition == ycut, condition == within_matched, scale == 114, alpha == 0.5; -median_dgap_pct (gap reduction, % of the unperturbed gap)",
+   "locus": [
+    "sec:core"
+   ]
+  },
+  "SCoreMedianSplitBeatsWithinSixtyEight": {
+   "value": 57.0,
+   "text": "57",
+   "source": "mechanisms/07_core_cut: mechanisms/core_cut_compare.csv | scale == 68, partition == ycut, alpha == 0.5, control == within_matched, measure == dgap; frac_cross_lower * n",
+   "locus": [
+    "sec:core"
+   ]
+  },
+  "SCoreVTwoCorrMedianSplitSixtyEight": {
+   "value": 0.6674037738659894,
+   "text": "0.67",
+   "source": "mechanisms/07_core_cut: mechanisms/core_cut_baseline.csv | partition == ycut, scale == 68; median v2_split_corr",
+   "locus": [
+    "sec:core"
+   ]
+  },
+  "SCoreVTwoCorrLabelsSixtyEight": {
+   "value": 0.7397345441968066,
+   "text": "0.74",
+   "source": "mechanisms/07_core_cut: mechanisms/core_cut_baseline.csv | partition == labels, scale == 68; median v2_split_corr",
+   "locus": [
+    "sec:core"
+   ]
+  },
+  "SCoreVTwoCorrMedianSplitOneFourteen": {
+   "value": 0.3243625083870443,
+   "text": "0.32",
+   "source": "mechanisms/07_core_cut: mechanisms/core_cut_baseline.csv | partition == ycut, scale == 114; median v2_split_corr",
+   "locus": [
+    "sec:core"
+   ]
+  },
+  "SCoreVTwoCorrLabelsOneFourteen": {
+   "value": 0.30427540652917545,
+   "text": "0.30",
+   "source": "mechanisms/07_core_cut: mechanisms/core_cut_baseline.csv | partition == labels, scale == 114; median v2_split_corr",
+   "locus": [
+    "sec:core"
+   ]
+  },
+  "SCoreFirstOrderWithinPP": {
+   "value": 4.308569367025115,
+   "text": "5",
+   "source": "mechanisms/07_core_cut: mechanisms/core_cut_first_order.csv | partition in labels, v2sign; alpha <= 0.5; all conditions and scales; max |median_pred_dgap_pct - median_dgap_pct| = 4.31, rounded up",
+   "locus": [
+    "sec:core",
+    "subsec:nulls_results"
+   ]
+  },
+  "SCoreFirstOrderRhoMin": {
+   "value": 0.8363397777972181,
+   "text": "0.84",
+   "source": "mechanisms/07_core_cut: mechanisms/core_cut_first_order.csv | alpha == 0.5, condition in cross, within_matched, other_matched (all partitions); min rho",
+   "locus": [
+    "sec:core",
+    "subsec:nulls_results"
+   ]
+  },
+  "SCoreFirstOrderRhoMax": {
+   "value": 0.9901986523146932,
+   "text": "0.99",
+   "source": "mechanisms/07_core_cut: mechanisms/core_cut_first_order.csv | alpha == 0.5, condition in cross, within_matched, other_matched (all partitions); max rho",
+   "locus": [
+    "sec:core",
+    "subsec:nulls_results"
+   ]
+  },
+  "SCoreFirstOrderPicksWinnerSixtyEight": {
+   "value": 67.0,
+   "text": "67",
+   "source": "mechanisms/07_core_cut: mechanisms/core_cut.csv.gz | partition == labels, alpha == 0.5; per subject mean over draws of dgap and pred_dgap for cross and within_matched; subjects in which the predicted and observed signs of (cross - within_matched) agree",
+   "locus": [
+    "sec:core"
+   ]
+  },
+  "SCoreFirstOrderPicksWinnerOneFourteen": {
+   "value": 62.0,
+   "text": "62",
+   "source": "mechanisms/07_core_cut: mechanisms/core_cut.csv.gz | partition == labels, alpha == 0.5; per subject mean over draws of dgap and pred_dgap for cross and within_matched; subjects in which the predicted and observed signs of (cross - within_matched) agree",
+   "locus": [
+    "sec:core"
+   ]
+  },
+  "SCoreFirstOrderPicksWinnerTwoNineteen": {
+   "value": 64.0,
+   "text": "64",
+   "source": "mechanisms/07_core_cut: mechanisms/core_cut.csv.gz | partition == labels, alpha == 0.5; per subject mean over draws of dgap and pred_dgap for cross and within_matched; subjects in which the predicted and observed signs of (cross - within_matched) agree",
+   "locus": [
+    "sec:core"
+   ]
+  },
+  "SCoreFirstOrderOverestimate": {
+   "value": 25.514423446184978,
+   "text": "26",
+   "source": "mechanisms/07_core_cut: mechanisms/core_cut_first_order.csv | scale == 219, partition == labels, condition == cross, alpha == 1; median_dgap_pct - median_pred_dgap_pct = 25.51 percentage points, rounded up",
+   "locus": [
+    "sec:core"
+   ]
+  },
+  "SCoreVTwoRotatedSixtyEight": {
+   "value": 10.0,
+   "text": "10",
+   "source": "mechanisms/07_core_cut: mechanisms/core_cut_first_order.csv | partition == labels, condition == cross, alpha == 1; v2_swap (share of subjects with |cos(v2, v2 perturbed)| < 0.5), %",
+   "locus": [
+    "sec:core"
+   ]
+  },
+  "SCoreVTwoRotatedOneFourteen": {
+   "value": 15.714285714285712,
+   "text": "16",
+   "source": "mechanisms/07_core_cut: mechanisms/core_cut_first_order.csv | partition == labels, condition == cross, alpha == 1; v2_swap (share of subjects with |cos(v2, v2 perturbed)| < 0.5), %",
+   "locus": [
+    "sec:core"
+   ]
+  },
+  "SCoreVTwoRotatedTwoNineteen": {
+   "value": 14.28571428571428,
+   "text": "14",
+   "source": "mechanisms/07_core_cut: mechanisms/core_cut_first_order.csv | partition == labels, condition == cross, alpha == 1; v2_swap (share of subjects with |cos(v2, v2 perturbed)| < 0.5), %",
+   "locus": [
+    "sec:core"
+   ]
+  },
+  "SCoreFrontBackOppositeVTwoSixtyEight": {
+   "value": 56.07107243610299,
+   "text": "56",
+   "source": "processed/connectomes_scale-<N>.npz + mechanisms/core_cut_regions.csv (labels): per subject, share of front-back edge weight joining core regions on opposite sides of v2 (v2 signed as in 07_core_cut.oriented_v2); median, %",
+   "locus": [
+    "sec:core"
+   ]
+  },
+  "SCoreFrontBackOppositeVTwoOneFourteen": {
+   "value": 18.19311045494318,
+   "text": "18",
+   "source": "processed/connectomes_scale-<N>.npz + mechanisms/core_cut_regions.csv (labels): per subject, share of front-back edge weight joining core regions on opposite sides of v2 (v2 signed as in 07_core_cut.oriented_v2); median, %",
+   "locus": [
+    "sec:core"
+   ]
+  },
+  "SCoreFrontBackOppositeVTwoTwoNineteen": {
+   "value": 22.940799310857116,
+   "text": "23",
+   "source": "processed/connectomes_scale-<N>.npz + mechanisms/core_cut_regions.csv (labels): per subject, share of front-back edge weight joining core regions on opposite sides of v2 (v2 signed as in 07_core_cut.oriented_v2); median, %",
+   "locus": [
+    "sec:core"
+   ]
+  },
+  "SCoreHalfRatioOneFourteen": {
+   "value": 0.5356810485913179,
+   "text": "half",
+   "source": "mechanisms/07_core_cut: mechanisms/core_cut_first_order.csv | scale == 114, labels, cross, alpha == 0.5; median_dl2 / median_dl1 observed 0.51, predicted 0.56; the word 'half'",
+   "locus": [
+    "sec:core"
+   ]
+  }
+ }
+}
