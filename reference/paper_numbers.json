@@ -1,10 +1,16 @@
 {
  "meta": {
-  "created": "2026-11-22",
+  "created": "2026-11-24",
   "run": "release",
-  "commit": "761bd0ea33a374e6d69a1a4bbc405acdec4b6616",
-  "reason": "First release reference: full run of the release code (runs/release, nulls reused from nulls-2026-10); tables, numbers and figure PNGs identical to runs/paper; all printed numbers match paper/paper",
-  "replaces": null
+  "commit": "4eff32505b5d766c80186d59871adc7cb20e51b7",
+  "reason": "Commit field only: numbers and tables unchanged; reproduced at 4eff325 by rebuilding the paper tables and numbers from the analysis outputs (byte-identical to runs/release)",
+  "replaces": {
+   "created": "2026-11-22",
+   "run": "release",
+   "commit": "761bd0ea33a374e6d69a1a4bbc405acdec4b6616",
+   "reason": "First release reference: full run of the release code (runs/release, nulls reused from nulls-2026-10); tables, numbers and figure PNGs identical to runs/paper; all printed numbers match paper/paper",
+   "replaces": null
+  }
  },
  "numbers": {
   "MFracBelowEpsMin": {
