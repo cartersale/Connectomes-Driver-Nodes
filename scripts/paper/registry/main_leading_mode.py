@@ -141,10 +141,10 @@ def collect(run: Path) -> list[Number]:
                P1.format(f="degree_strength", k="5", col="mean (mean over subjects of q1 - random mean)") + " x 100 = points",
                HC, {**ctx, "stat": "mean over subjects"})
 
-    # "Its driver sets had q1 values 18--21 percentage points lower than degree-strength sets"
-    ctx = {"k": "avg (1,2,3,5)", "c": 0.1, "criterion": "cycle_participation", "comparison": "cycle - degree"}
-    out += rng("MCycleBelowDegreePts", {s: -v for s, v in p2v("cycle - degree", "q1", "mean").items()}, pc,
-               P2.format(cmp="cycle - degree", k="avg", m="q1", col="mean") + " sign flipped, x 100 = points",
+    # "With two to five drivers, its driver sets had q1 values 30 percentage points lower than degree-strength sets"
+    ctx = {"k": "avg2+ (2,3,5)", "c": 0.1, "criterion": "cycle_participation", "comparison": "cycle - degree"}
+    out += rng("MCycleBelowDegreePts", {s: -v for s, v in p2v("cycle - degree", "q1", "mean", k="avg2+").items()}, pc,
+               P2.format(cmp="cycle - degree", k="avg2+", m="q1", col="mean") + " sign flipped, x 100 = points",
                HC, {**ctx, "stat": "mean over subjects"})
     # "removing the association between cycle participation and strength produced q1 values within 0.014 of random sets"
     d = p2v("cycle_resid - random", "q1", "mean")
@@ -187,21 +187,16 @@ def collect(run: Path) -> list[Number]:
                "mean over 70 subjects (medians give the same rounded range)",
                LM, {"stat": "mean over subjects", "scales": "all"})
 
-    # text: "Among the regions with the highest average controllability, this term accounted for 62--68% of average
-    #        controllability at c = 0.1, so the two criteria selected nearly the same top-ranked regions (93--95% of the top five)"
+    # text: "the contribution of v1 accounted for 68% of average controllability among the highest-ranked regions at c = 0.1"
     def ac_top(g: pd.DataFrame, k: int = 5) -> pd.Series:
         top = g.nlargest(k, "avg_ctrl")
-        return pd.Series({"share": float((top.avg_ctrl_v1 / top.avg_ctrl).mean()),
-                          "overlap": len(set(top.node_index) & set(g.nlargest(k, "v1").node_index)) / k})
+        return pd.Series({"share": float((top.avg_ctrl_v1 / top.avg_ctrl).mean())})
 
     act = nd.groupby(["scale", "subject_id"])[["node_index", "v1", "avg_ctrl", "avg_ctrl_v1"]].apply(ac_top)
     AC = ND + " | per subject, the 5 regions with largest avg_ctrl (c = 0.1)"
     out += rng("MAvgCtrlVOneShare", act.share.groupby("scale").median().to_dict(), pc,
                AC + "; mean of avg_ctrl_v1 / avg_ctrl over them; median over subjects; x 100",
                LM, {"stat": "median over subjects", "k": 5, "c": 0.1, "scales": "all"})
-    out += rng("MAvgCtrlEigOverlap", act.overlap.groupby("scale").mean().to_dict(), pc,
-               AC + "; fraction also among the 5 largest v1 (eigenvector-centrality top 5); mean over subjects; x 100",
-               LM, {"stat": "mean over subjects", "k": 5, "c": 0.1, "scales": "all"})
 
     # text: "The 20% of regions with the highest loadings accounted for 93--98% of the squared weight of v1."
     rg = _read(str(run / "mechanisms" / "eigvec_regions.csv"))
@@ -246,21 +241,22 @@ def collect(run: Path) -> list[Number]:
     out += rng("MCosHubSingle", {(f, s): C1.loc[f, s] for f in HUB3 for s in SCALES}, fx,
                GA + " | k == 1, column cos_top_v1, mean over subjects; 3 hub criteria x 3 scales", LM,
                {"k": 1, "c": 0.1, "criterion": "hub3", "stat": "mean over subjects"})
-    # text (end of subsec:leading_mode, 114 regions): "individual hubs had 7.3--7.4 times the controllability of
-    #   random regions on patterns other than their most reachable one ... With two to five drivers, hub-oriented
-    #   sets had 5.0--7.4 times the controllability of random sets on their most reachable pattern, but 84--96% of
-    #   their controllability outside v1"
     ar = abs_reach(ga).loc[list(HUB3)]
     AR = (GA + " | columns lam1, trace, tr_perp; per subject, set / mean of its 100 random sets; median over subjects "
-          "(abs_reach); 3 hub criteria, scale 114, ")
-    a1 = ar.xs((114, 1), level=("scale", "k"))
-    out += rng("MAbsSingleNonlead", a1.nonlead.to_dict(), lambda x: fx(x, 1), AR + "k == 1; nonlead = trace - lam1", LM,
-               {"scale": 114, "k": 1, "c": 0.1, "stat": "median ratio over subjects"})
-    a2 = ar[(ar.index.get_level_values("scale") == 114) & (ar.index.get_level_values("k") >= 2)]
-    out += rng("MAbsSetLead", a2.lam1.to_dict(), lambda x: fx(x, 1), AR + "k in {2,3,5}; lam1", LM,
-               {"scale": 114, "k": "2,3,5", "c": 0.1, "stat": "median ratio over subjects"})
-    out += rng("MAbsSetPerp", a2.tr_perp.to_dict(), pc, AR + "k in {2,3,5}; tr_perp = trace - L_S/2c; x 100", LM,
-               {"scale": 114, "k": "2,3,5", "c": 0.1, "stat": "median ratio over subjects"})
+          "(abs_reach); 3 hub criteria, ")
+    # "With two to five drivers, hub-oriented sets had 5.0--7.4 times the controllability of random sets on that
+    #   pattern. Outside the leading structural mode v1, their controllability was 84--96% of that of random sets"
+    #   (114 regions; all scales in C_scales)
+    a2 = ar[ar.index.get_level_values("k") >= 2]
+    ctx = {"k": "2,3,5", "c": 0.1, "criterion": "hub3", "stat": "median ratio over subjects"}
+    out += rng("MAbsSetLead", a2.lam1.to_dict(), lambda x: fx(x, 1), AR + "3 scales, k in {2,3,5}; lam1", HC, ctx)
+    out += rng("MAbsSetPerp", a2.tr_perp.to_dict(), pc, AR + "3 scales, k in {2,3,5}; tr_perp = trace - L_S/2c; x 100",
+               HC, ctx)
+    # "and within 20% of random sets at all three spatial resolutions"
+    dev = (a2.tr_perp - 1).abs()
+    out.append(Number("MAbsSetPerpWithinAllScales", float(dev.max()), ceil_d(100 * dev.max(), 0),
+                      AR + f"3 scales, k in {{2,3,5}}; max |tr_perp ratio - 1| x 100 (at {dev.idxmax()}; ratios "
+                      f"{a2.tr_perp.min():.4f}--{a2.tr_perp.max():.4f}); rounded UP (bound)", HC, ctx))
     return out
 
 
@@ -269,15 +265,15 @@ PRINTED = {
     "MSingleHubBelowRandomAllN": "every",
     "MCycleResidQOneWithin": "0.014",
     "MFigThreeOmittedRegions": "one",
-    "MAbsSingleNonleadMin": "7.3", "MAbsSingleNonleadMax": "7.4",
-    "MAbsSetLeadMin": "5.0", "MAbsSetLeadMax": "7.4",
-    "MAbsSetPerpMin": "84", "MAbsSetPerpMax": "96",
+    "MAbsSetPerpWithinAllScales": "20",
     # 114-region values quoted in the Results (ranges over scales: Supplementary Table C_scales)
+    "MAbsSetLeadOneFourteenMin": "5.0", "MAbsSetLeadOneFourteenMax": "7.4",
+    "MAbsSetPerpOneFourteenMin": "84", "MAbsSetPerpOneFourteenMax": "96",
     "MQOneSingleDegreePctOneFourteen": "87",
     "MQOneSingleRandomPctOneFourteen": "95",
     "MExcessTwoDegreePtsOneFourteen": "27",
     "MExcessFiveDegreePtsOneFourteen": "43",
-    "MCycleBelowDegreePtsOneFourteen": "21",
+    "MCycleBelowDegreePtsOneFourteen": "30",
     "MVOneTopTwentyShareOneFourteen": "96",
     "MVOneConsistencyMedianOneFourteen": "0.92",
     "MCosStrengthVOneOneFourteen": "0.76",
@@ -285,7 +281,6 @@ PRINTED = {
     "MLoadingHubOneFourteenMin": "0.41", "MLoadingHubOneFourteenMax": "0.45",
     "MLoadingRandomOneFourteen": "0.02",
     "MAvgCtrlVOneShareOneFourteen": "68",
-    "MAvgCtrlEigOverlapOneFourteen": "95",
     "MCosHubTwoFiveOneFourteenMin": "0.98", "MCosHubTwoFiveOneFourteenMax": "0.99",
     "MCosRandomTwoFiveOneFourteen": "0.27",
     "MCosHubSingleOneFourteenMin": "0.94", "MCosHubSingleOneFourteenMax": "0.96",

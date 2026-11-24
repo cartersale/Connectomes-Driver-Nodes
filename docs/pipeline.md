@@ -4,7 +4,8 @@ Generated from `STEPS` in `scripts/reproduce.py` (`uv run python scripts/reprodu
 each step in a run). Steps run in this order; each needs the steps listed under *requires*. Outputs are
 relative to the run directory `runs/<name>/`; the runner checks that they exist after the step. Steps marked
 *smoke* also run in the synthetic smoke run (`--smoke`); the others need external atlas data or the real
-connectomes' anatomy.
+connectomes' anatomy. The steps `target_states/*` are listed in
+[preprint_analyses.md](preprint_analyses.md).
 
 
 ## primary
@@ -73,19 +74,6 @@ connectomes' anatomy.
 | `mechanisms/05_second_subspace` | `scripts/analysis/mechanisms/05_second_subspace.py` | `primary/00_prepare_data`<br>`primary/01_primary_analysis`<br>`spectra/01_compute_spectra` | `mechanisms/second_subspace_subjects.csv`<br>`mechanisms/second_subspace_axes.csv` | yes |
 | `mechanisms/07_core_cut` | `scripts/analysis/mechanisms/07_core_cut.py` | `primary/00_prepare_data`<br>`primary/01_primary_analysis`<br>`spectra/01_compute_spectra` | `mechanisms/core_cut.csv.gz`<br>`mechanisms/core_cut_regions.csv` | no |
 | `mechanisms/08_gramian_alignment` | `scripts/analysis/mechanisms/08_gramian_alignment.py` | `primary/00_prepare_data`<br>`primary/01_primary_analysis` | `mechanisms/gramian_alignment.csv`<br>`mechanisms/node_v1_strength.csv` | yes |
-
-## target_states
-
-| Step | Script | Requires | Checked outputs | Smoke |
-|---|---|---|---|---|
-| `target_states/01_build_targets` | `scripts/analysis/target_states/01_build_targets.py` | `primary/00_prepare_data` | `target_states/target_catalog.csv`<br>`target_states/target_mask_parcels.csv`<br>`target_states/targets_scale-*.npz` | no |
-| `target_states/02_target_energies` | `scripts/analysis/target_states/02_target_energies.py` | `primary/00_prepare_data`<br>`primary/01_primary_analysis`<br>`target_states/01_build_targets` | `target_states/target_energies_long.csv.gz` | no |
-| `target_states/03_target_stats` | `scripts/analysis/target_states/03_target_stats.py` | `target_states/02_target_energies` | `target_states/named_target_summary.csv`<br>`target_states/single_parcel_summary.csv`<br>`target_states/driver_target_overlap.csv` | no |
-| `target_states/04_sensitivity` | `scripts/analysis/target_states/04_sensitivity.py` | `primary/00_prepare_data`<br>`primary/01_primary_analysis`<br>`target_states/01_build_targets` | `target_states/sensitivity_summary.csv` | no |
-| `target_states/05_spin_tests` | `scripts/analysis/target_states/05_spin_tests.py` | `primary/00_prepare_data`<br>`primary/01_primary_analysis` | `target_states/spin_tests.csv` | no |
-| `target_states/06_network_enrichment` | `scripts/analysis/target_states/06_network_enrichment.py` | `primary/00_prepare_data`<br>`target_states/01_build_targets`<br>`target_states/05_spin_tests` | `target_states/rank_divergence_network_enrichment.csv`<br>`target_states/top15_network_composition.csv` | no |
-| `target_states/07_proximity_controls` | `scripts/analysis/target_states/07_proximity_controls.py` | `target_states/02_target_energies` | `target_states/proximity_controls.csv` | no |
-| `target_states/09_report_tables` | `scripts/analysis/target_states/09_report_tables.py` | `target_states/01_build_targets`<br>`target_states/03_target_stats`<br>`target_states/04_sensitivity`<br>`target_states/05_spin_tests`<br>`target_states/06_network_enrichment`<br>`target_states/07_proximity_controls` | `target_states/*.md` | no |
 
 ## lesions
 

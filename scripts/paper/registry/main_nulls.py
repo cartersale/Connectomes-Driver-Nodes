@@ -89,7 +89,7 @@ def _gap(run: Path) -> list[Number]:
     ratio = (gap.real_mean / gap.null_mean).to_numpy()
     out.append(N("MGapRatioWord", ratio.mean(), "twice",
                  s + f"real_mean / null_mean, mean over 3 nulls x 3 scales (range {ratio.min():.2f}-{ratio.max():.2f}); "
-                 "text is the word 'twice' ('approximately twice')", stat="ratio"))
+                 "text is the word 'twice' ('approximately twice')", LOC + ("abstract",), stat="ratio"))
     return out
 
 

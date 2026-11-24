@@ -16,8 +16,7 @@ pipeline step that writes each one is listed in [pipeline.md](pipeline.md).
 
 Shared style, colours, criterion order and brain-surface drawing: `src/hoc/figstyle.py`.
 
-Steps outside the repository: Fig. 3 is assembled with the separately
-drawn panel B (`fig3b`); the panel letters and some labels of Fig. 5 are added in a vector editor.
+Some figures have been rearranged or assembled in a vector editor.
 
 ## Supplementary figures
 
@@ -45,27 +44,30 @@ additional analyses, and gives its caption. Shared formatting is in `scripts/pap
 | `scripts/paper/sections/s6.py` | S6_1 → `S3_crit_q1.csv`<br>S6_2 → `S3_crit_er.csv`<br>S6_3 → `S3_crit_pr.csv`<br>S6_4 → `S3_matched_q1.csv`<br>S6_5 → `S3_matched_er.csv`<br>S6_6 → `S3_matched_pr.csv` | `concentration/q1_matched.csv`<br>`concentration/q1_vs_random.csv` |
 | `scripts/paper/sections/s7.py` | S7_1 → `additional_nodelevel_corr.csv`<br>S7_2 → `additional_withinsubj.csv`<br>S7_3 → `additional_drivergram.csv`<br>S7_4 → `additional_commgeo.csv`<br>S7_5 → `additional_modal.csv`<br>S7_7 → `additional_coverage.csv`<br>S7_8 → `additional_coverage_rho.csv`<br>S7_9 → `S5_hubloading.csv` | `concentration/redundancy_summary.csv`<br>`mechanisms/coverage_by_criterion.csv`<br>`mechanisms/coverage_rho.csv`<br>`mechanisms/hub_loading_summary.csv`<br>`modal_controllability/cycle_vs_counterfactual.csv`<br>`modal_controllability/driver_gram_proxy.csv`<br>`modal_controllability/node_level_correlations.csv`<br>`modal_controllability/set_overlap.csv`<br>`modal_controllability/within_subject_summary.csv` |
 | `scripts/paper/sections/s8.py` | S8_1 → `S5_fidelity.csv`<br>S8_2 → `S5_nullspectra.csv`<br>S8_3 → `S5_nullq1.csv`<br>S8_5 → `S5_nullperp.csv`<br>S8_6 → `S5_rayleigh.csv`<br>S8_7 → `S5_assort.csv`<br>S8_8 → `additional_mediation.csv`<br>S8_9 → `additional_mediators.csv`<br>S8_10 → `additional_null114.csv` | `null_models/gap_split.csv`<br>`null_models/inference.csv`<br>`null_models/mediation_noncircular.csv`<br>`null_models/mediator_contrasts.csv`<br>`null_models/network_inference.csv`<br>`null_models/null_fidelity.csv`<br>`null_models/rayleigh/networks.csv.gz`<br>`null_models/rayleigh/per_subject.csv` |
-| `scripts/paper/sections/s9.py` | S9_1 → `S3_rep_agree.csv`<br>S9_2 → `S3_rep_er.csv`<br>S9_3 → `additional_rep_pr.csv`<br>S9_4 → `additional_rep_null.csv`<br>S9_5 → `S3_rep_dist.csv`<br>S9_6 → `additional_perturb_rho.csv`<br>S9_7 → `additional_perturb_jac.csv`<br>S9_8 → `additional_perturb_er.csv` | `topology/representatives/per_subject_scale-114.csv`<br>`topology/representatives/per_subject_scale-219.csv`<br>`topology/representatives/per_subject_scale-68.csv`<br>`topology/tables/perturb_between_subject_reference.csv`<br>`topology/tables/perturb_er_persistence.csv`<br>`topology/tables/perturb_rank_stability.csv`<br>`topology/tables/rep_agreement.csv`<br>`topology/tables/rep_distance_regressions.csv`<br>`topology/tables/rep_null_comparisons.csv`<br>`topology/tables/rep_result_level.csv` |
-| `scripts/paper/sections/s10.py` | S10_1 → `additional_targets_full.csv`<br>S10_2 → `additional_targets_excl.csv`<br>S10_3 → `additional_overlap.csv`<br>S10_4 → `additional_proximity.csv`<br>S10_5 → `additional_singleparcel.csv`<br>S10_6 → `additional_eps_targets.csv`<br>S10_8 → `additional_floor_targets.csv`<br>S10_9 → `S3_spin.csv`<br>S10_10 → `additional_rankdiv.csv`<br>S10_11 → `additional_parcels.csv` | `target_states/driver_target_overlap.csv`<br>`target_states/named_target_summary.csv`<br>`target_states/proximity_controls.csv`<br>`target_states/rank_divergence_network_enrichment.csv`<br>`target_states/sensitivity_long.csv.gz`<br>`target_states/sensitivity_summary.csv`<br>`target_states/single_parcel_summary.csv`<br>`target_states/spin_tests.csv`<br>`target_states/target_mask_parcels.csv` |
+| `scripts/paper/sections/s9.py` | S9_1 → `S3_rep_agree.csv`<br>S9_2 → `S3_rep_er.csv`<br>S9_3 → `additional_rep_pr.csv`<br>S9_4 → `additional_rep_null.csv`<br>S9_5 → `S3_rep_dist.csv`<br>S9_6 → `S3_perturb_rho.csv`<br>S9_7 → `S3_perturb_jac.csv`<br>S9_8 → `S3_perturb_er.csv` | `topology/representatives/per_subject_scale-114.csv`<br>`topology/representatives/per_subject_scale-219.csv`<br>`topology/representatives/per_subject_scale-68.csv`<br>`topology/tables/perturb_between_subject_reference.csv`<br>`topology/tables/perturb_er_persistence.csv`<br>`topology/tables/perturb_rank_stability.csv`<br>`topology/tables/rep_agreement.csv`<br>`topology/tables/rep_distance_regressions.csv`<br>`topology/tables/rep_null_comparisons.csv`<br>`topology/tables/rep_result_level.csv` |
 | `scripts/paper/sections/s11.py` | S11_1 → `additional_lesion_main.csv`<br>S11_2 → `additional_lesion_cross.csv`<br>S11_4 → `additional_lesion_protocol.csv`<br>S11_5 → `additional_lesion_abs.csv`<br>S11_6 → `additional_lesion_energy.csv` | `lesions/crossover_stats.csv`<br>`lesions/energy_size_diagnostics.csv`<br>`lesions/lesion_rows.csv.gz`<br>`lesions/per_subject_degradation.csv`<br>`lesions/summary_3x2.csv` |
+| `scripts/paper/sections/s10.py` | target-state tables, see [preprint_analyses.md](preprint_analyses.md) | `target_states/` |
 | `scripts/paper/sections/s_canonical.py` | S_canonical → `S4_canonical.csv` | `mechanisms/canonical_summary.csv` |
 | `scripts/paper/sections/s_corecut.py` | S_corecut → `S6_corecut_fo.csv` | `mechanisms/core_cut_first_order.csv` |
 
 ### Manuscript folder and `supplementary/`
 
 The Supporting Information (`supp_mat.tex`, six sections) inputs only its own tables (`\stab{C_<name>}`,
-`\stab{S_canonical}`) and cites no other document.
+`\stab{S_canonical}`, and the perturbation tables `\stab{S9_6}`--`\stab{S9_8}`) and cites no other document.
 
 1. `scripts/paper/sync.py --run <run> --manuscript <manuscript> [--apply]` copies the full tables to
-   `full_tables/`, the supplement's tables to `supp_tables/` and `numbers.tex`. With `--figures` it also copies the
-   main-text figures to `figures/`, overwriting the hand-finished versions there.
+   `full_tables/`, the supplement's tables to `supp_tables/` and `numbers.tex`. It does not copy figures: the
+   versions in `figures/` are finished by hand. It first prints the report of `scripts/paper/figure_sources.py`,
+   which lists finished figures whose run PNG has changed since `figure_sources.py --mark` recorded them.
 2. `scripts/paper/condense.py --manuscript <manuscript>` rebuilds `supp_tables/` from `full_tables/` when only
    the full tables have changed.
-3. `scripts/paper/publish_tables.py --manuscript <manuscript> [--apply]` writes `supplementary/`: one CSV per
-   full table (LaTeX markup removed) and a `README.md` index. Files `S<n>_*.csv` hold every setting of the
-   analyses summarized in Section S*n*; files `additional_*.csv` hold analyses that are not in the paper (target
-   states, reciprocal lesions, rank divergence and gradients, set-level predictors and the driver Gram matrix,
-   mediation, larger driver sets, the decay ratio, perturbed connectomes). Their methods are in
+3. `scripts/paper/publish_tables.py --run <run> --manuscript <manuscript> [--apply]` writes `supplementary/`: one
+   CSV per full table (LaTeX markup removed), `quoted_numbers.csv` (the run's number registry `paper/numbers.csv`:
+   every number the paper quotes, with its locus, printed text, exact value and source) and a `README.md` index.
+   `S1_scales.csv` is supplement Table S1 (`C_scales`). Files `S<n>_*.csv` hold every setting of the
+   analyses summarized in Section S*n*; files `additional_*.csv` hold analyses that are not in the paper
+   (reciprocal lesions, set-level predictors and the driver Gram matrix, mediation, larger driver sets, the decay
+   ratio; the target-state tables are listed in [preprint_analyses.md](preprint_analyses.md)). Their methods are in
    `supplementary/additional_analyses.md`, which is written by hand.
 
 ## Numbers in the text
@@ -75,7 +77,7 @@ and the Supporting Information with the modules in `scripts/paper/registry/`:
 
 | Part of the paper | Registry module |
 | --- | --- |
-| `subsec:energy_floor`, first part of `subsec:hub_concentration`, Fig. 1 and Fig. 2 captions | `main_energy_hubs.py` |
+| abstract (locus `abstract`), `subsec:energy_floor`, first part of `subsec:hub_concentration`, Fig. 1 and Fig. 2 captions | `main_energy_hubs.py` |
 | end of `subsec:hub_concentration`, `subsec:leading_mode`, Fig. 3 caption | `main_leading_mode.py` |
 | `subsec:core_divisions`, Fig. 4 caption | `main_core_divisions.py` |
 | `subsec:nulls_results`, Fig. 5 caption | `main_nulls.py` |

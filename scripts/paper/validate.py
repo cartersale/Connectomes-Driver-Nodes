@@ -19,7 +19,7 @@ With --manuscript DIR (a folder holding the main text, --main, and supp_mat.tex)
      the text those labels anchor (comments and ``\rev{...}`` wrappers removed): for a figure or table label, its
      caption; for any other label, the block from the heading before the label (\section, \subsection,
      \subsubsection or \paragraph) to the next heading of the same or higher level, without the figures and tables
-     placed inside it. Loci with no such label are reported as unknown. A token missing at its locus but present
+     placed inside it. The locus ``abstract`` is the abstract environment. Loci with no such label are reported as unknown. A token missing at its locus but present
      elsewhere in the main text or supplement is reported with that information;
   7. LaTeX number macros the manuscript uses that the registry does not define.
 
@@ -153,6 +153,9 @@ def strip_rev(text: str) -> str:
 
 def locus_text(doc: str, label: str) -> str | None:
     """The text a label anchors in one document (see the module docstring); None if the label is not in it."""
+    if label == "abstract":
+        m = re.search(r"\\begin\{abstract\}(.*?)\\end\{abstract\}", doc, re.S)
+        return m.group(1) if m else None
     m = re.search(r"\\label\{" + re.escape(label) + r"\}", doc)
     if m is None:  # tables of the supplement: \stab{file}{caption}{label}
         for s in re.finditer(r"\\stab\{", doc):

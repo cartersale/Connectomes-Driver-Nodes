@@ -64,6 +64,16 @@ def _robustness(c: Collector) -> None:
           "max |mean_diff| (cycle - degree, k-averaged) over 3 scales x 7 eps, rounded up", L,
           {"c": 0.1}, bound=(mx <= 2.4e-3, "<="))
 
+    # Damping: "largest near c = 0.01--0.03" (c of the largest mean, k in {2,3,5}, over both curves and 3 scales)
+    dc = c.csv("concentration/decay_curves.csv.gz").groupby(["scale", "c"])[["dr_q1", "cd_q1"]].mean().reset_index()
+    peaks = [float(g.c[g.dr_q1.idxmax()]) for _, g in dc.groupby("scale")] + \
+            [float(g.c[g.cd_q1.idxmin()]) for _, g in dc.groupby("scale")]
+    src = ("concentration/03_decay_collapse: concentration/decay_curves.csv.gz | mean over subjects per (scale, c); "
+           "c of the largest dr_q1 and of the most negative cd_q1 at each scale (values "
+           + ", ".join(f"{x:.3g}" for x in peaks) + "); ")
+    c.add("SCsweepPeakCLow", min(peaks), f"{min(peaks):.2f}", "0.01", src + "min, 2 decimals", L, {"grid": "45 c values"})
+    c.add("SCsweepPeakCHigh", max(peaks), f"{max(peaks):.2f}", "0.03", src + "max, 2 decimals", L, {"grid": "45 c values"})
+
     # Damping: "changed sign in 6, 3, and 8 subjects" (k in {2,3,5}); "changed sign at c ~ 0.88, 0.69, and 0.29"
     fl = c.csv("concentration/decay_flip_summary.csv")
     r = fl[(fl.curve == "cd_q1") & (fl.axis == "flip_c")].iloc[0]
@@ -141,6 +151,33 @@ def _criteria(c: Collector) -> None:
            "jaccard_degree_partial_r2, %")
     c.add("SRepOverlapRsqMin", 100 * r2.min(), pct(r2.min()), "25", src.format("min"), L, {"k": "2,3,5"})
     c.add("SRepOverlapRsqMax", 100 * r2.max(), pct(r2.max()), "71", src.format("max"), L, {"k": "2,3,5"})
+
+    rs = c.csv(tb + "perturb_rank_stability.csv")
+    src = (f"topology/summarize_perturbation: {tb}perturb_rank_stability.csv | ranking == {{rk}}, family in {{fam}}; "
+           "{stat} over scales x levels of {col}, 2 dp")
+    for rk, nm, fams, col, lo_, hi_ in (
+            ("ripser", "CycleNoise", ["noise"], "rho_median", "0.80", "0.95"),
+            ("ripser", "CycleDropout", ["dropout"], "rho_median", "0.56", "0.85"),
+            ("degree", "Degree", ["noise", "dropout"], "rho_median", "0.90", "1.00"),
+            ("ripser", "CycleTopFive", ["noise", "dropout"], "j5", "0.17", "0.69"),
+            ("degree", "DegreeTopFive", ["noise", "dropout"], "j5", "0.57", "0.96")):
+        v = rs[(rs.ranking == rk) & rs.family.isin(fams)][col]
+        for stat, x, tok in (("min", v.min(), lo_), ("max", v.max(), hi_)):
+            c.add(f"SPerturb{nm}{'Rho' if col == 'rho_median' else 'Jac'}{stat.title()}", x, f2(x), tok,
+                  src.format(rk=rk, fam=fams, stat=stat, col=col), L, {"draws": 50})
+    ref = c.csv(tb + "perturb_between_subject_reference.csv")
+    v = ref[ref.ranking == "ripser"].between_subject_spearman_median
+    src = (f"topology/summarize_perturbation: {tb}perturb_between_subject_reference.csv | ranking == ripser; "
+           "{} over scales of between_subject_spearman_median, 2 dp")
+    c.add("SPerturbBetweenRhoMin", v.min(), f2(v.min()), "0.27", src.format("min"), L)
+    c.add("SPerturbBetweenRhoMax", v.max(), f2(v.max()), "0.39", src.format("max"), L)
+    pe = c.csv(tb + "perturb_er_persistence.csv")
+    pe = pe[(pe.variant == "ripser") & (pe.metric == "er")]
+    src = (f"topology/summarize_perturbation: {tb}perturb_er_persistence.csv | variant == ripser, metric == er, {{sel}}; "
+           "{stat} over scales x families x levels of perturbed_mean, 2 dp")
+    v = pe[pe.k.isin([2, 3, 5])].perturbed_mean
+    c.add("SPerturbERDiffMin", v.min(), f"{v.min():+.2f}", "+0.27", src.format(sel="k in 2,3,5", stat="min"), L,
+          {"c": 0.1, "eps": 1e-5})
 
 
 # S4 sec:modes

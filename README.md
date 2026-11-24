@@ -10,7 +10,7 @@ Analysis code for:
 We model 70 human structural connectomes, at three parcellation scales (68, 114 and 219 cortical regions), as
 linear dynamical systems driven at a few regions, and compare driver sets chosen by degree strength, eigenvector
 centrality, average and modal controllability, betweenness, participation coefficient, and cycle and triangle
-participation from persistent homology. For each connectome and driver set, the code computes:
+participation from persistent homology. For each connectome and driver set, we compute:
 
 - the controllability Gramian $W$ and its average control energy, effective rank, participation ratio and the share
   of controllability on the most reachable pattern, $q_1 = \lambda_{\max}(W)/\mathrm{tr}\,W$;
@@ -22,9 +22,6 @@ participation from persistent homology. For each connectome and driver set, the 
   gap of weakening classes of connections.
 
 ## Installation
-
-Requires [uv](https://docs.astral.sh/uv/). The environment is locked (`uv.lock`) to the package versions that
-produced the paper's results; uv installs Python 3.12 if needed.
 
 ```bash
 git clone https://github.com/cartersale/Connectomes-Driver-Nodes.git && cd Connectomes-Driver-Nodes
@@ -41,8 +38,7 @@ input and where to put it. In short:
 | --- | --- |
 | Structural connectomes (Griffa et al., 2019; 70 subjects) | `data/raw/Individual_Connectomes.mat` |
 | Cammoun (2012) parcellation, fsaverage5 annotations | `data/external/atlas_cache/atl-cammoun2012/fsaverage5/` |
-| Yeo (2011) 7- and 17-network fsaverage5 annotations | `data/external/yeo2011_fsaverage5/` |
-| Margulies (2016) gradients and surface atlases | downloaded by neuromaps on first use into `$NEUROMAPS_DATA` (default `~/neuromaps-data`) |
+| Inputs of the target-state analyses (not in the paper) | see [docs/preprint_analyses.md](docs/preprint_analyses.md) |
 
 Check every input against the checksums the paper's results were computed from:
 
@@ -57,9 +53,8 @@ uv run python scripts/reproduce.py --run paper
 ```
 
 This runs every analysis, figure, table and number of the paper, in dependency order, into `runs/paper/`, and
-validates the result against the release reference in `reference/`. It can be interrupted and resumed: finished
-steps are skipped, and a step whose code (its script or any local module it imports) or configuration has changed
-since it ran is reported instead of silently reused. The full run takes several days on one machine, almost all of it in the null-network step
+validates the result against the release reference in `reference/`. It can be interrupted and resumed, finished
+steps are skipped. The full run takes several days on one machine, almost all of it in the null-network step
 (`null_models/01_run_nulls`); see [docs/reproduction.md](docs/reproduction.md) for runtimes, options
 (`--list`, `--dry-run`, `--only`, `--force`, `--reuse`) and how results are checked.
 
@@ -72,8 +67,7 @@ uv run pytest -m slow                          # the same, compared with tests/g
 
 ## Results
 
-The figures are written to `runs/paper/figures/` (PDF, SVG and PNG). Everything else the manuscript uses ends up in
-`runs/paper/paper/`:
+The figures are written to `runs/paper/figures/`. All other results end up in `runs/paper/paper/`:
 
 | Path | Contents |
 | --- | --- |
@@ -87,15 +81,14 @@ The figures are written to `runs/paper/figures/` (PDF, SVG and PNG). Everything 
 The intermediate outputs of each analysis are in `runs/paper/<group>/` (for example `runs/paper/concentration/`).
 The full tables are also published in [`supplementary/`](supplementary/) as CSV files with an index, together with
 analyses that are not part of the paper ([`supplementary/additional_analyses.md`](supplementary/additional_analyses.md)).
-[docs/paper_map.md](docs/paper_map.md) maps every figure panel and table of the manuscript to the script that
-makes it and the outputs it reads.
+[docs/paper_map.md](docs/paper_map.md) maps all of the figure panels and tables of the manuscript to their respective scripts.
 
 ## Repository layout
 
 ```text
 config/default.toml        every analysis setting (config/smoke.toml: the synthetic smoke run)
-src/hoc/                   library: preprocessing, control, topology, rankings, targets, run manifests
-  analysis/                helpers shared by the analysis steps (null models, sensitivity, target states, ...)
+src/hoc/                   library: preprocessing, control, topology, rankings, run manifests
+  analysis/                helpers shared by the analysis steps (null models, sensitivity, ...)
   figstyle.py              shared figure style and brain-surface drawing
 scripts/reproduce.py       runs the whole pipeline
 scripts/analysis/          one folder per analysis, scripts numbered in run order
@@ -106,7 +99,7 @@ scripts/analysis/          one folder per analysis, scripts numbered in run orde
   concentration/           leading-mode share q1, its projection, decay with damping, spectral gap
   mechanisms/              hub loading on v1, anatomy of v1-v3, model networks, Gramian alignment, core cuts
   null_models/             strength-, geometry- and topology-preserving null networks
-  target_states/           named and single-parcel target states, spin tests, network enrichment
+  target_states/           target-state analyses, not in the paper (docs/preprint_analyses.md)
   lesions/                 reciprocal hub lesions
   topology/                stability of cycle participation across representatives and perturbations
 scripts/figures/           Figures 1-5
